@@ -1,0 +1,57 @@
+name: Build and Deploy to Server to Cloud Run
+
+on:
+  # push:
+  #   branches:
+  #   - main
+  workflow_dispatch:
+
+env:
+  PROJECT_ID: ${{ secrets.GCE_PROJECT }}
+  GCR_REGION: asia-southeast1
+  PORT: 3000
+
+jobs:
+  setup-build-publish-deploy:
+    name: Setup, Build, Publish and Deploy
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - id: 'auth'
+        uses: 'google-github-actions/auth@v1'
+        with:
+          credentials_json: '${{ secrets.GCE_SA_KEY }}'
+      
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v1
+      
+      - run: |-
+          gcloud --quiet auth configure-docker
+
+      - name: Build
+        run: |-
+          docker build --tag "gcr.io/$PROJECT_ID/seo-ai-server:$GITHUB_SHA" ./packages/server
+
+      - name: Publish
+        run: |-
+          docker push "gcr.io/$PROJECT_ID/seo-ai-server:$GITHUB_SHA"
+
+      
+      - name: Deploy
+        run: |
+          gcloud run deploy "seo-ai-server" \
+          --region "$GCR_REGION" \
+          --image "gcr.io/$PROJECT_ID/seo-ai-server:$GITHUB_SHA" \
+          --platform managed \
+          --allow-unauthenticated \
+          --project $PROJECT_ID \
+          --port $PORT \
+          --set-env-vars DATABASE_URL=${{ secrets.DATABASE_URL }} \
+          --set-env-vars OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }} \
+          --set-env-vars GOOGLE_SEARCH_API_KEY=${{ secrets.GOOGLE_SEARCH_API_KEY }} \
+          --set-env-vars GOOGLE_SEARCH_ENGINE_ID=${{ secrets.GOOGLE_SEARCH_ENGINE_ID }} \
+          --set-env-vars ZYTE_API_KEY=${{ secrets.ZYTE_API_KEY }} \
+          --set-env-vars ZYTE_API_ENDPOINT=https://api.zyte.com/v1

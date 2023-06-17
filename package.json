@@ -1,0 +1,25 @@
+{
+  "name": "seo-ai",
+  "version": "0.0.1",
+  "description": "create-web3 monorepo quickstart with next and hardhat",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "dev:frontend": "yarn workspace @seo-ai/frontend dev",
+    "build:frontend": "yarn workspace @seo-ai/frontend build",
+    "start:frontend": "yarn workspace @seo-ai/frontend start",
+    "lint:frontend": "yarn workspace @seo-ai/frontend lint",
+
+    "dev:server": "yarn workspace @seo-ai/server start:dev",
+    "build:server": "yarn workspace @seo-ai/server build",
+    "format:server": "yarn workspace @seo-ai/server format",
+    "prod:server": "yarn workspace @seo-ai/server start:prod"
+  },
+  "workspaces": {
+    "packages": [
+      "packages/*"
+    ],
+    "nohoist": [
+    ]
+  }
+}
