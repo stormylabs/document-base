@@ -2,7 +2,7 @@ version: '3'
 
 services:
   app:
-    image: seo-ai-server
+    image: document-base-server
     environment:
       DATABASE_URL:
       OPENAI_API_KEY:

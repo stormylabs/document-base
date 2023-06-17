@@ -3,10 +3,7 @@ import { Vector } from '@pinecone-database/pinecone';
 import UnexpectedError, { InvalidInputError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { Crawler, Page } from 'src/shared/utils/crawler';
-import {
-  sliceIntoChunks,
-  truncateStringByBytes,
-} from 'src/shared/utils/web-utils';
+import { sliceIntoChunks } from 'src/shared/utils/web-utils';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 import { summarizeLongDocument } from 'src/shared/utils/summarizer';
 import { Document } from 'langchain/document';
@@ -31,6 +28,7 @@ export default class CrawlWebsitesUseCase {
   public async exec(
     urls: string[],
     limit: number,
+    tag: string,
     summarize?: boolean,
   ): Promise<Response> {
     try {
@@ -57,7 +55,6 @@ export default class CrawlWebsitesUseCase {
               pageContent,
               metadata: {
                 url: row.url,
-                text: truncateStringByBytes(pageContent, 36000),
               },
             }),
           ]);
@@ -67,14 +64,14 @@ export default class CrawlWebsitesUseCase {
 
       const index = this.pinecone && this.pinecone.index;
 
-      const embedder = new OpenAIEmbeddings({
-        modelName: 'text-embedding-ada-002',
-        openAIApiKey: process.env.OPENAI_API_KEY,
-      });
       let counter = 0;
 
       //Embed the documents
       const getEmbedding = async (doc: Document) => {
+        const embedder = new OpenAIEmbeddings({
+          modelName: 'text-embedding-ada-002',
+          openAIApiKey: process.env.OPENAI_API_KEY,
+        });
         const embedding = await embedder.embedQuery(doc.pageContent);
         process.stdout.write(
           `${Math.floor((counter / documents.flat().length) * 100)}%\r`,
@@ -84,8 +81,8 @@ export default class CrawlWebsitesUseCase {
           id: uuid(),
           values: embedding,
           metadata: {
+            tag,
             chunk: doc.pageContent,
-            text: doc.metadata.text as string,
             url: doc.metadata.url as string,
           },
         } as Vector;
@@ -98,6 +95,15 @@ export default class CrawlWebsitesUseCase {
         documents.flat().map((doc) => rateLimitedGetEmbedding(doc)),
       )) as unknown as Vector[];
       const chunks = sliceIntoChunks(vectors, 10);
+
+      // delete existing vectors per tag
+      await index._delete({
+        deleteRequest: {
+          filter: {
+            tag,
+          },
+        },
+      });
 
       await Promise.all(
         chunks.map(async (chunk) => {
@@ -113,6 +119,7 @@ export default class CrawlWebsitesUseCase {
 
       return right(Result.ok<{ message: string }>({ message: 'Done' }));
     } catch (err) {
+      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

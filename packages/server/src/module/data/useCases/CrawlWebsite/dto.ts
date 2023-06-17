@@ -21,6 +21,9 @@ export default class CrawlWebsitesDTO {
   @Max(2000)
   limit: number;
 
+  @IsString()
+  tag: string;
+
   @IsBoolean()
   @IsOptional()
   @Transform(({ value }) => value === 'true')
