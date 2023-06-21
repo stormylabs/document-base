@@ -11,6 +11,7 @@ import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { uuid } from 'uuidv4';
 import Bottleneck from 'bottleneck';
 import { PineconeClientService } from 'src/module/pinecone/pinecone.service';
+import { ConfigService } from '@nestjs/config';
 
 type Response = Either<
   InvalidInputError | UnexpectedError,
@@ -24,7 +25,10 @@ const limiter = new Bottleneck({
 @Injectable()
 export default class CrawlWebsitesUseCase {
   private readonly logger = new Logger(CrawlWebsitesUseCase.name);
-  constructor(private readonly pinecone: PineconeClientService) {}
+  constructor(
+    private readonly pinecone: PineconeClientService,
+    private readonly config: ConfigService,
+  ) {}
   public async exec(
     urls: string[],
     limit: number,
@@ -70,7 +74,7 @@ export default class CrawlWebsitesUseCase {
       const getEmbedding = async (doc: Document) => {
         const embedder = new OpenAIEmbeddings({
           modelName: 'text-embedding-ada-002',
-          openAIApiKey: process.env.OPENAI_API_KEY,
+          openAIApiKey: this.config.get('OPENAI_API_KEY'),
         });
         const embedding = await embedder.embedQuery(doc.pageContent);
         process.stdout.write(
