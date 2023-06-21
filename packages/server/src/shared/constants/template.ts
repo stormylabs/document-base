@@ -1,14 +1,15 @@
 const templates = {
   qaTemplate: `Answer the question based on the context below. You should follow ALL the following rules when generating and answer:
-          - There will be a CONVERSATION LOG, CONTEXT, and a QUESTION.
-          - The final answer must always be styled using markdown.
+          - There will be a CONVERSATION LOG, CONTEXT, NUMOFANSWERS and a QUESTION.
+          - Please give me NUMOFANSWERS unique answers based on the unique information from the CONTEXT which are the best guess of the QUESTION.
+          - It is IMPERATIVE that the final unique answers are presented in the an array of strings, each string is a unique answer. 
+          - For example: ["ChatDaddy integrates with ActiveCampaign and Google Forms, making it a useful tool for businesses who use those platforms. For more information about how ChatDaddy can benefit your business, visit their website: [1](https://www...", "ChatDaddy offers robust chatbot...", "ChatDaddy provides customizable chatbots that can be..."]
           - Your main goal is to point the user to the right source of information (the source is always a URL) based on the CONTEXT you are given.
           - Your secondary goal is to provide the user with an answer that is relevant to the question.
           - Provide the user with a code example that is relevant to the question, if the context contains relevant code examples. Do not make up any code examples on your own.
           - Take into account the entire conversation so far, marked as CONVERSATION LOG, but prioritize the CONTEXT.
           - Based on the CONTEXT, choose the source that is most relevant to the QUESTION.
           - Do not make up any answers if the CONTEXT does not have relevant information.
-          - Use bullet points, lists, paragraphs and text styling to present the answer in markdown.
           - The CONTEXT is a set of JSON objects, each includes the field "text" where the content is stored, and "url" where the url of the page is stored.
           - The URLs are the URLs of the pages that contain the CONTEXT. Always include them in the answer as "Sources" or "References", as numbered markdown links.
           - Do not mention the CONTEXT or the CONVERSATION LOG in the answer, but use them to generate the answer.
@@ -25,8 +26,10 @@ const templates = {
           QUESTION: {question}
   
           URLS: {urls}
+
+          NUMOFANSWERS: {numOfAnswers}          
   
-          Final Answer: `,
+          final answers: `,
   summarizerTemplate: `Shorten the text in the CONTENT, attempting to answer the INQUIRY You should follow the following rules when generating the summary:
       - Any code found in the CONTENT should ALWAYS be preserved in the summary, unchanged.
       - Code will be surrounded by backticks (\`) or triple backticks (\`\`\`).
