@@ -1,13 +1,19 @@
-import { Controller, Get, Logger, Query } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Query } from '@nestjs/common';
 import { errorHandler } from 'src/shared/http';
+import ChatAssistUseCase from './useCases/ChatAssist';
+import ChatAssistDTO from './useCases/ChatAssist/dto';
 import CrawlWebsitesUseCase from './useCases/CrawlWebsite';
 import CrawlWebsitesDTO from './useCases/CrawlWebsite/dto';
 
 @Controller('/data')
 export class DataController {
   private readonly logger = new Logger(DataController.name);
-  constructor(private crawlWebsiteUseCase: CrawlWebsitesUseCase) {
+  constructor(
+    private crawlWebsiteUseCase: CrawlWebsitesUseCase,
+    private chatAssistUseCase: ChatAssistUseCase,
+  ) {
     this.crawlWebsiteUseCase = crawlWebsiteUseCase;
+    this.chatAssistUseCase = chatAssistUseCase;
   }
 
   @Get('/crawl')
@@ -28,6 +34,26 @@ export class DataController {
       );
       return errorHandler(error);
     }
-    return;
+  }
+
+  @Post('/chat-assist')
+  async chatAssist(@Body() body: ChatAssistDTO) {
+    const { query, conversationHistory, numOfAnswers, tag } = body;
+    this.logger.log(`[POST] Start chat assist`);
+    const result = await this.chatAssistUseCase.exec(
+      query,
+      conversationHistory,
+      numOfAnswers,
+      tag,
+    );
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] chat assist error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
   }
 }
