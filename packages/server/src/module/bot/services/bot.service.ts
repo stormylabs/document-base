@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { BotData } from 'src/shared/interfaces/bot';
-import { BotRepository } from '../repos/bot.repo';
+import { BotRepository } from '../repository/bot.repository';
 import { Bot } from '../schemas/bot.schema';
 
 @Injectable()
 export class BotService {
-  constructor(private readonly botRepository: BotRepository) {}
+  constructor(private botRepository: BotRepository) {}
 
   async createBot(name: string): Promise<BotData> {
     const botData: Partial<Bot> = {

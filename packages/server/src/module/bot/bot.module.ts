@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BotRepository } from './repos/Bot.repo';
-import CreateBotUseCase from './useCases/CreateBot';
-import { BotService } from './services/Bot.service';
 import { BotController } from './bot.controller';
+import { BotRepository } from './repository/bot.repository';
 import { Bot, BotSchema } from './schemas/Bot.schema';
+import { BotService } from './services/bot.service';
+import CreateBotUseCase from './useCases/CreateBot';
 
 @Module({
   imports: [
@@ -15,8 +15,8 @@ import { Bot, BotSchema } from './schemas/Bot.schema';
       },
     ]),
   ],
-  controllers: [],
-  providers: [BotRepository],
-  exports: [],
+  controllers: [BotController],
+  providers: [BotRepository, BotService, CreateBotUseCase],
+  exports: [BotService],
 })
 export class BotModule {}
