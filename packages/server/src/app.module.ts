@@ -15,6 +15,7 @@ import { BotModule } from './module/bot/bot.module';
         PINECONE_ENV: Joi.string().required(),
         PINECONE_INDEX: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
+        NODE_ENV: Joi.string().required(),
       }),
     }),
     MongoDBModule,

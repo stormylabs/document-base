@@ -1,4 +1,5 @@
-import { Body, Controller, Logger, Post } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post } from '@nestjs/common';
+import { ApiOperation } from '@nestjs/swagger';
 import { errorHandler } from 'src/shared/http';
 import CreateBotUseCase from './useCases/CreateBot';
 import CreateBotDTO from './useCases/CreateBot/dto';
@@ -10,7 +11,10 @@ export class BotController {
     this.createBotUseCase = createBotUseCase;
   }
 
-  @Post()
+  @Post('bot')
+  @ApiOperation({
+    summary: 'create bot use case',
+  })
   async indexQueries(@Body() body: CreateBotDTO) {
     const { name } = body;
     this.logger.log(`[POST] Start creating bot`);
