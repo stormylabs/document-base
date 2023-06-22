@@ -60,7 +60,6 @@ class Crawler {
         }) &&
         this.count < this.limit
       ) {
-        console.log({ targetUrl, count: this.count, limit: this.limit });
         this.spider.queue(targetUrl, this.handleRequest);
         this.count = this.count + 1;
       }
