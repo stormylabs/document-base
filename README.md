@@ -1,6 +1,6 @@
-# create-web3 boilerplate
+# DocumentBase
 
-A boilerplate for starting a web3 project.
+The AI Chat bot tools project.
 
 This boilerplate quickly creates a mono repo with 2 environments, a react frontend environment and a Ethereum development environment for writing, testing and deploying contracts.
 
