@@ -4,10 +4,10 @@ import { DataModule } from './module/data/data.module';
 import { ConfigModule } from '@nestjs/config';
 import { PineconeModule } from './module/pinecone/pinecone.module';
 import { MongoDBModule } from './module/mongodb/mongodb.module';
+import { BotModule } from './module/bot/bot.module';
 
 @Module({
   imports: [
-    PineconeModule,
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         OPENAI_API_KEY: Joi.string().required(),
@@ -17,8 +17,10 @@ import { MongoDBModule } from './module/mongodb/mongodb.module';
         DATABASE_URL: Joi.string().required(),
       }),
     }),
-    DataModule,
     MongoDBModule,
+    PineconeModule,
+    DataModule,
+    BotModule,
   ],
   providers: [Logger],
 })

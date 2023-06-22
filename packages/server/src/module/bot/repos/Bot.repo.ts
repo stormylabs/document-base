@@ -1,11 +1,14 @@
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
+import { InjectConnection, InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Bot } from '../schemas/Bot.schema';
+import * as mongoose from 'mongoose';
 
 @Injectable()
 export class BotRepository {
-  constructor(@InjectModel(Bot.name) private readonly botModel: Model<Bot>) {}
+  constructor(
+    @InjectModel(Bot.name) private readonly botModel: Model<Bot>, // @InjectConnection() private readonly connection: mongoose.Connection,
+  ) {}
 
   async create(botData: Partial<Bot>): Promise<Bot> {
     const bot = new this.botModel(botData);
