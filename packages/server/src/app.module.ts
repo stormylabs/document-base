@@ -4,6 +4,7 @@ import { DataModule } from './module/data/data.module';
 import { ConfigModule } from '@nestjs/config';
 import { PineconeModule } from './module/pinecone/pinecone.module';
 import { MongoDBModule } from './module/mongodb/mongodb.module';
+import { BotModule } from './module/bot/bot.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { MongoDBModule } from './module/mongodb/mongodb.module';
       }),
     }),
     DataModule,
+    BotModule,
     MongoDBModule,
   ],
   providers: [Logger],

@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
-import { DocumentDocument } from './Document.schema';
+import { DocumentDocument } from './document.schema';
 
 export type BotDocument = HydratedDocument<Bot>;
 
