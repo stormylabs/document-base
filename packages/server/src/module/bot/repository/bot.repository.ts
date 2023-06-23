@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { BotData } from 'src/shared/interfaces/bot';
 import { Bot } from '../schemas/Bot.schema';
 
@@ -10,7 +11,6 @@ export class BotRepository {
 
   async create(botData: Partial<Bot>): Promise<BotData> {
     const bot = new this.botModel(botData);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { __v, ...rest } = (await bot.save()).toJSON();
     return rest as BotData;
   }
@@ -23,10 +23,18 @@ export class BotRepository {
     return await this.botModel.find().exec();
   }
 
-  async update(botId: string, updateData: Partial<Bot>): Promise<Bot | null> {
-    return await this.botModel
-      .findByIdAndUpdate(botId, updateData, { new: true })
+  async update(
+    botId: string,
+    updateData: Partial<Bot>,
+  ): Promise<BotData | null> {
+    const id = new Types.ObjectId(botId);
+    const bot = await this.botModel
+      .findByIdAndUpdate(id, updateData, { new: true })
       .exec();
+
+    if (!bot) return null;
+    const { __v, ...rest } = bot.toJSON();
+    return rest as BotData;
   }
 
   async delete(botId: string): Promise<Bot | null> {
