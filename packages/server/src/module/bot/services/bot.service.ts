@@ -15,8 +15,7 @@ export class BotService {
 
     const createdBot = await this.botRepository.create(botData);
 
-    // Convert the Mongoose document to a plain JSON object
-    return createdBot.toJSON() as BotData;
+    return createdBot;
   }
 
   async updateBot(botId: ObjectId, name: string): Promise<BotData> {
