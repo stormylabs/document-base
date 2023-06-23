@@ -4,8 +4,8 @@ import ParamWithId from 'src/shared/dto/ParamWithId.dto';
 import { errorHandler } from 'src/shared/http';
 import CreateBotUseCase from './useCases/CreateBot';
 import CreateBotDTO from './useCases/CreateBot/dto';
-import UpdateBotUseCase from './useCases/Update';
-import UpdateBotDTO from './useCases/Update/dto';
+import UpdateBotUseCase from './useCases/UpdateBot';
+import UpdateBotDTO from './useCases/UpdateBot/dto';
 
 @ApiTags('bot')
 @Controller('bot')
@@ -38,9 +38,8 @@ export class BotController {
   @Patch(':id')
   @ApiOperation({ summary: 'Update bot ' })
   async updateBot(@Param() { id }: ParamWithId, @Body() body: UpdateBotDTO) {
-    const { name } = body;
     this.logger.log(`[PATCH] Start updating bot`);
-    const result = await this.updateBotUseCase.exec(id, name);
+    const result = await this.updateBotUseCase.exec(id, body);
 
     if (result.isLeft()) {
       const error = result.value;

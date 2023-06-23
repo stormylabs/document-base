@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { BotData } from 'src/shared/interfaces/bot';
 import { BotRepository } from '../repository/bot.repository';
 import { Bot } from '../schemas/bot.schema';
+import UpdateBotDTO from '../useCases/UpdateBot/dto';
 
 @Injectable()
 export class BotService {
@@ -15,9 +16,12 @@ export class BotService {
     return createdBot;
   }
 
-  async updateBot(botId: string, name: string): Promise<BotData> {
+  async updateBot(
+    botId: string,
+    updateBotData: UpdateBotDTO,
+  ): Promise<BotData> {
     const botData: Partial<Bot> = {
-      name,
+      ...updateBotData,
     };
     const updatedBot = await this.botRepository.update(botId, botData);
     return updatedBot;

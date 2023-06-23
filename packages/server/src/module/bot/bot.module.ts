@@ -5,7 +5,7 @@ import { BotRepository } from './repository/bot.repository';
 import { Bot, BotSchema } from './schemas/Bot.schema';
 import { BotService } from './services/bot.service';
 import CreateBotUseCase from './useCases/CreateBot';
-import UpdateBotUseCase from './useCases/Update';
+import UpdateBotUseCase from './useCases/UpdateBot';
 
 @Module({
   imports: [
