@@ -14,6 +14,7 @@ import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { uuid } from 'uuidv4';
 import Bottleneck from 'bottleneck';
 import { PineconeClientService } from 'src/module/pinecone/pinecone.service';
+import { ConfigService } from '@nestjs/config';
 
 type Response = Either<
   InvalidInputError | UnexpectedError,
@@ -27,7 +28,10 @@ const limiter = new Bottleneck({
 @Injectable()
 export default class CrawlWebsitesUseCase {
   private readonly logger = new Logger(CrawlWebsitesUseCase.name);
-  constructor(private readonly pinecone: PineconeClientService) {}
+  constructor(
+    private readonly pinecone: PineconeClientService,
+    private readonly config: ConfigService,
+  ) {}
   public async exec(
     urls: string[],
     limit: number,
