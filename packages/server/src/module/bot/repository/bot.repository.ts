@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { Bot } from '../schemas/Bot.schema';
 
 @Injectable()
@@ -20,7 +20,7 @@ export class BotRepository {
     return await this.botModel.find().exec();
   }
 
-  async update(botId: string, updateData: Partial<Bot>): Promise<Bot | null> {
+  async update(botId: ObjectId, updateData: Partial<Bot>): Promise<Bot | null> {
     return await this.botModel
       .findByIdAndUpdate(botId, updateData, { new: true })
       .exec();

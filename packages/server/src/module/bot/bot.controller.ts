@@ -1,20 +1,32 @@
-import { Body, Controller, Get, Logger, Post } from '@nestjs/common';
-import { ApiOperation } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Logger,
+  Param,
+  Patch,
+  Post,
+  Query,
+} from '@nestjs/common';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import ParamWithId from 'src/shared/dto/ParamWithId.dto';
 import { errorHandler } from 'src/shared/http';
 import CreateBotUseCase from './useCases/CreateBot';
 import CreateBotDTO from './useCases/CreateBot/dto';
+import UpdateBotUseCase from './useCases/Update';
 
-@Controller('/bot')
+@ApiTags('bots')
+@Controller('bots')
 export class BotController {
   private readonly logger = new Logger(BotController.name);
-  constructor(private createBotUseCase: CreateBotUseCase) {
+  constructor(
+    private createBotUseCase: CreateBotUseCase,
+    private updateBotUseCase: UpdateBotUseCase,
+  ) {
     this.createBotUseCase = createBotUseCase;
   }
 
-  @Post('bot')
-  @ApiOperation({
-    summary: 'create bot use case',
-  })
+  @Post()
   async indexQueries(@Body() body: CreateBotDTO) {
     const { name } = body;
     this.logger.log(`[POST] Start creating bot`);
@@ -25,6 +37,24 @@ export class BotController {
       this.logger.error(
         `[POST] create bot error ${error.errorValue().message}`,
       );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update bot ' })
+  async updateBot(@Param() { id }: ParamWithId, @Body() body: CreateBotDTO) {
+    const { name } = body;
+    this.logger.log(`[POST] Start creating bot`);
+    const result = await this.updateBotUseCase.exec(id, name);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[PATCH] update bot error ${error.errorValue().message}`,
+      );
+
       return errorHandler(error);
     }
     return result.value.getValue();

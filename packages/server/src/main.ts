@@ -1,5 +1,6 @@
 import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
+import * as cookieParser from 'cookie-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
@@ -7,11 +8,11 @@ import { ValidationPipe } from './shared/ValidationPipe';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(new ValidationPipe());
 
-  app.setGlobalPrefix('api/v1');
-
+  app.use(cookieParser());
+  app.enableCors();
   const config = app.get(ConfigService);
 
   const NODE_ENV = config.get<string>('NODE_ENV');
@@ -20,7 +21,7 @@ async function bootstrap() {
     const options = new DocumentBuilder()
       .setTitle('DocumentBase API')
       .setDescription('API documentations of Document Base')
-      .setVersion('1.0.0')
+      .setVersion('1.0')
       .addBasicAuth()
       .build();
 
