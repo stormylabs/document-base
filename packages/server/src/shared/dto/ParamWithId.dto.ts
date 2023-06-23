@@ -1,9 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ObjectId } from 'mongoose';
+import { IsMongoId } from 'class-validator';
 
 class ParamWithId {
   @ApiProperty({ name: 'id', type: 'string' })
-  id: ObjectId;
+  @IsMongoId()
+  id: string;
 }
 
 export default ParamWithId;

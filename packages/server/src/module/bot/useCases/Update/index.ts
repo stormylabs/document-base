@@ -16,7 +16,7 @@ export default class UpdateBotUseCase {
   private readonly logger = new Logger(UpdateBotUseCase.name);
   constructor(private readonly botService: BotService) {}
 
-  public async exec(botId: ObjectId, name = 'default'): Promise<Response> {
+  public async exec(botId: string, name = 'default'): Promise<Response> {
     try {
       this.logger.log(`Start updating bot`);
 

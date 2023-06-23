@@ -4,12 +4,18 @@ import * as cookieParser from 'cookie-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
-import { ValidationPipe } from './shared/ValidationPipe';
+import { NormalizeQueryParamsValidationPipe } from './shared/NormalizeQueryParamsValidationPipe';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api/v1');
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(
+    new NormalizeQueryParamsValidationPipe(),
+    new ValidationPipe({
+      transform: true,
+    }),
+  );
 
   app.use(cookieParser());
   app.enableCors();

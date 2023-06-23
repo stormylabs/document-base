@@ -18,7 +18,7 @@ export class BotService {
     return createdBot;
   }
 
-  async updateBot(botId: ObjectId, name: string): Promise<BotData> {
+  async updateBot(botId: string, name: string): Promise<BotData> {
     const botData: Partial<Bot> = {
       name,
     };

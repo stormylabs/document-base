@@ -1,13 +1,4 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Logger,
-  Param,
-  Patch,
-  Post,
-  Query,
-} from '@nestjs/common';
+import { Body, Controller, Logger, Param, Patch, Post } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import ParamWithId from 'src/shared/dto/ParamWithId.dto';
 import { errorHandler } from 'src/shared/http';
@@ -46,7 +37,7 @@ export class BotController {
   @ApiOperation({ summary: 'Update bot ' })
   async updateBot(@Param() { id }: ParamWithId, @Body() body: CreateBotDTO) {
     const { name } = body;
-    this.logger.log(`[POST] Start creating bot`);
+    this.logger.log(`[PATCH] Start updating bot`);
     const result = await this.updateBotUseCase.exec(id, name);
 
     if (result.isLeft()) {

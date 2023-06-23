@@ -23,7 +23,7 @@ export class BotRepository {
     return await this.botModel.find().exec();
   }
 
-  async update(botId: ObjectId, updateData: Partial<Bot>): Promise<Bot | null> {
+  async update(botId: string, updateData: Partial<Bot>): Promise<Bot | null> {
     return await this.botModel
       .findByIdAndUpdate(botId, updateData, { new: true })
       .exec();

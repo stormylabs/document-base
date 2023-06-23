@@ -5,25 +5,26 @@ import { validate } from 'class-validator';
 import { camelize } from './utils/web-utils';
 
 @Injectable()
-export class ValidationPipe implements PipeTransform {
+export class NormalizeQueryParamsValidationPipe implements PipeTransform {
   async transform(value: any, { metatype }: ArgumentMetadata) {
     if (!metatype || !this.toValidate(metatype)) {
       return value;
     }
-    // incoming validations are being transformed to camelcase
+    // * incoming validations are being transformed to camel case
     const camelized = camelize(value);
     const object = plainToClass(metatype, camelized);
     const errors = await validate(object, {
       whitelist: true,
       forbidNonWhitelisted: true,
     });
+
     if (errors.length > 0) {
       throw new BadRequestException(`Validation pipe failed. Error: ${errors}`);
     }
     return object;
   }
 
-  private toValidate(metatype: any) {
+  private toValidate(metatype) {
     const types = [String, Number, Array, Object, Boolean];
     return !types.includes(metatype);
   }
