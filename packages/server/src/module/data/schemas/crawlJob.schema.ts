@@ -1,8 +1,6 @@
 import { CrawlJobStatus } from '@/shared/interfaces/crawlJob';
-<<<<<<< HEAD
+
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
-=======
->>>>>>> af256d8 (feat: WIP add sqs queue)
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId } from 'mongoose';

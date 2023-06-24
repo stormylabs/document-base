@@ -1,19 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
-<<<<<<< HEAD
 import { CrawlJobService } from '../../services/crawlJob.service';
 import { BotService } from '@/module/bot/services/bot.service';
 import { CrawlJobMessage, CrawlJobStatus } from '@/shared/interfaces/crawlJob';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
-=======
-import { ConfigService } from '@nestjs/config';
-import { SqsService } from '@ssut/nestjs-sqs';
-import { CrawlJobService } from '../../services/crawlJob.service';
-import { Message } from '@ssut/nestjs-sqs/dist/sqs.types';
-import { BotService } from '@/module/bot/services/bot.service';
-import { CrawlJobStatus } from '@/shared/interfaces/crawlJob';
->>>>>>> af256d8 (feat: WIP add sqs queue)
 
 type Response = Either<
   NotFoundError | UnexpectedError,
