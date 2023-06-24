@@ -2,8 +2,8 @@ import { Body, Controller, Get, Logger, Post, Query } from '@nestjs/common';
 import { errorHandler } from 'src/shared/http';
 import ChatAssistUseCase from './useCases/ChatAssist';
 import ChatAssistDTO from './useCases/ChatAssist/dto';
-import CrawlWebsitesUseCase from './useCases/CrawlWebsite';
-import CrawlWebsitesDTO from './useCases/CrawlWebsite/dto';
+import CrawlWebsitesUseCase from './useCases/CreateCrawlJob';
+import CrawlWebsitesDTO from './useCases/CreateCrawlJob/dto';
 
 @Controller('/data')
 export class DataController {

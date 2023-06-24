@@ -26,4 +26,14 @@ export class BotService {
     const updatedBot = await this.botRepository.update(botId, botData);
     return updatedBot;
   }
+
+  async exists(botId: string): Promise<boolean> {
+    const bot = await this.botRepository.findById(botId);
+    return !!bot;
+  }
+
+  async findById(botId: string): Promise<BotData | null> {
+    const bot = await this.botRepository.findById(botId);
+    return bot;
+  }
 }

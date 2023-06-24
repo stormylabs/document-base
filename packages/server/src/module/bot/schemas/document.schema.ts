@@ -5,15 +5,9 @@ import {
   HydratedDocument,
   ObjectId,
 } from 'mongoose';
+import { DocumentType } from '../../../shared/interfaces/document';
 
 export type DocumentDocument = HydratedDocument<Document>;
-
-enum DocumentType {
-  Url = 'url',
-  Pdf = 'pdf',
-  Word = 'word',
-  Image = 'image',
-}
 
 @Schema({ collection: 'Document' })
 export class Document extends MongooseDocument {
