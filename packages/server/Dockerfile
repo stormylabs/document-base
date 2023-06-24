@@ -7,7 +7,7 @@ WORKDIR /usr/src/app
 # Install app dependencies
 COPY package.json yarn.lock ./
 
-RUN yarn install --frozen-lockfile --cache-folder ./ycache && rm -rf ./ycache
+RUN yarn install --frozen-lockfile 
 COPY . .
 RUN yarn build && rm -rf ./node_modules
 
@@ -18,7 +18,7 @@ WORKDIR /usr/src/app
 # Install app dependencies
 COPY package.json yarn.lock ./
 
-RUN yarn install --production --frozen-lockfile --cache-folder ./ycache && rm -rf ./ycache
+RUN yarn install --production --frozen-lockfile 
 COPY --from=build /usr/src/app/dist ./dist
 EXPOSE 3000
 
