@@ -4,10 +4,12 @@ FROM node:18-alpine AS build
 # Create app directory
 WORKDIR /usr/src/app
 
-# Install app dependencies
-COPY package.json yarn.lock ./
+RUN yarn global add @nestjs/cli
 
-RUN yarn install --frozen-lockfile 
+# Install app dependencies
+COPY package.json ./
+
+RUN yarn install
 COPY . .
 RUN yarn build && rm -rf ./node_modules
 
@@ -16,9 +18,12 @@ FROM node:18-alpine
 WORKDIR /usr/src/app
 
 # Install app dependencies
-COPY package.json yarn.lock ./
+COPY package.json ./
+
+COPY --from=build /usr/src/app/yarn.lock ./
 
 RUN yarn install --production --frozen-lockfile 
+
 COPY --from=build /usr/src/app/dist ./dist
 EXPOSE 3000
 
