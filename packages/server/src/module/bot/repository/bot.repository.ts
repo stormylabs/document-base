@@ -15,12 +15,19 @@ export class BotRepository {
     return rest as BotData;
   }
 
-  async findById(botId: string): Promise<Bot | null> {
-    return await this.botModel.findById(botId).exec();
+  async findById(botId: string): Promise<BotData | null> {
+    const bot = await this.botModel.findById(botId).exec();
+    if (!bot) return null;
+    const { __v, ...rest } = bot.toJSON();
+    return rest as BotData;
   }
 
-  async findAll(): Promise<Bot[]> {
-    return await this.botModel.find().exec();
+  async findAll(): Promise<BotData[]> {
+    const bots = await this.botModel.find().exec();
+    return bots.map((bot) => {
+      const { __v, ...rest } = bot.toJSON();
+      return rest as BotData;
+    });
   }
 
   async update(
