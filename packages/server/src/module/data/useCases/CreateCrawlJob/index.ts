@@ -30,7 +30,7 @@ export default class CreateCrawlJobUseCase {
       const botExists = await this.botService.exists(botId);
       if (!botExists) return left(new NotFoundError('Bot not found'));
 
-      const crawlJob = await this.crawlJobService.createCrawlJob(limit, urls);
+      const crawlJob = await this.crawlJobService.create(limit, urls);
 
       const { _id, status } = crawlJob;
 

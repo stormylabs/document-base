@@ -29,6 +29,8 @@ export class DataController {
       );
       return errorHandler(error);
     }
+
+    return result.value.getValue();
   }
 
   @Post('/chat-assist')

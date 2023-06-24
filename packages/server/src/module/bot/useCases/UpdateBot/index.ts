@@ -19,7 +19,7 @@ export default class UpdateBotUseCase {
     try {
       this.logger.log(`Start updating bot`);
 
-      const bot = await this.botService.updateBot(botId, botData);
+      const bot = await this.botService.update(botId, botData);
 
       return right(Result.ok({ bot }));
     } catch (err) {

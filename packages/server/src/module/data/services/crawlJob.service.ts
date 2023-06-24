@@ -7,10 +7,7 @@ import { CrawlJob } from '../schemas/crawlJob.schema';
 export class CrawlJobService {
   constructor(private crawlJobRepository: CrawlJobRepository) {}
 
-  async createCrawlJob(
-    limit: number,
-    initUrls: string[],
-  ): Promise<CrawlJobData> {
+  async create(limit: number, initUrls: string[]): Promise<CrawlJobData> {
     const crawlJobData: Partial<CrawlJob> = {
       limit,
       initUrls,
@@ -19,7 +16,7 @@ export class CrawlJobService {
     return createdCrawlJob;
   }
 
-  async deleteCrawlJob(crawlJobId: string): Promise<CrawlJobData> {
+  async delete(crawlJobId: string): Promise<CrawlJobData> {
     const updatedCrawlJob = await this.crawlJobRepository.softDelete(
       crawlJobId,
     );

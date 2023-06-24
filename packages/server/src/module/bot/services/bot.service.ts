@@ -8,7 +8,7 @@ import UpdateBotDTO from '../useCases/UpdateBot/dto';
 export class BotService {
   constructor(private botRepository: BotRepository) {}
 
-  async createBot(name: string): Promise<BotData> {
+  async create(name: string): Promise<BotData> {
     const botData: Partial<Bot> = {
       name,
     };
@@ -16,10 +16,7 @@ export class BotService {
     return createdBot;
   }
 
-  async updateBot(
-    botId: string,
-    updateBotData: UpdateBotDTO,
-  ): Promise<BotData> {
+  async update(botId: string, updateBotData: UpdateBotDTO): Promise<BotData> {
     const botData: Partial<Bot> = {
       ...updateBotData,
     };
