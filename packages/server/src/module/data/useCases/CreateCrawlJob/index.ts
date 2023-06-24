@@ -1,12 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
-import { ConfigService } from '@nestjs/config';
-import { SqsService } from '@ssut/nestjs-sqs';
 import { CrawlJobService } from '../../services/crawlJob.service';
-import { Message } from '@ssut/nestjs-sqs/dist/sqs.types';
 import { BotService } from '@/module/bot/services/bot.service';
 import { CrawlJobStatus } from '@/shared/interfaces/crawlJob';
+import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
 
 type Response = Either<
   NotFoundError | UnexpectedError,
@@ -17,8 +15,7 @@ type Response = Either<
 export default class CreateCrawlJobUseCase {
   private readonly logger = new Logger(CreateCrawlJobUseCase.name);
   constructor(
-    private readonly config: ConfigService,
-    private readonly sqsService: SqsService,
+    private readonly sqsMessageService: SqsMessageService,
     private readonly crawlJobService: CrawlJobService,
     private readonly botService: BotService,
   ) {}
@@ -28,7 +25,7 @@ export default class CreateCrawlJobUseCase {
     limit: number,
   ): Promise<Response> {
     try {
-      this.logger.log(`Start crawling website`);
+      this.logger.log(`Start creating crawl job`);
 
       const botExists = await this.botService.exists(botId);
       if (!botExists) return left(new NotFoundError('Bot not found'));
@@ -37,15 +34,14 @@ export default class CreateCrawlJobUseCase {
 
       const { _id, status } = crawlJob;
 
-      const messages: Message<{ url: string; botId: string }>[] = urls.map(
-        (url) => ({
-          body: { url, botId },
-          id: _id,
-        }),
-      );
+      for (const url of urls) {
+        await this.sqsMessageService.sendMessage<{
+          url: string;
+          botId: string;
+        }>(_id, { url, botId });
+      }
 
-      await this.sqsService.send(this.config.get('SQS_QUEUE_URL'), messages);
-
+      this.logger.log(`Crawl job is created successfully`);
       return right(Result.ok({ jobId: _id, status }));
     } catch (err) {
       console.log(err);

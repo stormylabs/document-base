@@ -1,31 +1,16 @@
-import { Transform } from 'class-transformer';
-import {
-  IsArray,
-  IsBoolean,
-  IsNumber,
-  IsString,
-  IsOptional,
-  Max,
-  Min,
-} from 'class-validator';
+import { IsArray, IsNumber, IsString, IsUrl, Max, Min } from 'class-validator';
 
-export default class CrawlWebsitesDTO {
+export default class CreateCrawlJobDTO {
   @IsString({ each: true })
+  @IsUrl(undefined, { each: true })
   @IsArray()
-  @Transform(({ value }) => value.split(','))
   urls: string[];
 
+  @IsString()
+  botId: string;
+
   @IsNumber()
-  @Transform(({ value }) => parseInt(value))
   @Min(1)
   @Max(2000)
   limit: number;
-
-  @IsString()
-  tag: string;
-
-  @IsBoolean()
-  @IsOptional()
-  @Transform(({ value }) => value === 'true')
-  summarize: boolean;
 }

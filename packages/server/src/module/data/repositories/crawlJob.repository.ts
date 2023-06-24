@@ -13,8 +13,8 @@ export class CrawlJobRepository {
 
   async create(crawlJobData: Partial<CrawlJob>): Promise<CrawlJobData> {
     const crawlJob = new this.crawlJobModel(crawlJobData);
-    const { __v, ...rest } = (await crawlJob.save()).toJSON();
-    return rest as CrawlJobData;
+    const created = (await crawlJob.save()).toJSON();
+    return created as CrawlJobData;
   }
 
   async findById(crawlJobId: string): Promise<CrawlJob | null> {
@@ -33,7 +33,7 @@ export class CrawlJobRepository {
     const crawlJob = await this.crawlJobModel.findById(crawlJobId).exec();
     if (!crawlJob) return null;
     crawlJob.deletedAt = new Date();
-    const { __v, ...rest } = (await crawlJob.save()).toJSON();
-    return rest as CrawlJobData;
+    const deleted = (await crawlJob.save()).toJSON();
+    return deleted as CrawlJobData;
   }
 }

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { BotData } from 'src/shared/interfaces/bot';
-import { BotRepository } from '../repository/bot.repository';
+import { BotRepository } from '../repositories/bot.repository';
 import { Bot } from '../schemas/bot.schema';
 import UpdateBotDTO from '../useCases/UpdateBot/dto';
 

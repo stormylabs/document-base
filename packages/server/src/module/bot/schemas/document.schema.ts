@@ -6,6 +6,7 @@ import {
   ObjectId,
 } from 'mongoose';
 import { DocumentType } from '../../../shared/interfaces/document';
+import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 
 export type DocumentDocument = HydratedDocument<Document>;
 
@@ -31,3 +32,4 @@ export class Document extends MongooseDocument {
 
 export const DocumentSchema = SchemaFactory.createForClass(Document);
 DocumentSchema.index({ name: 1 });
+DocumentSchema.set('toJSON', toJSONOverride);

@@ -1,4 +1,5 @@
 import { CrawlJobStatus } from '@/shared/interfaces/crawlJob';
+import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId } from 'mongoose';
@@ -19,7 +20,7 @@ export class CrawlJob extends Document {
     default: CrawlJobStatus.Pending,
     required: true,
   })
-  type: DocumentType;
+  status: CrawlJobStatus;
 
   @Prop({ type: Array, default: [], minlength: 1, maxlength: 10 })
   initUrls: string[];
@@ -32,3 +33,4 @@ export class CrawlJob extends Document {
 }
 
 export const CrawlJobSchema = SchemaFactory.createForClass(CrawlJob);
+CrawlJobSchema.set('toJSON', toJSONOverride);

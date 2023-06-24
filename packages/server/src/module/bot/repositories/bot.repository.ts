@@ -11,23 +11,19 @@ export class BotRepository {
 
   async create(botData: Partial<Bot>): Promise<BotData> {
     const bot = new this.botModel(botData);
-    const { __v, ...rest } = (await bot.save()).toJSON();
-    return rest as BotData;
+    const saved = (await bot.save()).toJSON();
+    return saved as BotData;
   }
 
   async findById(botId: string): Promise<BotData | null> {
     const bot = await this.botModel.findById(botId).exec();
     if (!bot) return null;
-    const { __v, ...rest } = bot.toJSON();
-    return rest as BotData;
+    return bot.toJSON() as BotData;
   }
 
   async findAll(): Promise<BotData[]> {
     const bots = await this.botModel.find().exec();
-    return bots.map((bot) => {
-      const { __v, ...rest } = bot.toJSON();
-      return rest as BotData;
-    });
+    return bots.map((bot) => bot.toJSON() as BotData);
   }
 
   async update(
@@ -40,8 +36,7 @@ export class BotRepository {
       .exec();
 
     if (!bot) return null;
-    const { __v, ...rest } = bot.toJSON();
-    return rest as BotData;
+    return bot.toJSON() as BotData;
   }
 
   async delete(botId: string): Promise<Bot | null> {

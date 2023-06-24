@@ -1,6 +1,6 @@
 import { CrawlJobData } from '@/shared/interfaces/crawlJob';
 import { Injectable } from '@nestjs/common';
-import { CrawlJobRepository } from '../repository/crawlJob.repository';
+import { CrawlJobRepository } from '../repositories/crawlJob.repository';
 import { CrawlJob } from '../schemas/crawlJob.schema';
 
 @Injectable()
