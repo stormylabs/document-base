@@ -11,6 +11,15 @@ import CreateCrawlJobUseCase from './useCases/CreateCrawlJob';
 import { CrawlJob, CrawlJobSchema } from './schemas/crawlJob.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CrawlJobRepository } from './repositories/crawlJob.repository';
+import { Bot, BotSchema } from '../bot/schemas/Bot.schema';
+import { Document, DocumentSchema } from '../bot/schemas/document.schema';
+import { BotService } from '../bot/services/bot.service';
+import { BotRepository } from '../bot/repositories/bot.repository';
+import { DocumentService } from '../bot/services/document.service';
+import { DocumentRepository } from '../bot/repositories/document.repository';
+import { SqsMessageService } from '../sqsProducer/services/sqsMessage.service';
+import { SqsConsumerService } from '../sqsConsumer/services/sqsConsumer.service';
+import CrawlWebsiteUseCase from './useCases/CrawlWebsite';
 
 @Module({
   imports: [
@@ -18,6 +27,14 @@ import { CrawlJobRepository } from './repositories/crawlJob.repository';
       {
         name: CrawlJob.name,
         schema: CrawlJobSchema,
+      },
+      {
+        name: Document.name,
+        schema: DocumentSchema,
+      },
+      {
+        name: Bot.name,
+        schema: BotSchema,
       },
     ]),
     PineconeModule.register(),
@@ -32,7 +49,14 @@ import { CrawlJobRepository } from './repositories/crawlJob.repository';
     PineconeClient,
     CrawlJobService,
     CrawlJobRepository,
+    BotService,
+    BotRepository,
+    DocumentService,
+    DocumentRepository,
+    SqsMessageService,
+    SqsConsumerService,
+    CrawlWebsiteUseCase,
   ],
-  exports: [],
+  exports: [CrawlWebsiteUseCase],
 })
 export class DataModule {}

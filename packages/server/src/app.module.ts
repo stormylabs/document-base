@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PineconeModule } from './module/pinecone/pinecone.module';
 import { MongoDBModule } from './module/mongodb/mongodb.module';
 import { BotModule } from './module/bot/bot.module';
+import { SqsConsumerModule } from './module/sqsConsumer/sqsConsumer.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { BotModule } from './module/bot/bot.module';
     DataModule,
     PineconeModule,
     BotModule,
+    SqsConsumerModule,
   ],
   providers: [Logger],
 })

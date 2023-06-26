@@ -3,7 +3,7 @@ import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { CrawlJobService } from '../../services/crawlJob.service';
 import { BotService } from '@/module/bot/services/bot.service';
-import { CrawlJobStatus } from '@/shared/interfaces/crawlJob';
+import { CrawlJobMessage, CrawlJobStatus } from '@/shared/interfaces/crawlJob';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
 
 type Response = Either<
@@ -30,15 +30,19 @@ export default class CreateCrawlJobUseCase {
       const botExists = await this.botService.exists(botId);
       if (!botExists) return left(new NotFoundError('Bot not found'));
 
+      // remove all documents before start crawling
+      await this.botService.removeAllDocuments(botId);
+
       const crawlJob = await this.crawlJobService.create(limit, urls);
 
       const { _id, status } = crawlJob;
 
       for (const url of urls) {
-        await this.sqsMessageService.sendMessage<{
-          url: string;
-          botId: string;
-        }>(_id, { url, botId });
+        await this.sqsMessageService.sendMessage<CrawlJobMessage>(_id, {
+          url,
+          botId,
+          jobId: _id,
+        });
       }
 
       this.logger.log(`Crawl job is created successfully`);

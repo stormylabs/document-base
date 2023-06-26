@@ -8,8 +8,14 @@ export interface CrawlJobData {
 }
 
 export enum CrawlJobStatus {
-  Pending = 'Pending',
-  Running = 'Running',
-  Finished = 'Finished',
-  Failed = 'Failed',
+  Pending = 'pending',
+  Running = 'running',
+  Finished = 'finished',
+  Failed = 'failed',
+}
+
+export interface CrawlJobMessage {
+  url: string;
+  botId: string;
+  jobId: string;
 }
