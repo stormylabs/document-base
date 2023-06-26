@@ -1,9 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-<<<<<<< HEAD
 import { CrawlJobData, CrawlJobStatus } from '@/shared/interfaces/crawlJob';
-=======
-import { CrawlJobData } from '@/shared/interfaces/crawlJob';
->>>>>>> 5aea8d5 (feat: add crawlJob repo, service, usecase, sqsP)
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';

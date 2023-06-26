@@ -11,7 +11,6 @@ import CreateCrawlJobUseCase from './useCases/CreateCrawlJob';
 import { CrawlJob, CrawlJobSchema } from './schemas/crawlJob.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CrawlJobRepository } from './repositories/crawlJob.repository';
-<<<<<<< HEAD
 import { Bot, BotSchema } from '../bot/schemas/Bot.schema';
 import { Document, DocumentSchema } from '../bot/schemas/document.schema';
 import { BotService } from '../bot/services/bot.service';
@@ -21,9 +20,6 @@ import { DocumentRepository } from '../bot/repositories/document.repository';
 import { SqsMessageService } from '../sqsProducer/services/sqsMessage.service';
 import { SqsConsumerService } from '../sqsConsumer/services/sqsConsumer.service';
 import CrawlWebsiteUseCase from './useCases/CrawlWebsite';
-=======
->>>>>>> 5aea8d5 (feat: add crawlJob repo, service, usecase, sqsP)
-
 @Module({
   imports: [
     MongooseModule.forFeature([
