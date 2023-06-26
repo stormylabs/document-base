@@ -6,6 +6,7 @@ import { PineconeModule } from './module/pinecone/pinecone.module';
 import { MongoDBModule } from './module/mongodb/mongodb.module';
 import { BotModule } from './module/bot/bot.module';
 import { SqsConsumerModule } from './module/sqsConsumer/sqsConsumer.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { SqsConsumerModule } from './module/sqsConsumer/sqsConsumer.module';
     BotModule,
     SqsConsumerModule,
   ],
+  controllers: [AppController],
   providers: [Logger],
 })
 export class AppModule {}
