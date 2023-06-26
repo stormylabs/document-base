@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { PineconeModule } from './module/pinecone/pinecone.module';
 import { MongoDBModule } from './module/mongodb/mongodb.module';
 import { BotModule } from './module/bot/bot.module';
+import { AppController } from './app.controller';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { BotModule } from './module/bot/bot.module';
     PineconeModule,
     BotModule,
   ],
+  controllers: [AppController],
   providers: [Logger],
 })
 export class AppModule {}
