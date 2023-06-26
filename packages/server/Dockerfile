@@ -1,17 +1,34 @@
-# Build stage
-FROM node:18-alpine AS build
-WORKDIR /app
-COPY package*.json ./
-RUN yarn --frozen-lockfile --cache-folder ./ycache && rm -rf ./ycache
-COPY . .
-RUN yarn build && rm -rf ./node_modules
+###################
+# BUILD FOR PRODUCTION
+###################
 
-# Production stage
-FROM node:18-alpine
-WORKDIR /app
-COPY package*.json ./
+FROM node:18-alpine As build
+
+WORKDIR /usr/src/app
+
+COPY --chown=node:node package.json yarn.lock ./
+
+RUN yarn install --frozen-lockfile
+
+COPY --chown=node:node . .
+
+RUN yarn build
+
+ENV NODE_ENV production
+
 RUN yarn install --production --frozen-lockfile --cache-folder ./ycache && rm -rf ./ycache
-COPY --from=build /app/dist ./dist
+
+USER node
+
+###################
+# PRODUCTION
+###################
+
+FROM node:18-alpine As production
+
+COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+
 EXPOSE 3000
 
-CMD ["yarn", "start:prod"]
+CMD [ "node", "dist/main.js" ]
