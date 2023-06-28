@@ -2,12 +2,13 @@
 
 
 
-IMAGE_TAG=$(git rev-parse --short --verify HEAD)
-AWS_REGION="us-east-1"
+# IMAGE_TAG=$(git rev-parse --short --verify HEAD)
+IMAGE_TAG=latest
+AWS_REGION="ap-southeast-1"
 ECR_REPOSITORY="document-base"
-ECS_SERVICE="document-base-stgsvc"
+ECS_SERVICE="document-base-stg"
 ECS_CLUSTER="document-base"
-AWS_ACCOUNT_ID="869750212405"
+AWS_ACCOUNT_ID="930488782669"
 CONTAINER_NAME="document-base-stg"
 
 # Docker Build
@@ -16,7 +17,7 @@ docker build --platform=linux/amd64 -t document-base .
 
 # Docker Tag
 echo "Docker Tag"
-docker tag document-base:${IMAGE_TAG} 869750212405.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}
+docker tag document-base:${IMAGE_TAG} ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITORY}:${IMAGE_TAG}
 
 # Aws Login
 echo "AWS Login"
@@ -28,4 +29,4 @@ docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPOSITO
 
 # Aws Deploy
 echo "AWS Deploy"
-aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --force-new-deployment --region=${AWS_REGION}
+# aws ecs update-service --cluster ${ECS_CLUSTER} --service ${ECS_SERVICE} --force-new-deployment --region=${AWS_REGION}
