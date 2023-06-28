@@ -1,5 +1,6 @@
 export interface CrawlJobData {
   _id: string;
+  botId: string;
   limit: number;
   status: CrawlJobStatus;
   initUrls: string[];

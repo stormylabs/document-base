@@ -6,12 +6,10 @@ import { CrawlJobRepository } from '../repositories/crawlJob.repository';
 export class CrawlJobService {
   constructor(private crawlJobRepository: CrawlJobRepository) {}
 
-  async create(limit: number, initUrls: string[]): Promise<CrawlJobData> {
-    const crawlJobData: Partial<CrawlJobData> = {
-      limit,
-      initUrls,
-    };
-    const createdCrawlJob = await this.crawlJobRepository.create(crawlJobData);
+  async create(
+    data: Omit<CrawlJobData, '_id' | 'status' | 'createdAt' | 'deletedAt'>,
+  ): Promise<CrawlJobData> {
+    const createdCrawlJob = await this.crawlJobRepository.create(data);
     return createdCrawlJob;
   }
 

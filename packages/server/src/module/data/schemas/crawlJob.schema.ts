@@ -1,9 +1,10 @@
+import { BotDocument } from '@/module/bot/schemas/bot.schema';
 import { CrawlJobStatus } from '@/shared/interfaces/crawlJob';
 
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
-import { Document, HydratedDocument, ObjectId } from 'mongoose';
+import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 
 export type CrawlJobDocument = HydratedDocument<CrawlJob>;
 
@@ -22,6 +23,9 @@ export class CrawlJob extends Document {
     required: true,
   })
   status: CrawlJobStatus;
+
+  @Prop({ type: Types.ObjectId })
+  botId: string;
 
   @Prop({ type: Array, default: [], minlength: 1, maxlength: 10 })
   initUrls: string[];

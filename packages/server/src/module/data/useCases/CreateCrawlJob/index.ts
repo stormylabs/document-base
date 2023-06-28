@@ -33,7 +33,11 @@ export default class CreateCrawlJobUseCase {
       // remove all documents before start crawling
       await this.botService.removeAllDocuments(botId);
 
-      const crawlJob = await this.crawlJobService.create(limit, urls);
+      const crawlJob = await this.crawlJobService.create({
+        botId,
+        limit,
+        initUrls: urls,
+      });
 
       const { _id, status } = crawlJob;
 
