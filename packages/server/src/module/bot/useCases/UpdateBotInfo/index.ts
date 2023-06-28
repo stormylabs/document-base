@@ -7,7 +7,16 @@ import UpdateBotInfoDTO from './dto';
 
 type Response = Either<
   InvalidInputError | UnexpectedError,
-  Result<{ bot: BotData }>
+  Result<{
+    bot: {
+      documents: string[];
+      _id: string;
+      name: string;
+      crawlJobId: string;
+      createdAt: Date;
+      deletedAt: Date;
+    };
+  }>
 >;
 
 @Injectable()
@@ -24,7 +33,11 @@ export default class UpdateBotUseCase {
 
       const bot = await this.botService.updateInfo(botId, botData);
 
-      return right(Result.ok({ bot }));
+      return right(
+        Result.ok({
+          bot: { ...bot, documents: bot.documents.map((doc) => doc._id) },
+        }),
+      );
     } catch (err) {
       return left(new UnexpectedError(err));
     }

@@ -27,6 +27,13 @@ export class BotRepository {
     return bots.map((bot) => bot.toJSON() as BotData);
   }
 
+  async exists(botIds: string[]): Promise<boolean> {
+    const count = await this.botModel
+      .countDocuments({ _id: { $in: botIds } })
+      .exec();
+    return count === botIds.length;
+  }
+
   async update(
     botId: string,
     data: Partial<Omit<BotData, 'createdAt' | '_id'>>,
@@ -48,12 +55,33 @@ export class BotRepository {
     return bot.toJSON() as BotData;
   }
 
-  async upsertDocument(botId: string, documentId: string): Promise<BotData> {
+  async upsertDocuments(
+    botId: string,
+    documentIds: string[],
+  ): Promise<BotData> {
     const id = new Types.ObjectId(botId);
     const bot = await this.botModel
       .findByIdAndUpdate(
         id,
-        { $addToSet: { documents: documentId } },
+        { $addToSet: { documents: { $each: documentIds } } },
+        { new: true },
+      )
+      .populate('documents')
+      .exec();
+    return bot.toJSON() as BotData;
+  }
+
+  async removeDocuments(
+    botId: string,
+    documentIds: string[],
+  ): Promise<BotData> {
+    const id = new Types.ObjectId(botId);
+    const bot = await this.botModel
+      .findByIdAndUpdate(
+        id,
+        {
+          $pullAll: { documents: documentIds },
+        },
         { new: true },
       )
       .populate('documents')

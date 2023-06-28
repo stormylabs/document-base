@@ -6,11 +6,11 @@ import { DocumentData, DocumentType } from '@/shared/interfaces/document';
 export class DocumentService {
   constructor(private documentRepository: DocumentRepository) {}
 
-  async create(documentData: {
-    name: string;
-    type: DocumentType;
-    content: string;
-  }): Promise<DocumentData> {
+  async create(
+    documentData: Partial<
+      Omit<DocumentData, '_id' | 'createdAt' | 'deletedAt'>
+    >,
+  ): Promise<DocumentData> {
     const createdDocument = await this.documentRepository.create(documentData);
     return createdDocument;
   }
@@ -20,8 +20,8 @@ export class DocumentService {
     return document;
   }
 
-  async findByName(name: string): Promise<DocumentData | null> {
-    const document = await this.documentRepository.findOne({ name });
+  async findBySourceName(sourceName: string): Promise<DocumentData | null> {
+    const document = await this.documentRepository.findOne({ sourceName });
     return document;
   }
 
@@ -29,7 +29,7 @@ export class DocumentService {
     documentId: string,
     data: Partial<Omit<DocumentData, '_id' | 'createdAt'>>,
   ): Promise<DocumentData> {
-    const exists = await this.exists(documentId);
+    const exists = await this.exists([documentId]);
     if (!exists) throw new Error('Document does not exist.');
     const updatedDocument = await this.documentRepository.update(
       documentId,
@@ -39,7 +39,7 @@ export class DocumentService {
   }
 
   async delete(documentId: string): Promise<DocumentData> {
-    const exists = await this.exists(documentId);
+    const exists = await this.exists([documentId]);
     if (!exists) throw new Error('Document does not exist.');
     const updatedDocument = await this.documentRepository.update(documentId, {
       deletedAt: new Date(),
@@ -47,8 +47,7 @@ export class DocumentService {
     return updatedDocument;
   }
 
-  async exists(documentId: string): Promise<boolean> {
-    const document = await this.documentRepository.findById(documentId);
-    return !!document;
+  async exists(documentIds: string[]): Promise<boolean> {
+    return this.documentRepository.exists(documentIds);
   }
 }

@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { PineconeClient } from '@pinecone-database/pinecone';
 import { BotModule } from '../bot/bot.module';
 import { PineconeModule } from '../pinecone/pinecone.module';
 import { SqsProducerModule } from '../sqsProducer/sqsProducer.module';
@@ -21,12 +20,22 @@ import { SqsMessageService } from '../sqsProducer/services/sqsMessage.service';
 import { SqsConsumerService } from '../sqsConsumer/services/sqsConsumer.service';
 import CrawlWebsiteUseCase from './useCases/CrawlWebsite';
 import GetCrawlJobStatusUseCase from './useCases/GetCrawlJobStatus';
+import IndexDocumentUseCase from './useCases/IndexDocuments';
+import { DocIndexJobService } from './services/docIndexJob.service';
+import { DocIndexJobRepository } from './repositories/docIndexJob.repository';
+import { DocIndexJob, DocIndexJobSchema } from './schemas/docIndexJob.schema';
+import CreateDocIndexJobUseCase from './useCases/CreateDocIndexJob';
+import GetDocIndexJobStatusUseCase from './useCases/GetDocIndexJobStatus';
 @Module({
   imports: [
     MongooseModule.forFeature([
       {
         name: CrawlJob.name,
         schema: CrawlJobSchema,
+      },
+      {
+        name: DocIndexJob.name,
+        schema: DocIndexJobSchema,
       },
       {
         name: Document.name,
@@ -47,7 +56,6 @@ import GetCrawlJobStatusUseCase from './useCases/GetCrawlJobStatus';
     CreateCrawlJobUseCase,
     GetCrawlJobStatusUseCase,
     ChatAssistUseCase,
-    PineconeClient,
     CrawlJobService,
     CrawlJobRepository,
     BotService,
@@ -57,7 +65,16 @@ import GetCrawlJobStatusUseCase from './useCases/GetCrawlJobStatus';
     SqsMessageService,
     SqsConsumerService,
     CrawlWebsiteUseCase,
+    IndexDocumentUseCase,
+    DocIndexJobService,
+    DocIndexJobRepository,
+    CreateDocIndexJobUseCase,
+    GetDocIndexJobStatusUseCase,
   ],
-  exports: [CrawlWebsiteUseCase],
+  exports: [
+    CrawlWebsiteUseCase,
+    IndexDocumentUseCase,
+    CreateDocIndexJobUseCase,
+  ],
 })
 export class DataModule {}

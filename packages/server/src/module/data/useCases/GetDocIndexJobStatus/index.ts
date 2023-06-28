@@ -1,9 +1,9 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
-import { CrawlJobService } from '../../services/crawlJob.service';
 import { BotService } from '@/module/bot/services/bot.service';
 import { JobStatus } from '@/shared/interfaces';
+import { DocIndexJobService } from '../../services/docIndexJob.service';
 
 type Response = Either<
   NotFoundError | UnexpectedError,
@@ -12,27 +12,27 @@ type Response = Either<
     botId: string;
     status: JobStatus;
     createdAt: Date;
-    limit: number;
+    indexedCount: number;
     progress: number;
   }>
 >;
 
 @Injectable()
-export default class GetCrawlJobStatusUseCase {
-  private readonly logger = new Logger(GetCrawlJobStatusUseCase.name);
+export default class GetDocIndexJobStatusUseCase {
+  private readonly logger = new Logger(GetDocIndexJobStatusUseCase.name);
   constructor(
-    private readonly crawlJobService: CrawlJobService,
+    private readonly docIndexJobService: DocIndexJobService,
     private readonly botService: BotService,
   ) {}
   public async exec(jobId: string): Promise<Response> {
     try {
-      this.logger.log(`Start getting crawl job status`);
+      this.logger.log(`Start getting DocIndex job status`);
 
-      const crawlJob = await this.crawlJobService.findById(jobId);
+      const docIndexJob = await this.docIndexJobService.findById(jobId);
 
-      if (!crawlJob) return left(new NotFoundError('Crawl job not found'));
+      if (!docIndexJob) return left(new NotFoundError('Crawl job not found'));
 
-      const { status, botId, limit } = crawlJob;
+      const { status, botId, indexedCount } = docIndexJob;
 
       const bot = await this.botService.findById(botId);
 
@@ -40,15 +40,15 @@ export default class GetCrawlJobStatusUseCase {
 
       const { documents } = bot;
 
-      this.logger.log(`Get crawl job successfully`);
+      this.logger.log(`Get DocIndex job successfully`);
       return right(
         Result.ok({
           jobId,
           botId,
           status,
-          createdAt: crawlJob.createdAt,
-          limit,
-          progress: Math.floor((documents.length / limit) * 100),
+          createdAt: docIndexJob.createdAt,
+          indexedCount,
+          progress: Math.floor((indexedCount / documents.length) * 100),
         }),
       );
     } catch (err) {

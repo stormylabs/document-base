@@ -9,6 +9,6 @@ services:
       PINECONE_API_KEY:
       PINECONE_ENV:
       PINECONE_INDEX:
-      SQS_QUEUE_NAME:
+      WEB_CRAWL_QUEUE_NAME:
     ports:
       - "3000:3000"

@@ -8,7 +8,7 @@ export enum DocumentType {
 export interface DocumentData {
   _id: string;
   type: DocumentType;
-  name: string;
+  sourceName: string;
   content: string;
   createdAt: Date;
   deletedAt: Date;

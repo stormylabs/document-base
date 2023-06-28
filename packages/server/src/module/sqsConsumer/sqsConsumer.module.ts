@@ -15,8 +15,13 @@ import { DataModule } from '../data/data.module';
         return {
           consumers: [
             {
-              name: config.get<string>('SQS_QUEUE_NAME'),
-              queueUrl: config.get<string>('SQS_QUEUE_URL'),
+              name: config.get<string>('WEB_CRAWL_QUEUE_NAME'),
+              queueUrl: config.get<string>('WEB_CRAWL_QUEUE_URL'),
+              region: config.get<string>('SQS_REGION'),
+            },
+            {
+              name: config.get<string>('DOC_INDEX_QUEUE_NAME'),
+              queueUrl: config.get<string>('DOC_INDEX_QUEUE_URL'),
               region: config.get<string>('SQS_REGION'),
             },
           ],
