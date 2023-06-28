@@ -20,6 +20,7 @@ import { DocumentRepository } from '../bot/repositories/document.repository';
 import { SqsMessageService } from '../sqsProducer/services/sqsMessage.service';
 import { SqsConsumerService } from '../sqsConsumer/services/sqsConsumer.service';
 import CrawlWebsiteUseCase from './useCases/CrawlWebsite';
+import GetCrawlJobStatusUseCase from './useCases/GetCrawlJobStatus';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -44,6 +45,7 @@ import CrawlWebsiteUseCase from './useCases/CrawlWebsite';
   controllers: [DataController],
   providers: [
     CreateCrawlJobUseCase,
+    GetCrawlJobStatusUseCase,
     ChatAssistUseCase,
     PineconeClient,
     CrawlJobService,
