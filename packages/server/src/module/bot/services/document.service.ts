@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { DocumentRepository } from '../repositories/document.repository';
-import { DocumentData, DocumentType } from '@/shared/interfaces/document';
+import { DocumentData } from '@/shared/interfaces/document';
 
 @Injectable()
 export class DocumentService {

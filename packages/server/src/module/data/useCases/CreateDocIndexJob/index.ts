@@ -6,7 +6,6 @@ import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.serv
 import { JobStatus } from '@/shared/interfaces';
 import { DocumentData } from '@/shared/interfaces/document';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
-import { ConfigService } from '@nestjs/config';
 import { DocIndexJobService } from '../../services/docIndexJob.service';
 import { DocIndexJobMessage } from '@/shared/interfaces/docIndexJob';
 

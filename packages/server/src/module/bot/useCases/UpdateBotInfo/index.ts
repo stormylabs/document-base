@@ -2,7 +2,6 @@ import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, { InvalidInputError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '../../services/bot.service';
-import { BotData } from 'src/shared/interfaces/bot';
 import UpdateBotInfoDTO from './dto';
 
 type Response = Either<
