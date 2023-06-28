@@ -6,6 +6,8 @@ import CreateBotUseCase from './useCases/CreateBot';
 import CreateBotDTO from './useCases/CreateBot/dto';
 import UpdateBotInfoUseCase from './useCases/UpdateBotInfo';
 import UpdateBotDTO from './useCases/UpdateBotInfo/dto';
+import SaveAndIndexDocsUseCase from './useCases/SaveAndIndexDocs';
+import SaveAndIndexDocsDTO from './useCases/SaveAndIndexDocs/dto';
 
 @ApiTags('bot')
 @Controller('bot')
@@ -14,6 +16,7 @@ export class BotController {
   constructor(
     private createBotUseCase: CreateBotUseCase,
     private updateBotInfoUseCase: UpdateBotInfoUseCase,
+    private saveAndIndexDocsUseCase: SaveAndIndexDocsUseCase,
   ) {
     this.createBotUseCase = createBotUseCase;
     this.updateBotInfoUseCase = updateBotInfoUseCase;
@@ -30,6 +33,27 @@ export class BotController {
       this.logger.error(
         `[POST] create bot error ${error.errorValue().message}`,
       );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Post('/train/:id')
+  @ApiOperation({ summary: 'Save and Train bot' })
+  async saveAndTrainBot(
+    @Param() { id }: ParamWithId,
+    @Body() body: SaveAndIndexDocsDTO,
+  ) {
+    this.logger.log(`[POST] Start indexing documents`);
+    const { documentIds } = body;
+    const result = await this.saveAndIndexDocsUseCase.exec(id, documentIds);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] index documents error ${error.errorValue().message}`,
+      );
+
       return errorHandler(error);
     }
     return result.value.getValue();

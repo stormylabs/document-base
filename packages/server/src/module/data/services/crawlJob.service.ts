@@ -1,6 +1,7 @@
-import { CrawlJobData, CrawlJobStatus } from '@/shared/interfaces/crawlJob';
+import { CrawlJobData } from '@/shared/interfaces/crawlJob';
 import { Injectable } from '@nestjs/common';
 import { CrawlJobRepository } from '../repositories/crawlJob.repository';
+import { JobStatus } from '@/shared/interfaces';
 
 @Injectable()
 export class CrawlJobService {
@@ -20,9 +21,9 @@ export class CrawlJobService {
 
   async updateStatus(
     crawlJobId: string,
-    status: CrawlJobStatus,
+    status: JobStatus,
   ): Promise<CrawlJobData> {
-    const exists = await this.exists(crawlJobId);
+    const exists = await this.exists([crawlJobId]);
     if (!exists) throw new Error('Crawl job does not exist.');
     const updatedBot = await this.crawlJobRepository.update(crawlJobId, {
       status,
@@ -31,7 +32,7 @@ export class CrawlJobService {
   }
 
   async delete(crawlJobId: string): Promise<CrawlJobData> {
-    const exists = await this.exists(crawlJobId);
+    const exists = await this.exists([crawlJobId]);
     if (!exists) throw new Error('Crawl job does not exist.');
     const updatedCrawlJob = await this.crawlJobRepository.update(crawlJobId, {
       deletedAt: new Date(),
@@ -39,13 +40,12 @@ export class CrawlJobService {
     return updatedCrawlJob;
   }
 
-  async exists(crawlJobId: string): Promise<boolean> {
-    const crawlJob = await this.crawlJobRepository.findById(crawlJobId);
-    return !!crawlJob;
+  async exists(crawlJobIds: string[]): Promise<boolean> {
+    return this.crawlJobRepository.exists(crawlJobIds);
   }
 
   async incrementLimit(crawlJobId: string) {
-    const exists = await this.exists(crawlJobId);
+    const exists = await this.exists([crawlJobId]);
     if (!exists) throw new Error('Crawl job does not exist.');
     return this.crawlJobRepository.incrementLimit(crawlJobId);
   }

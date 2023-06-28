@@ -24,7 +24,7 @@ export class Document extends MongooseDocument {
   type: DocumentType;
 
   @Prop({ type: String, required: true, unique: true })
-  name: string;
+  sourceName: string;
 
   @Prop({ type: String, required: true })
   content: string;

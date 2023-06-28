@@ -34,6 +34,13 @@ export class DocumentRepository {
     return documents.map((document) => document.toJSON() as DocumentData);
   }
 
+  async exists(documentIds: string[]): Promise<boolean> {
+    const count = await this.documentModel
+      .countDocuments({ _id: { $in: documentIds } })
+      .exec();
+    return count === documentIds.length;
+  }
+
   async update(
     documentId: string,
     data: Partial<Omit<DocumentData, '_id' | 'createdAt'>>,

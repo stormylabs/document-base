@@ -4,12 +4,11 @@ import { Either, Result, left, right } from 'src/shared/core/Result';
 import { CrawlJobService } from '../../services/crawlJob.service';
 import { BotService } from '@/module/bot/services/bot.service';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
-import { PineconeClientService } from '@/module/pinecone/pinecone.service';
-import { ConfigService } from '@nestjs/config';
 import { DocumentService } from '@/module/bot/services/document.service';
 import { Crawler } from '@/shared/utils/crawler';
 import { DocumentType } from '@/shared/interfaces/document';
-import { CrawlJobMessage, CrawlJobStatus } from '@/shared/interfaces/crawlJob';
+import { CrawlJobMessage } from '@/shared/interfaces/crawlJob';
+import { JobStatus } from '@/shared/interfaces';
 
 type Response = Either<NotFoundError | UnexpectedError, Result<void>>;
 
@@ -19,8 +18,6 @@ export default class CrawlWebsiteUseCase {
   constructor(
     private readonly sqsMessageService: SqsMessageService,
     private readonly botService: BotService,
-    private readonly pineconeService: PineconeClientService,
-    private readonly configService: ConfigService,
     private readonly crawlJobService: CrawlJobService,
     private readonly documentService: DocumentService,
   ) {}
@@ -40,18 +37,18 @@ export default class CrawlWebsiteUseCase {
       if (!crawlJob) {
         return left(new NotFoundError('CrawlJob not found'));
       }
-      if (crawlJob.status === CrawlJobStatus.Finished) {
+      if (crawlJob.status === JobStatus.Finished) {
         return right(Result.ok());
       }
       if (
         crawlJob.limit ===
         bot.documents.filter((doc) => doc.type === DocumentType.Url).length
       ) {
-        await this.crawlJobService.updateStatus(jobId, CrawlJobStatus.Finished);
+        await this.crawlJobService.updateStatus(jobId, JobStatus.Finished);
         return right(Result.ok());
       }
-      if (crawlJob.status === CrawlJobStatus.Pending) {
-        await this.crawlJobService.updateStatus(jobId, CrawlJobStatus.Running);
+      if (crawlJob.status === JobStatus.Pending) {
+        await this.crawlJobService.updateStatus(jobId, JobStatus.Running);
       }
 
       const crawler = new Crawler(url);
@@ -61,7 +58,7 @@ export default class CrawlWebsiteUseCase {
         urls: string[];
       };
 
-      const document = await this.documentService.findByName(url);
+      const document = await this.documentService.findBySourceName(url);
       let documentId = '';
 
       if (document) {
@@ -70,7 +67,7 @@ export default class CrawlWebsiteUseCase {
       } else {
         this.logger.log('Document does not exist');
         const created = await this.documentService.create({
-          name: url,
+          sourceName: url,
           type: DocumentType.Url,
           content: data.text,
         });
@@ -84,7 +81,7 @@ export default class CrawlWebsiteUseCase {
 
       const botDocumentUrls = upsertedBot.documents
         .filter((doc) => doc.type === DocumentType.Url)
-        .map((doc) => doc.name);
+        .map((doc) => doc.sourceName);
 
       const updatedCrawlJob = await this.crawlJobService.incrementLimit(jobId);
       this.logger.log('crawl job incremented');
@@ -92,7 +89,7 @@ export default class CrawlWebsiteUseCase {
       //   set crawl job status to finished if limit is reached
       if (updatedCrawlJob.limit === botDocumentUrls.length) {
         this.logger.log('crawl job finished');
-        await this.crawlJobService.updateStatus(jobId, CrawlJobStatus.Finished);
+        await this.crawlJobService.updateStatus(jobId, JobStatus.Finished);
         return right(Result.ok());
       }
 
@@ -108,11 +105,15 @@ export default class CrawlWebsiteUseCase {
 
       for (const url of urls) {
         this.logger.log('sending crawl job message');
-        await this.sqsMessageService.sendMessage<CrawlJobMessage>(jobId, {
-          url,
-          botId,
+        await this.sqsMessageService.sendMessage<CrawlJobMessage>(
           jobId,
-        });
+          'web-crawl',
+          {
+            url,
+            botId,
+            jobId,
+          },
+        );
       }
 
       this.logger.log(`Website is crawled successfully`);
@@ -120,15 +121,6 @@ export default class CrawlWebsiteUseCase {
     } catch (err) {
       console.log(err);
       return left(new UnexpectedError(err));
-    }
-  }
-
-  async crawlWebsite() {
-    const { status } = await this.pineconeService.client.describeIndex({
-      indexName: this.configService.get<string>('PINECONE_INDEX'),
-    });
-    if (!status.ready) {
-      throw new Error('Pinecone index is not ready');
     }
   }
 }

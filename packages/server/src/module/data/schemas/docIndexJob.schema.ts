@@ -1,18 +1,15 @@
+import { JobStatus } from '@/shared/interfaces';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { JobStatus } from '@/shared/interfaces';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 
-export type CrawlJobDocument = HydratedDocument<CrawlJob>;
+export type DocIndexJobDocument = HydratedDocument<DocIndexJob>;
 
-@Schema({ collection: 'CrawlJob' })
-export class CrawlJob extends Document {
+@Schema({ collection: 'DocIndexJob' })
+export class DocIndexJob extends Document {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
-
-  @Prop({ type: Number, default: 1, min: 1, max: 2000 })
-  limit: number;
 
   @Prop({
     type: String,
@@ -22,11 +19,11 @@ export class CrawlJob extends Document {
   })
   status: JobStatus;
 
+  @Prop({ type: Number, default: 0 })
+  indexedCount: number;
+
   @Prop({ type: Types.ObjectId })
   botId: string;
-
-  @Prop({ type: Array, default: [], minlength: 1, maxlength: 10 })
-  initUrls: string[];
 
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
@@ -35,5 +32,5 @@ export class CrawlJob extends Document {
   deletedAt: Date;
 }
 
-export const CrawlJobSchema = SchemaFactory.createForClass(CrawlJob);
-CrawlJobSchema.set('toJSON', toJSONOverride);
+export const DocIndexJobSchema = SchemaFactory.createForClass(DocIndexJob);
+DocIndexJobSchema.set('toJSON', toJSONOverride);

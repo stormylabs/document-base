@@ -3,12 +3,13 @@ import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { CrawlJobService } from '../../services/crawlJob.service';
 import { BotService } from '@/module/bot/services/bot.service';
-import { CrawlJobMessage, CrawlJobStatus } from '@/shared/interfaces/crawlJob';
+import { CrawlJobMessage } from '@/shared/interfaces/crawlJob';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
+import { JobStatus } from '@/shared/interfaces';
 
 type Response = Either<
   NotFoundError | UnexpectedError,
-  Result<{ jobId: string; status: CrawlJobStatus }>
+  Result<{ jobId: string; status: JobStatus }>
 >;
 
 @Injectable()
@@ -27,7 +28,7 @@ export default class CreateCrawlJobUseCase {
     try {
       this.logger.log(`Start creating crawl job`);
 
-      const botExists = await this.botService.exists(botId);
+      const botExists = await this.botService.exists([botId]);
       if (!botExists) return left(new NotFoundError('Bot not found'));
 
       // remove all documents before start crawling
@@ -42,11 +43,15 @@ export default class CreateCrawlJobUseCase {
       const { _id, status } = crawlJob;
 
       for (const url of urls) {
-        await this.sqsMessageService.sendMessage<CrawlJobMessage>(_id, {
-          url,
-          botId,
-          jobId: _id,
-        });
+        await this.sqsMessageService.sendMessage<CrawlJobMessage>(
+          _id,
+          'web-crawl',
+          {
+            url,
+            botId,
+            jobId: _id,
+          },
+        );
       }
 
       this.logger.log(`Crawl job is created successfully`);

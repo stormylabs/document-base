@@ -6,6 +6,8 @@ import CreateCrawlJobUseCase from './useCases/CreateCrawlJob';
 import CreateCrawlJobDTO from './useCases/CreateCrawlJob/dto';
 import GetCrawlJobStatusDTO from './useCases/GetCrawlJobStatus/dto';
 import GetCrawlJobStatusUseCase from './useCases/GetCrawlJobStatus';
+import GetDocIndexJobStatusDTO from './useCases/GetDocIndexJobStatus/dto';
+import GetDocIndexJobStatusUseCase from './useCases/GetDocIndexJobStatus';
 
 @Controller('/data')
 export class DataController {
@@ -13,11 +15,13 @@ export class DataController {
   constructor(
     private createCrawlJobUseCase: CreateCrawlJobUseCase,
     private getCrawlJobStatusUseCase: GetCrawlJobStatusUseCase,
+    private getDocIndexJobStatusUseCase: GetDocIndexJobStatusUseCase,
     private chatAssistUseCase: ChatAssistUseCase,
   ) {
     this.getCrawlJobStatusUseCase = getCrawlJobStatusUseCase;
     this.createCrawlJobUseCase = createCrawlJobUseCase;
     this.chatAssistUseCase = chatAssistUseCase;
+    this.getDocIndexJobStatusUseCase = getDocIndexJobStatusUseCase;
   }
 
   @Post('/crawl')
@@ -47,6 +51,23 @@ export class DataController {
       const error = result.value;
       this.logger.error(
         `[GET] get crawl job status error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+
+    return result.value.getValue();
+  }
+
+  @Get('/train')
+  async getTrainJobStatus(@Query() query: GetDocIndexJobStatusDTO) {
+    const { jobId } = query;
+    this.logger.log(`[GET] Start getting DocIndex job status`);
+    const result = await this.getDocIndexJobStatusUseCase.exec(jobId);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[GET] get DocIndex job status error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

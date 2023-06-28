@@ -1,9 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { CrawlJobData, CrawlJobStatus } from '@/shared/interfaces/crawlJob';
+import { CrawlJobData } from '@/shared/interfaces/crawlJob';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CrawlJob } from '../schemas/crawlJob.schema';
+import { JobStatus } from '@/shared/interfaces';
 
 @Injectable()
 export class CrawlJobRepository {
@@ -23,6 +24,13 @@ export class CrawlJobRepository {
     return crawlJob.toJSON() as CrawlJobData;
   }
 
+  async exists(crawlJobIds: string[]): Promise<boolean> {
+    const crawlJobs = await this.crawlJobModel
+      .find({ _id: { $in: crawlJobIds } })
+      .exec();
+    return crawlJobs.length === crawlJobIds.length;
+  }
+
   async findAll(): Promise<CrawlJobData[]> {
     const crawlJobs = await this.crawlJobModel.find().exec();
     return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
@@ -36,7 +44,7 @@ export class CrawlJobRepository {
 
   async update(
     crawlJobId: string,
-    data: Partial<{ status: CrawlJobStatus; deletedAt: Date }>,
+    data: Partial<{ status: JobStatus; deletedAt: Date }>,
   ): Promise<CrawlJobData | null> {
     const id = new Types.ObjectId(crawlJobId);
     const crawlJob = await this.crawlJobModel.findByIdAndUpdate(
