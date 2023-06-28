@@ -97,8 +97,11 @@ export default class CrawlWebsiteUseCase {
       }
 
       //   filters out current bot documents.urls to only send new urls
+      //   and send 50% more urls than limit to make sure that there are enough urls to crawl
       //   only limits to send remaining quotas to limit
-      const remaining = updatedCrawlJob.limit - botDocumentUrls.length;
+      const remaining = Math.floor(
+        (updatedCrawlJob.limit - botDocumentUrls.length) * 1.5,
+      );
       const urls = data.urls
         .slice(0, remaining)
         .filter((url) => !botDocumentUrls.includes(url));
