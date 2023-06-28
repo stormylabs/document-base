@@ -11,7 +11,7 @@ import CreateCrawlJobUseCase from './useCases/CreateCrawlJob';
 import { CrawlJob, CrawlJobSchema } from './schemas/crawlJob.schema';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CrawlJobRepository } from './repositories/crawlJob.repository';
-import { Bot, BotSchema } from '../bot/schemas/Bot.schema';
+import { Bot, BotSchema } from '../bot/schemas/bot.schema';
 import { Document, DocumentSchema } from '../bot/schemas/document.schema';
 import { BotService } from '../bot/services/bot.service';
 import { BotRepository } from '../bot/repositories/bot.repository';

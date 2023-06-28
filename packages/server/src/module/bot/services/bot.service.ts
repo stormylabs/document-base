@@ -19,13 +19,13 @@ export class BotService {
     return bot;
   }
 
-  async update(
+  async updateInfo(
     botId: string,
-    data: Partial<Omit<BotData, 'createdAt' | '_id'>>,
+    { name }: { name: string },
   ): Promise<BotData> {
     const exists = await this.exists(botId);
     if (!exists) throw new Error('Bot does not exist.');
-    const updatedBot = await this.botRepository.update(botId, data);
+    const updatedBot = await this.botRepository.update(botId, { name });
     return updatedBot;
   }
 

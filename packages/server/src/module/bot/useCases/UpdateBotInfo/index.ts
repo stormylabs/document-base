@@ -3,7 +3,7 @@ import UnexpectedError, { InvalidInputError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '../../services/bot.service';
 import { BotData } from 'src/shared/interfaces/bot';
-import UpdateBotDTO from './dto';
+import UpdateBotInfoDTO from './dto';
 
 type Response = Either<
   InvalidInputError | UnexpectedError,
@@ -15,11 +15,14 @@ export default class UpdateBotUseCase {
   private readonly logger = new Logger(UpdateBotUseCase.name);
   constructor(private readonly botService: BotService) {}
 
-  public async exec(botId: string, botData: UpdateBotDTO): Promise<Response> {
+  public async exec(
+    botId: string,
+    botData: UpdateBotInfoDTO,
+  ): Promise<Response> {
     try {
       this.logger.log(`Start updating bot`);
 
-      const bot = await this.botService.update(botId, botData);
+      const bot = await this.botService.updateInfo(botId, botData);
 
       return right(Result.ok({ bot }));
     } catch (err) {
