@@ -35,9 +35,9 @@ on:
   workflow_dispatch:
 
 env:
-  AWS_REGION: us-east-1 # set this to your preferred AWS region, e.g. us-west-1
+  AWS_REGION: ap-southeast-1 # set this to your preferred AWS region, e.g. us-west-1
   ECR_REPOSITORY: document-base # set this to your Amazon ECR repository name
-  ECS_SERVICE: document-base-stgsvc # set this to your Amazon ECS service name
+  ECS_SERVICE: document-base-stg # set this to your Amazon ECS service name
   ECS_CLUSTER: document-base # set this to your Amazon ECS cluster name
   ECS_TASK_DEFINITION:
     ./packages/server/.aws/document-base-stg.json # set this to the path to your Amazon ECS task definition
