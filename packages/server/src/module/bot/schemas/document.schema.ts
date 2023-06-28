@@ -5,15 +5,10 @@ import {
   HydratedDocument,
   ObjectId,
 } from 'mongoose';
+import { DocumentType } from '../../../shared/interfaces/document';
+import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 
 export type DocumentDocument = HydratedDocument<Document>;
-
-enum DocumentType {
-  Url = 'url',
-  Pdf = 'pdf',
-  Word = 'word',
-  Image = 'image',
-}
 
 @Schema({ collection: 'Document' })
 export class Document extends MongooseDocument {
@@ -28,12 +23,19 @@ export class Document extends MongooseDocument {
   })
   type: DocumentType;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String, required: true, unique: true })
   name: string;
 
   @Prop({ type: String, required: true })
-  text: string;
+  content: string;
+
+  @Prop({ default: Date.now, type: Date })
+  createdAt: Date;
+
+  @Prop({ type: Date })
+  deletedAt: Date;
 }
 
 export const DocumentSchema = SchemaFactory.createForClass(Document);
 DocumentSchema.index({ name: 1 });
+DocumentSchema.set('toJSON', toJSONOverride);

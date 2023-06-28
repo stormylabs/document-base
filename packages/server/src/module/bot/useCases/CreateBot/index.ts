@@ -18,7 +18,7 @@ export default class CreateBotUseCase {
     try {
       this.logger.log(`Start creating bot`);
 
-      const bot = await this.botService.createBot(name);
+      const bot = await this.botService.create(name);
 
       return right(Result.ok({ bot }));
     } catch (err) {

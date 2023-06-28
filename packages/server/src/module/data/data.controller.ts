@@ -1,39 +1,36 @@
-import { Body, Controller, Get, Logger, Post, Query } from '@nestjs/common';
+import { Body, Controller, Logger, Post } from '@nestjs/common';
 import { errorHandler } from 'src/shared/http';
 import ChatAssistUseCase from './useCases/ChatAssist';
 import ChatAssistDTO from './useCases/ChatAssist/dto';
-import CrawlWebsitesUseCase from './useCases/CrawlWebsite';
-import CrawlWebsitesDTO from './useCases/CrawlWebsite/dto';
+import CreateCrawlJobUseCase from './useCases/CreateCrawlJob';
+import CreateCrawlJobDTO from './useCases/CreateCrawlJob/dto';
 
 @Controller('/data')
 export class DataController {
   private readonly logger = new Logger(DataController.name);
   constructor(
-    private crawlWebsiteUseCase: CrawlWebsitesUseCase,
+    private createCrawlJobUseCase: CreateCrawlJobUseCase,
     private chatAssistUseCase: ChatAssistUseCase,
   ) {
-    this.crawlWebsiteUseCase = crawlWebsiteUseCase;
+    this.createCrawlJobUseCase = createCrawlJobUseCase;
     this.chatAssistUseCase = chatAssistUseCase;
   }
 
-  @Get('/crawl')
-  async indexQueries(@Query() query: CrawlWebsitesDTO) {
-    const { urls, limit, tag, summarize } = query;
-    this.logger.log(`[GET] Start crawling websites`);
-    const result = await this.crawlWebsiteUseCase.exec(
-      urls,
-      limit,
-      tag,
-      summarize,
-    );
+  @Post('/crawl')
+  async createCrawlJob(@Body() body: CreateCrawlJobDTO) {
+    const { urls, limit, botId } = body;
+    this.logger.log(`[GET] Start creating crawl job`);
+    const result = await this.createCrawlJobUseCase.exec(botId, urls, limit);
 
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[GET] crawl websites error ${error.errorValue().message}`,
+        `[GET] create crawl job error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
+
+    return result.value.getValue();
   }
 
   @Post('/chat-assist')

@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { DocumentDocument } from './document.schema';
+import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 
 export type BotDocument = HydratedDocument<Bot>;
 
@@ -28,3 +29,4 @@ export class Bot extends Document {
 
 export const BotSchema = SchemaFactory.createForClass(Bot);
 BotSchema.index({ name: 1 });
+BotSchema.set('toJSON', toJSONOverride);
