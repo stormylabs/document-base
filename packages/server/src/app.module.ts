@@ -17,7 +17,7 @@ import { AppController } from './app.controller';
         PINECONE_ENV: Joi.string().required(),
         PINECONE_INDEX: Joi.string().required(),
         DATABASE_URL: Joi.string().required(),
-        NODE_ENV: Joi.string().required(),
+        NODE_ENV: Joi.string(),
         DOC_INDEX_QUEUE_NAME: Joi.string().required(),
         DOC_INDEX_QUEUE_URL: Joi.string().required(),
         WEB_CRAWL_QUEUE_NAME: Joi.string().required(),
