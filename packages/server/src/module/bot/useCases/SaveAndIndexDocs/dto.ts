@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   ArrayMaxSize,
   ArrayMinSize,
@@ -7,6 +8,7 @@ import {
 } from 'class-validator';
 
 export default class SaveAndIndexDocsDTO {
+  @ApiProperty()
   @IsString({ each: true })
   @IsArray()
   @ArrayNotEmpty()
