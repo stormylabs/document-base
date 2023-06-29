@@ -15,7 +15,7 @@ import MessageBotUseCase from './useCases/MessageBot';
 import { PineconeModule } from '../pinecone/pinecone.module';
 import { PineconeClientService } from '../pinecone/pinecone.service';
 import { ConfigModule } from '@nestjs/config';
-import { LangChainModule } from '../langChain/langchain.module';
+import { LangChainModule } from '../langChain/langChain.module';
 
 @Module({
   imports: [
