@@ -6,9 +6,9 @@ services:
     environment:
       DATABASE_URL:
       OPENAI_API_KEY:
-      GOOGLE_SEARCH_API_KEY:
-      GOOGLE_SEARCH_ENGINE_ID:
-      ZYTE_API_KEY:
-      ZYTE_API_ENDPOINT:
+      PINECONE_API_KEY:
+      PINECONE_ENV:
+      PINECONE_INDEX:
+      WEB_CRAWL_QUEUE_NAME:
     ports:
       - "3000:3000"

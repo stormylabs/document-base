@@ -1,34 +1,34 @@
-# Build stage
-FROM node:16-alpine AS build
-WORKDIR /app
-COPY package*.json ./
-RUN yarn --frozen-lockfile --cache-folder ./ycache && rm -rf ./ycache
-COPY . .
-RUN yarn build && rm -rf ./node_modules
+###################
+# BUILD FOR PRODUCTION
+###################
 
-# Production stage
-FROM node:16-alpine
-WORKDIR /app
-COPY package*.json ./
+FROM node:18-alpine As build
+
+WORKDIR /usr/src/app
+
+COPY --chown=node:node package.json yarn.lock ./
+
+RUN yarn install --frozen-lockfile
+
+COPY --chown=node:node . .
+
+RUN yarn build
+
+ENV NODE_ENV production
+
 RUN yarn install --production --frozen-lockfile --cache-folder ./ycache && rm -rf ./ycache
-COPY --from=build /app/dist ./dist
-COPY --from=build /app/prisma ./prisma
-RUN npx prisma generate
+
+USER node
+
+###################
+# PRODUCTION
+###################
+
+FROM node:18-alpine As production
+
+COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
+COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+
 EXPOSE 3000
 
-ARG DATABASE_URL
-ARG OPENAI_API_KEY
-ARG GOOGLE_SEARCH_API_KEY
-ARG GOOGLE_SEARCH_ENGINE_ID
-ARG ZYTE_API_KEY
-ARG ZYTE_API_ENDPOINT
-
-ENV DATABASE_URL=$DATABASE_URL
-ENV OPENAI_API_KEY=$OPENAI_API_KEY
-ENV GOOGLE_SEARCH_API_KEY=$GOOGLE_SEARCH_API_KEY
-ENV GOOGLE_SEARCH_ENGINE_ID=$GOOGLE_SEARCH_ENGINE_ID
-ENV ZYTE_API_KEY=$ZYTE_API_KEY
-ENV ZYTE_API_ENDPOINT=$ZYTE_API_ENDPOINT
-
-
-CMD ["yarn", "start:prod"]
+CMD [ "node", "dist/main.js" ]

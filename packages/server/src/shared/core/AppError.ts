@@ -38,3 +38,10 @@ export class InvalidInputError extends Result<UseCaseError> {
     //     Logger.error(message);
   }
 }
+
+export class NotFoundError extends Result<UseCaseError> {
+  public constructor(message: string) {
+    super(false, { message } as UseCaseError);
+    //     Logger.error(message);
+  }
+}

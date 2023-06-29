@@ -1,10 +1,14 @@
+import { Metadata } from '@/shared/interfaces/pinecone';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PineconeClient } from '@pinecone-database/pinecone';
 import { VectorOperationsApi } from '@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch';
 
 @Injectable()
 export class PineconeClientService implements OnModuleInit {
   private readonly logger = new Logger(PineconeClientService.name);
+
+  constructor(private readonly config: ConfigService) {}
 
   async onModuleInit() {
     await this.initClient();
@@ -17,8 +21,8 @@ export class PineconeClientService implements OnModuleInit {
   private async initClient() {
     try {
       await this.client.init({
-        apiKey: process.env.PINECONE_API_KEY,
-        environment: process.env.PINECONE_ENV,
+        apiKey: this.config.get<string>('PINECONE_API_KEY'),
+        environment: this.config.get<string>('PINECONE_ENV'),
       });
       this.logger.log(`Connected to pinecone`);
     } catch (error) {
@@ -28,7 +32,7 @@ export class PineconeClientService implements OnModuleInit {
   }
 
   private async initIndex() {
-    const index = process.env.PINECONE_INDEX;
+    const index = this.config.get<string>('PINECONE_INDEX');
     const indexList = await this.client.listIndexes();
     if (!indexList.includes(index)) {
       try {
@@ -51,5 +55,25 @@ export class PineconeClientService implements OnModuleInit {
     }
     this.index = this.client.Index(index);
     this.logger.log(`Pinecone index: "${index}" is ready,`);
+  }
+
+  public async getMatches(embeddings: number[], metadata: Partial<Metadata>) {
+    const queryRequest = {
+      vector: embeddings,
+      topK: 3,
+      includeMetadata: true,
+      filter: metadata,
+    };
+
+    const queryResult = await this.index.query({
+      queryRequest,
+    });
+
+    return (
+      queryResult.matches.map((match) => ({
+        ...match,
+        metadata: match.metadata as Metadata,
+      })) || []
+    );
   }
 }

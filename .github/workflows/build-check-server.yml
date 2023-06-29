@@ -1,0 +1,30 @@
+name: Build Check
+
+on:
+  pull_request:
+    # types: [opened, reopened]
+    paths:
+      - "packages/server/**"
+
+env:
+  IMAGE_TAG: document-base
+
+jobs:
+  check:
+    name: Run Build Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v3
+
+      - name: Build the Docker Image
+        run: docker build -t $IMAGE_TAG --target=build ./packages/server
+
+      # - name: Run Prettier
+      #   run: docker run $IMAGE_TAG sh -c 'yarn format'
+
+      # - name: Run ESLint
+      #   run: docker run $IMAGE_TAG sh -c 'yarn lint'
+
+      # - name: Run Unit Test
+      #   run: docker run $IMAGE_TAG sh -c 'yarn test'

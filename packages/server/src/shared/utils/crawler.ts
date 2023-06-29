@@ -2,29 +2,24 @@ import * as Spider from 'node-spider';
 import * as TurndownService from 'turndown';
 import * as cheerio from 'cheerio';
 import * as parse from 'url-parse';
+import { Logger } from '@nestjs/common';
 const turndownService = new TurndownService();
 
-export type Page = {
-  url: string;
-  text: string;
-  title: string;
-};
 class Crawler {
-  pages: Page[] = [];
-  limit = 1000;
-  urls: string[] = [];
+  text: string;
+  urls: string[];
+  url: string;
   spider: Spider | null = {};
-  count = 0;
-  textLengthMinimum = 10;
+  textLengthMinimum = 200;
+  private readonly logger = new Logger(Crawler.name);
 
-  constructor(urls: string[], limit = 1000, textLengthMinimum = 200) {
-    this.urls = urls;
-    this.limit = limit;
+  constructor(url: string, textLengthMinimum = 200) {
+    this.url = url;
     this.textLengthMinimum = textLengthMinimum;
 
-    this.count = 0;
-    this.pages = [];
+    this.text = '';
     this.spider = {};
+    this.urls = [];
   }
 
   handleRequest = (doc: any) => {
@@ -34,40 +29,26 @@ class Crawler {
     $('header').remove();
     $('nav').remove();
     $('img').remove();
-    const title = $('title').text() || $('.article-title').text();
+    // const title = $('title').text() || $('.article-title').text();
     const html = $('body').html();
     const text = turndownService.turndown(html);
-    console.log('crawling ', doc.url);
-    const page: Page = {
-      url: doc.url,
-      text,
-      title,
-    };
     if (text.length > this.textLengthMinimum) {
-      this.pages.push(page);
+      this.text = text;
     }
 
     doc.$('a').each((i: number, elem: any) => {
       const href = doc.$(elem).attr('href')?.split('#')[0];
       const targetUrl = href && doc.resolve(href);
-      // crawl more
-      if (
-        targetUrl &&
-        this.urls.some((u) => {
-          const targetUrlParts = parse(targetUrl);
-          const uParts = parse(u);
-          return targetUrlParts.hostname === uParts.hostname;
-        }) &&
-        this.count < this.limit
-      ) {
-        this.spider.queue(targetUrl, this.handleRequest);
-        this.count = this.count + 1;
+      const targetUrlParts = parse(targetUrl);
+      const uParts = parse(this.url);
+      if (targetUrl && targetUrlParts.hostname === uParts.hostname) {
+        this.urls.push(targetUrl);
       }
     });
   };
 
   start = async () => {
-    this.pages = [];
+    this.urls = [];
     return new Promise((resolve, reject) => {
       this.spider = new Spider({
         concurrent: 5,
@@ -78,19 +59,17 @@ class Crawler {
         xhr: false,
         keepAlive: false,
         error: (err: any, url: string) => {
-          console.log(err, url);
+          this.logger.log(`[Crawler] Error: ${err} ${url}`);
           reject(err);
         },
         // Called when there are no more requests
         done: () => {
-          resolve(this.pages);
+          resolve({ text: this.text, urls: this.urls });
         },
         headers: { 'user-agent': 'node-spider' },
         encoding: 'utf8',
       });
-      this.urls.forEach((url) => {
-        this.spider.queue(url, this.handleRequest);
-      });
+      this.spider.queue(this.url, this.handleRequest);
     });
   };
 }

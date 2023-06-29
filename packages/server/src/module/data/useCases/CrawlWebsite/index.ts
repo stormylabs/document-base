@@ -1,146 +1,123 @@
 import { Injectable, Logger } from '@nestjs/common';
-import { Vector } from '@pinecone-database/pinecone';
-import UnexpectedError, { InvalidInputError } from 'src/shared/core/AppError';
+import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
-import { Crawler, Page } from 'src/shared/utils/crawler';
-import {
-  sliceIntoChunks,
-  truncateStringByBytes,
-} from 'src/shared/utils/web-utils';
-import { TokenTextSplitter } from 'langchain/text_splitter';
-import { summarizeLongDocument } from 'src/shared/utils/summarizer';
-import { Document } from 'langchain/document';
-import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
-import { uuid } from 'uuidv4';
-import Bottleneck from 'bottleneck';
-import { PineconeClientService } from 'src/module/pinecone/pinecone.service';
+import { CrawlJobService } from '../../services/crawlJob.service';
+import { BotService } from '@/module/bot/services/bot.service';
+import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
+import { DocumentService } from '@/module/bot/services/document.service';
+import { Crawler } from '@/shared/utils/crawler';
+import { DocumentType } from '@/shared/interfaces/document';
+import { CrawlJobMessage } from '@/shared/interfaces/crawlJob';
+import { JobStatus } from '@/shared/interfaces';
 
-type Response = Either<
-  InvalidInputError | UnexpectedError,
-  Result<{ message: string }>
->;
-
-const limiter = new Bottleneck({
-  minTime: 50,
-});
+type Response = Either<NotFoundError | UnexpectedError, Result<void>>;
 
 @Injectable()
-export default class CrawlWebsitesUseCase {
-  private readonly logger = new Logger(CrawlWebsitesUseCase.name);
-  constructor(private readonly pinecone: PineconeClientService) {}
+export default class CrawlWebsiteUseCase {
+  private readonly logger = new Logger(CrawlWebsiteUseCase.name);
+  constructor(
+    private readonly sqsMessageService: SqsMessageService,
+    private readonly botService: BotService,
+    private readonly crawlJobService: CrawlJobService,
+    private readonly documentService: DocumentService,
+  ) {}
   public async exec(
-    urls: string[],
-    limit: number,
-    tag: string,
-    summarize?: boolean,
+    jobId: string,
+    botId: string,
+    url: string,
   ): Promise<Response> {
     try {
       this.logger.log(`Start crawling website`);
 
-      const { status } = await this.pinecone.client.describeIndex({
-        indexName: process.env.PINECONE_INDEX,
-      });
+      const bot = await this.botService.findById(botId);
+      if (!bot) {
+        return left(new NotFoundError('Bot not found'));
+      }
+      const crawlJob = await this.crawlJobService.findById(jobId);
+      if (!crawlJob) {
+        return left(new NotFoundError('CrawlJob not found'));
+      }
+      if (crawlJob.status === JobStatus.Finished) {
+        return right(Result.ok());
+      }
+      if (
+        crawlJob.limit ===
+        bot.documents.filter((doc) => doc.type === DocumentType.Url).length
+      ) {
+        await this.crawlJobService.updateStatus(jobId, JobStatus.Finished);
+        return right(Result.ok());
+      }
+      if (crawlJob.status === JobStatus.Pending) {
+        await this.crawlJobService.updateStatus(jobId, JobStatus.Running);
+      }
 
-      console.log({ status });
+      const crawler = new Crawler(url);
+      this.logger.log('crawler started');
+      const data = (await crawler.start()) as {
+        text: string;
+        urls: string[];
+      };
 
-      const crawler = new Crawler(urls, limit, 200);
-      const pages = (await crawler.start()) as Page[];
+      const document = await this.documentService.findBySourceName(url);
+      let documentId = '';
 
-      const index = this.pinecone && this.pinecone.index;
-
-      this.logger.log('Deleting existing vectors');
-      await index._delete({
-        deleteRequest: {
-          filter: {
-            tag,
-          },
-        },
-      });
-
-      for (let i = 0; i < pages.length; i += 50) {
-        this.logger.log(`Processing batch ${i}/${pages.length}`);
-        const batch = pages.slice(i, i + 10);
-        const documents = await Promise.all(
-          batch.map(async (row) => {
-            const splitter = new TokenTextSplitter({
-              encodingName: 'gpt2',
-              chunkSize: 300,
-              chunkOverlap: 20,
-            });
-
-            const pageContent = summarize
-              ? await summarizeLongDocument({ document: row.text })
-              : row.text;
-
-            const docs = splitter.splitDocuments([
-              new Document({
-                pageContent,
-                metadata: {
-                  url: row.url,
-                  text: truncateStringByBytes(pageContent, 36000),
-                },
-              }),
-            ]);
-            return docs;
-          }),
-        );
-
-        let counter = 0;
-
-        //Embed the documents
-        const getEmbedding = async (doc: Document) => {
-          const embedder = new OpenAIEmbeddings({
-            modelName: 'text-embedding-ada-002',
-            openAIApiKey: process.env.OPENAI_API_KEY,
-          });
-          const embedding = await embedder.embedQuery(doc.pageContent);
-          process.stdout.write(
-            `${Math.floor((counter / documents.flat().length) * 100)}%\r`,
-          );
-          counter = counter + 1;
-          return {
-            id: uuid(),
-            values: embedding,
-            metadata: {
-              tag,
-              chunk: doc.pageContent,
-              url: doc.metadata.url as string,
-            },
-          } as Vector;
-        };
-        const rateLimitedGetEmbedding = limiter.wrap(getEmbedding);
-
-        let vectors = [] as Vector[];
-
-        this.logger.log('Creating embeddings');
-        vectors = (await Promise.all(
-          documents.flat().map((doc) => rateLimitedGetEmbedding(doc)),
-        )) as unknown as Vector[];
-        const chunks = sliceIntoChunks(vectors, 10);
-
-        this.logger.log('Upserting vectors to index');
-
-        const { status } = await this.pinecone.client.describeIndex({
-          indexName: process.env.PINECONE_INDEX,
+      if (document) {
+        this.logger.log('Document exists');
+        documentId = document._id;
+      } else {
+        this.logger.log('Document does not exist');
+        const created = await this.documentService.create({
+          sourceName: url,
+          type: DocumentType.Url,
+          content: data.text,
         });
+        documentId = created._id;
+      }
 
-        console.log({ status2: status });
+      const upsertedBot = await this.botService.upsertDocument(
+        botId,
+        documentId,
+      );
 
-        await Promise.all(
-          chunks.map(async (chunk) => {
-            await index.upsert({
-              upsertRequest: {
-                vectors: chunk as Vector[],
-                namespace: '',
-              },
-            });
-          }),
+      const botDocumentUrls = upsertedBot.documents
+        .filter((doc) => doc.type === DocumentType.Url)
+        .map((doc) => doc.sourceName);
+
+      const updatedCrawlJob = await this.crawlJobService.incrementLimit(jobId);
+      this.logger.log('crawl job incremented');
+
+      //   set crawl job status to finished if limit is reached
+      if (updatedCrawlJob.limit === botDocumentUrls.length) {
+        this.logger.log('crawl job finished');
+        await this.crawlJobService.updateStatus(jobId, JobStatus.Finished);
+        return right(Result.ok());
+      }
+
+      //   filters out current bot documents.urls to only send new urls
+      //   and send 20% more urls than limit to make sure that there are enough urls to crawl
+      //   only limits to send remaining quotas to limit
+      const remaining = Math.ceil(
+        (updatedCrawlJob.limit - botDocumentUrls.length) * 1.2,
+      );
+      const urls = data.urls
+        .slice(0, remaining)
+        .filter((url) => !botDocumentUrls.includes(url));
+
+      for (const url of urls) {
+        this.logger.log('sending crawl job message');
+        await this.sqsMessageService.sendMessage<CrawlJobMessage>(
+          jobId,
+          'web-crawl',
+          {
+            url,
+            botId,
+            jobId,
+          },
         );
       }
 
-      this.logger.log(`Successfully crawled website`);
-
-      return right(Result.ok<{ message: string }>({ message: 'Done' }));
+      this.logger.log(`Website is crawled successfully`);
+      return right(Result.ok());
     } catch (err) {
       console.log(err);
       return left(new UnexpectedError(err));
