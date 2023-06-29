@@ -1,3 +1,4 @@
+import { Metadata } from '@/shared/interfaces/pinecone';
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PineconeClient } from '@pinecone-database/pinecone';
@@ -54,5 +55,25 @@ export class PineconeClientService implements OnModuleInit {
     }
     this.index = this.client.Index(index);
     this.logger.log(`Pinecone index: "${index}" is ready,`);
+  }
+
+  public async getMatches(embeddings: number[], metadata: Partial<Metadata>) {
+    const queryRequest = {
+      vector: embeddings,
+      topK: 3,
+      includeMetadata: true,
+      filter: metadata,
+    };
+
+    const queryResult = await this.index.query({
+      queryRequest,
+    });
+
+    return (
+      queryResult.matches.map((match) => ({
+        ...match,
+        metadata: match.metadata as Metadata,
+      })) || []
+    );
   }
 }

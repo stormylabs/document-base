@@ -6,13 +6,9 @@ import UnexpectedError, {
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '../../services/bot.service';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
-import { summarizeLongDocument } from 'src/shared/utils/summarizer';
 import { templates } from '@/shared/constants/template';
-import {
-  getMatchesFromEmbeddings,
-  Metadata,
-} from '@/shared/utils/getMatchesFromEmbeddings';
 import { LangChainService } from '@/module/langChain/services/langChain.service';
+import { Metadata } from '@/shared/interfaces/pinecone';
 
 type Response = Either<
   InvalidInputError | UnexpectedError,
@@ -61,12 +57,10 @@ export default class MessageBotUseCase {
 
       this.logger.log('Created embeddings from inquiry');
 
-      const matches = await getMatchesFromEmbeddings(
+      const matches = await this.pineconeService.getMatches(embeddings, {
         botId,
-        this.pineconeService.index,
-        embeddings,
-        5,
-      );
+      });
+
       this.logger.log(`Matched embeddings from inquiry: ${matches.length}`);
 
       const sourceNames =
@@ -101,10 +95,10 @@ export default class MessageBotUseCase {
 
       const combinedFullText = matchedFullText.join('\n');
 
-      const summary =
-        combinedFullText.length > 4000
-          ? await summarizeLongDocument({ document: combinedFullText, inquiry })
-          : combinedFullText;
+      const summary = await this.langChainService.summarizeLongDocument(
+        combinedFullText,
+        inquiry,
+      );
 
       const results = await chatChain.call({
         summaries: summary,
