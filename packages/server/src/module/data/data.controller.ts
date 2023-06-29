@@ -9,7 +9,7 @@ import GetDocIndexJobStatusUseCase from './useCases/GetDocIndexJobStatus';
 import { ApiTags } from '@nestjs/swagger';
 
 @ApiTags('data')
-@Controller('/data')
+@Controller('data')
 export class DataController {
   private readonly logger = new Logger(DataController.name);
   constructor(
