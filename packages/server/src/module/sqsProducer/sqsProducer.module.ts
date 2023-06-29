@@ -38,8 +38,8 @@ export class SqsProducerModule {
     const config = new AWS.Config();
     config.update({
       region: this.configService.get('AWS_REGION'),
-      accessKeyId: this.configService.get('AWS_ACCESS_KEY'),
-      secretAccessKey: this.configService.get('AWS_SECRET_KEY'),
+      accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),
+      secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
     });
   }
 }
