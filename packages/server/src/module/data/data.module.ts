@@ -25,7 +25,7 @@ import { DocIndexJobRepository } from './repositories/docIndexJob.repository';
 import { DocIndexJob, DocIndexJobSchema } from './schemas/docIndexJob.schema';
 import CreateDocIndexJobUseCase from './useCases/CreateDocIndexJob';
 import GetDocIndexJobStatusUseCase from './useCases/GetDocIndexJobStatus';
-import { LangChainModule } from '../langChain/langchain.module';
+import { LangChainModule } from '../langChain/langChain.module';
 @Module({
   imports: [
     MongooseModule.forFeature([
