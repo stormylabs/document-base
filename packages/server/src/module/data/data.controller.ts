@@ -6,7 +6,9 @@ import GetCrawlJobStatusDTO from './useCases/GetCrawlJobStatus/dto';
 import GetCrawlJobStatusUseCase from './useCases/GetCrawlJobStatus';
 import GetDocIndexJobStatusDTO from './useCases/GetDocIndexJobStatus/dto';
 import GetDocIndexJobStatusUseCase from './useCases/GetDocIndexJobStatus';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('data')
 @Controller('/data')
 export class DataController {
   private readonly logger = new Logger(DataController.name);
