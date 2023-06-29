@@ -11,6 +11,11 @@ import { DocumentRepository } from './repositories/document.repository';
 import { DocumentService } from './services/document.service';
 import { DocumentSchema, Document } from './schemas/document.schema';
 import { DataModule } from '../data/data.module';
+import MessageBotUseCase from './useCases/MessageBot';
+import { PineconeModule } from '../pinecone/pinecone.module';
+import { PineconeClientService } from '../pinecone/pinecone.service';
+import { ConfigModule } from '@nestjs/config';
+import { LangChainModule } from '../langChain/langchain.module';
 
 @Module({
   imports: [
@@ -25,6 +30,9 @@ import { DataModule } from '../data/data.module';
       },
     ]),
     forwardRef(() => DataModule),
+    PineconeModule,
+    ConfigModule,
+    LangChainModule,
   ],
   controllers: [BotController],
   providers: [
@@ -35,6 +43,8 @@ import { DataModule } from '../data/data.module';
     CreateBotUseCase,
     UpdateBotUseCase,
     SaveAndIndexDocsUseCase,
+    MessageBotUseCase,
+    PineconeClientService,
   ],
   exports: [BotService],
 })

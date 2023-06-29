@@ -1,25 +1,24 @@
 import { ScoredVector } from '@pinecone-database/pinecone';
-import { PineconeClientService } from 'src/module/pinecone/pinecone.service';
+import { VectorOperationsApi } from '@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch';
 
 export type Metadata = {
-  url: string;
+  botId: string;
   text: string;
-  chunk: string;
+  sourceName: string;
 };
 
 export const getMatchesFromEmbeddings = async (
+  botId: string,
+  index: VectorOperationsApi,
   embeddings: number[],
-  pineconeService: PineconeClientService,
-  tag: string,
   topK: number,
 ): Promise<ScoredVector[]> => {
-  const index = pineconeService.index;
   const queryRequest = {
     vector: embeddings,
     topK,
     includeMetadata: true,
     filter: {
-      tag,
+      botId,
     },
   };
   try {

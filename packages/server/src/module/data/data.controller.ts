@@ -1,7 +1,5 @@
 import { Body, Controller, Logger, Post, Get, Query } from '@nestjs/common';
 import { errorHandler } from 'src/shared/http';
-import ChatAssistUseCase from './useCases/ChatAssist';
-import ChatAssistDTO from './useCases/ChatAssist/dto';
 import CreateCrawlJobUseCase from './useCases/CreateCrawlJob';
 import CreateCrawlJobDTO from './useCases/CreateCrawlJob/dto';
 import GetCrawlJobStatusDTO from './useCases/GetCrawlJobStatus/dto';
@@ -16,13 +14,7 @@ export class DataController {
     private createCrawlJobUseCase: CreateCrawlJobUseCase,
     private getCrawlJobStatusUseCase: GetCrawlJobStatusUseCase,
     private getDocIndexJobStatusUseCase: GetDocIndexJobStatusUseCase,
-    private chatAssistUseCase: ChatAssistUseCase,
-  ) {
-    this.getCrawlJobStatusUseCase = getCrawlJobStatusUseCase;
-    this.createCrawlJobUseCase = createCrawlJobUseCase;
-    this.chatAssistUseCase = chatAssistUseCase;
-    this.getDocIndexJobStatusUseCase = getDocIndexJobStatusUseCase;
-  }
+  ) {}
 
   @Post('/crawl')
   async createCrawlJob(@Body() body: CreateCrawlJobDTO) {
@@ -72,27 +64,6 @@ export class DataController {
       return errorHandler(error);
     }
 
-    return result.value.getValue();
-  }
-
-  @Post('/chat-assist')
-  async chatAssist(@Body() body: ChatAssistDTO) {
-    const { query, conversationHistory, numOfAnswers, tag } = body;
-    this.logger.log(`[POST] Start chat assist`);
-    const result = await this.chatAssistUseCase.exec(
-      query,
-      conversationHistory,
-      numOfAnswers,
-      tag,
-    );
-
-    if (result.isLeft()) {
-      const error = result.value;
-      this.logger.error(
-        `[POST] chat assist error ${error.errorValue().message}`,
-      );
-      return errorHandler(error);
-    }
     return result.value.getValue();
   }
 }

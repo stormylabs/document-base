@@ -41,8 +41,6 @@ const summarize = async ({
       inquiry,
     });
 
-    console.log(result);
-
     onSummaryDone && onSummaryDone(result.text);
     return result.text;
   } catch (e) {

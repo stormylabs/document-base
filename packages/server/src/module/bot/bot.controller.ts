@@ -8,6 +8,8 @@ import UpdateBotInfoUseCase from './useCases/UpdateBotInfo';
 import UpdateBotDTO from './useCases/UpdateBotInfo/dto';
 import SaveAndIndexDocsUseCase from './useCases/SaveAndIndexDocs';
 import SaveAndIndexDocsDTO from './useCases/SaveAndIndexDocs/dto';
+import MessageBotDTO from './useCases/MessageBot/dto';
+import MessageBotUseCase from './useCases/MessageBot';
 
 @ApiTags('bot')
 @Controller('bot')
@@ -17,10 +19,8 @@ export class BotController {
     private createBotUseCase: CreateBotUseCase,
     private updateBotInfoUseCase: UpdateBotInfoUseCase,
     private saveAndIndexDocsUseCase: SaveAndIndexDocsUseCase,
-  ) {
-    this.createBotUseCase = createBotUseCase;
-    this.updateBotInfoUseCase = updateBotInfoUseCase;
-  }
+    private messageBotUseCase: MessageBotUseCase,
+  ) {}
 
   @Post()
   async createBot(@Body() body: CreateBotDTO) {
@@ -32,6 +32,26 @@ export class BotController {
       const error = result.value;
       this.logger.error(
         `[POST] create bot error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Post('/message/:id')
+  async messageBot(@Param() { id }: ParamWithId, @Body() body: MessageBotDTO) {
+    const { message, conversationHistory } = body;
+    this.logger.log(`[POST] Start messaging bot`);
+    const result = await this.messageBotUseCase.exec(
+      id,
+      message,
+      conversationHistory,
+    );
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] message bot error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

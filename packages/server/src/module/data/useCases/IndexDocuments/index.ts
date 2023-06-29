@@ -1,20 +1,17 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
-import { TokenTextSplitter } from 'langchain/text_splitter';
 import { Document as LCDocument } from 'langchain/document';
 import {
   sliceIntoChunks,
   truncateStringByBytes,
 } from '@/shared/utils/web-utils';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
-import Bottleneck from 'bottleneck';
-import { getEmbedding } from '@/shared/utils/getEmeddings';
-import { ConfigService } from '@nestjs/config';
 import { Vector } from '@pinecone-database/pinecone';
 import { JobStatus } from '@/shared/interfaces';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '../../services/docIndexJob.service';
+import { LangChainService } from '@/module/langChain/services/langChain.service';
 
 type Response = Either<
   NotFoundError | UnexpectedError,
@@ -35,7 +32,7 @@ export default class IndexDocumentUseCase {
     private readonly pineconeService: PineconeClientService,
     private readonly botService: BotService,
     private readonly docIndexJobService: DocIndexJobService,
-    private readonly configService: ConfigService,
+    private readonly langChainService: LangChainService,
   ) {}
   public async exec(
     botId: string,
@@ -68,13 +65,8 @@ export default class IndexDocumentUseCase {
       }
 
       this.logger.log('Start splitting document');
-      const splitter = new TokenTextSplitter({
-        encodingName: 'gpt2',
-        chunkSize: 300,
-        chunkOverlap: 20,
-      });
 
-      const docs = await splitter.splitDocuments([
+      const docs = await this.langChainService.splitDocuments([
         new LCDocument({
           pageContent: document.content,
           metadata: {
@@ -84,19 +76,17 @@ export default class IndexDocumentUseCase {
           },
         }),
       ]);
+
       this.logger.log(`Split document successfully: ${docs.length} chunks`);
 
-      const limiter = new Bottleneck({
-        minTime: 50,
-      });
-
-      const rateLimitedGetEmbedding = limiter.wrap(getEmbedding);
-      const apiKey = this.configService.get<string>('OPENAI_API_KEY');
-
       const vectors = await Promise.all(
-        docs
-          .flat()
-          .map((doc) => rateLimitedGetEmbedding(document._id, doc, apiKey)),
+        docs.flat().map((doc) =>
+          this.langChainService.getVector(document._id, doc, {
+            botId: doc.metadata.botId,
+            sourceName: doc.metadata.sourceName,
+            text: doc.metadata.text,
+          }),
+        ),
       );
 
       this.logger.log(`Get embeddings successfully: ${vectors.length} vectors`);

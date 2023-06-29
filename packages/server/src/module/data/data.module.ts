@@ -5,7 +5,6 @@ import { PineconeModule } from '../pinecone/pinecone.module';
 import { SqsProducerModule } from '../sqsProducer/sqsProducer.module';
 import { DataController } from './data.controller';
 import { CrawlJobService } from './services/crawlJob.service';
-import ChatAssistUseCase from './useCases/ChatAssist';
 import CreateCrawlJobUseCase from './useCases/CreateCrawlJob';
 import { CrawlJob, CrawlJobSchema } from './schemas/crawlJob.schema';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -26,6 +25,7 @@ import { DocIndexJobRepository } from './repositories/docIndexJob.repository';
 import { DocIndexJob, DocIndexJobSchema } from './schemas/docIndexJob.schema';
 import CreateDocIndexJobUseCase from './useCases/CreateDocIndexJob';
 import GetDocIndexJobStatusUseCase from './useCases/GetDocIndexJobStatus';
+import { LangChainModule } from '../langChain/langchain.module';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -50,12 +50,12 @@ import GetDocIndexJobStatusUseCase from './useCases/GetDocIndexJobStatus';
     ConfigModule,
     BotModule,
     SqsProducerModule,
+    LangChainModule,
   ],
   controllers: [DataController],
   providers: [
     CreateCrawlJobUseCase,
     GetCrawlJobStatusUseCase,
-    ChatAssistUseCase,
     CrawlJobService,
     CrawlJobRepository,
     BotService,

@@ -16,9 +16,9 @@ export const getEmbedding = async (
     id: documentId,
     values: embedding,
     metadata: {
-      chunk: doc.pageContent,
-      text: doc.metadata.text as string,
-      url: doc.metadata.url as string,
+      botId: doc.metadata.botId,
+      sourceName: doc.metadata.sourceName,
+      text: doc.metadata.text,
     },
   } as Vector;
 };
