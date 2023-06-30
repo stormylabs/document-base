@@ -16,6 +16,7 @@ import { PineconeModule } from '../pinecone/pinecone.module';
 import { PineconeClientService } from '../pinecone/pinecone.service';
 import { ConfigModule } from '@nestjs/config';
 import { LangChainModule } from '../langChain/langChain.module';
+import GetBotInfoUseCase from './useCases/GetBotInfo';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { LangChainModule } from '../langChain/langChain.module';
     DocumentRepository,
     DocumentService,
     CreateBotUseCase,
+    GetBotInfoUseCase,
     UpdateBotUseCase,
     SaveAndIndexDocsUseCase,
     MessageBotUseCase,

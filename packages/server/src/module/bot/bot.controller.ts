@@ -1,4 +1,12 @@
-import { Body, Controller, Logger, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Logger,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import ParamWithId from 'src/shared/dto/ParamWithId.dto';
 import { errorHandler } from 'src/shared/http';
@@ -10,6 +18,7 @@ import SaveAndIndexDocsUseCase from './useCases/SaveAndIndexDocs';
 import SaveAndIndexDocsDTO from './useCases/SaveAndIndexDocs/dto';
 import MessageBotDTO from './useCases/MessageBot/dto';
 import MessageBotUseCase from './useCases/MessageBot';
+import GetBotInfoUseCase from './useCases/GetBotInfo';
 
 @ApiTags('bot')
 @Controller('bot')
@@ -20,6 +29,7 @@ export class BotController {
     private updateBotInfoUseCase: UpdateBotInfoUseCase,
     private saveAndIndexDocsUseCase: SaveAndIndexDocsUseCase,
     private messageBotUseCase: MessageBotUseCase,
+    private getBotInfoUseCase: GetBotInfoUseCase,
   ) {}
 
   @Post()
@@ -33,6 +43,19 @@ export class BotController {
       this.logger.error(
         `[POST] create bot error ${error.errorValue().message}`,
       );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Get(':id')
+  async getBotInfo(@Param() { id }: ParamWithId) {
+    this.logger.log(`[GET] Start getting bot`);
+    const result = await this.getBotInfoUseCase.exec(id);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(`[GET] get bot error ${error.errorValue().message}`);
       return errorHandler(error);
     }
     return result.value.getValue();
