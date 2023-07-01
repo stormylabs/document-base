@@ -24,13 +24,15 @@ export const sliceIntoChunks = (arr: Vector[], chunkSize: number) => {
   );
 };
 
-export const chunkSubstr = (str: string, size: number) => {
-  const numChunks = Math.ceil(str.length / size);
-  const chunks = new Array(numChunks);
+export function chunkSubstr(text: string, chunkLength: number) {
+  const chunks = [];
+  let index = 0;
 
-  for (let i = 0, o = 0; i < numChunks; ++i, o += size) {
-    chunks[i] = str.substring(o, size);
+  while (index < text.length) {
+    const subtext = text.slice(index, index + chunkLength);
+    chunks.push(subtext);
+    index += chunkLength;
   }
 
   return chunks;
-};
+}

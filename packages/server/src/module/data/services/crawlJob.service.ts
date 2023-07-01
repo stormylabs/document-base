@@ -7,9 +7,11 @@ import { JobStatus } from '@/shared/interfaces';
 export class CrawlJobService {
   constructor(private crawlJobRepository: CrawlJobRepository) {}
 
-  async create(
-    data: Omit<CrawlJobData, '_id' | 'status' | 'createdAt' | 'deletedAt'>,
-  ): Promise<CrawlJobData> {
+  async create(data: {
+    botId: string;
+    limit: number;
+    initUrls: string[];
+  }): Promise<CrawlJobData> {
     const createdCrawlJob = await this.crawlJobRepository.create(data);
     return createdCrawlJob;
   }
@@ -17,6 +19,20 @@ export class CrawlJobService {
   async findById(crawlJobId: string): Promise<CrawlJobData | null> {
     const crawlJob = await this.crawlJobRepository.findById(crawlJobId);
     return crawlJob;
+  }
+
+  async findTimeoutJobs(
+    status: JobStatus.Running | JobStatus.Pending,
+  ): Promise<CrawlJobData[]> {
+    const timeoutJobs = await this.crawlJobRepository.findTimeoutJobs(status);
+    return timeoutJobs;
+  }
+
+  async findUnfinishedJobs(botId: string): Promise<CrawlJobData[]> {
+    const unfinishedJobs = await this.crawlJobRepository.findUnfinishedJobs(
+      botId,
+    );
+    return unfinishedJobs;
   }
 
   async updateStatus(
@@ -48,5 +64,11 @@ export class CrawlJobService {
     const exists = await this.exists([crawlJobId]);
     if (!exists) throw new Error('Crawl job does not exist.');
     return this.crawlJobRepository.incrementLimit(crawlJobId);
+  }
+
+  async upsertDocuments(crawlJobId: string, documentIds: string[]) {
+    const exists = await this.exists([crawlJobId]);
+    if (!exists) throw new Error('Crawl job does not exist.');
+    return this.crawlJobRepository.upsertDocuments(crawlJobId, documentIds);
   }
 }

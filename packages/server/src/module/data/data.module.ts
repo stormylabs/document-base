@@ -26,6 +26,7 @@ import { DocIndexJob, DocIndexJobSchema } from './schemas/docIndexJob.schema';
 import CreateDocIndexJobUseCase from './useCases/CreateDocIndexJob';
 import GetDocIndexJobStatusUseCase from './useCases/GetDocIndexJobStatus';
 import { LangChainModule } from '../langChain/langChain.module';
+import MarkCrawlJobFinishUseCase from './useCases/MarkCrawlJobFinished';
 @Module({
   imports: [
     MongooseModule.forFeature([
@@ -70,11 +71,13 @@ import { LangChainModule } from '../langChain/langChain.module';
     DocIndexJobRepository,
     CreateDocIndexJobUseCase,
     GetDocIndexJobStatusUseCase,
+    MarkCrawlJobFinishUseCase,
   ],
   exports: [
     CrawlWebsiteUseCase,
     IndexDocumentUseCase,
     CreateDocIndexJobUseCase,
+    DocIndexJobService,
   ],
 })
 export class DataModule {}

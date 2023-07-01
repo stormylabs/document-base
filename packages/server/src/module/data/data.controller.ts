@@ -1,12 +1,11 @@
-import { Body, Controller, Logger, Post, Get, Query } from '@nestjs/common';
+import { Body, Controller, Logger, Post, Get, Param } from '@nestjs/common';
 import { errorHandler } from 'src/shared/http';
 import CreateCrawlJobUseCase from './useCases/CreateCrawlJob';
 import CreateCrawlJobDTO from './useCases/CreateCrawlJob/dto';
-import GetCrawlJobStatusDTO from './useCases/GetCrawlJobStatus/dto';
 import GetCrawlJobStatusUseCase from './useCases/GetCrawlJobStatus';
-import GetDocIndexJobStatusDTO from './useCases/GetDocIndexJobStatus/dto';
 import GetDocIndexJobStatusUseCase from './useCases/GetDocIndexJobStatus';
 import { ApiTags } from '@nestjs/swagger';
+import ParamWithId from '@/shared/dto/ParamWithId.dto';
 
 @ApiTags('data')
 @Controller('data')
@@ -18,11 +17,14 @@ export class DataController {
     private getDocIndexJobStatusUseCase: GetDocIndexJobStatusUseCase,
   ) {}
 
-  @Post('/crawl')
-  async createCrawlJob(@Body() body: CreateCrawlJobDTO) {
-    const { urls, limit, botId } = body;
+  @Post('/crawl/:id')
+  async createCrawlJob(
+    @Param() { id }: ParamWithId,
+    @Body() body: CreateCrawlJobDTO,
+  ) {
+    const { urls, limit } = body;
     this.logger.log(`[POST] Start creating crawl job`);
-    const result = await this.createCrawlJobUseCase.exec(botId, urls, limit);
+    const result = await this.createCrawlJobUseCase.exec(id, urls, limit);
 
     if (result.isLeft()) {
       const error = result.value;
@@ -35,11 +37,10 @@ export class DataController {
     return result.value.getValue();
   }
 
-  @Get('/crawl')
-  async getCrawlJobStatus(@Query() query: GetCrawlJobStatusDTO) {
-    const { jobId } = query;
+  @Get('/crawl/:id')
+  async getCrawlJobStatus(@Param() { id }: ParamWithId) {
     this.logger.log(`[GET] Start getting crawl job status`);
-    const result = await this.getCrawlJobStatusUseCase.exec(jobId);
+    const result = await this.getCrawlJobStatusUseCase.exec(id);
 
     if (result.isLeft()) {
       const error = result.value;
@@ -52,11 +53,10 @@ export class DataController {
     return result.value.getValue();
   }
 
-  @Get('/train')
-  async getTrainJobStatus(@Query() query: GetDocIndexJobStatusDTO) {
-    const { jobId } = query;
+  @Get('/train/:id')
+  async getTrainJobStatus(@Param() { id }: ParamWithId) {
     this.logger.log(`[GET] Start getting DocIndex job status`);
-    const result = await this.getDocIndexJobStatusUseCase.exec(jobId);
+    const result = await this.getDocIndexJobStatusUseCase.exec(id);
 
     if (result.isLeft()) {
       const error = result.value;

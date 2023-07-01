@@ -1,3 +1,4 @@
+import { BotDocument } from '@/module/bot/schemas/bot.schema';
 import { JobStatus } from '@/shared/interfaces';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
@@ -20,13 +21,16 @@ export class DocIndexJob extends Document {
   status: JobStatus;
 
   @Prop({ type: Number, default: 0 })
-  indexedCount: number;
+  indexed: number;
 
-  @Prop({ type: Types.ObjectId })
-  botId: string;
+  @Prop({ type: Types.ObjectId, ref: 'Bot' })
+  botId: BotDocument;
 
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
+
+  @Prop({ type: Date })
+  updatedAt: Date;
 
   @Prop({ type: Date })
   deletedAt: Date;

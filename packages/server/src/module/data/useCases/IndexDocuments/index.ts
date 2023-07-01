@@ -55,11 +55,6 @@ export default class IndexDocumentUseCase {
         return right(Result.ok());
       }
 
-      if (docIndexJob.indexedCount === bot.documents.length) {
-        await this.docIndexJobService.updateStatus(jobId, JobStatus.Finished);
-        return right(Result.ok());
-      }
-
       if (docIndexJob.status === JobStatus.Pending) {
         await this.docIndexJobService.updateStatus(jobId, JobStatus.Running);
       }
@@ -108,7 +103,12 @@ export default class IndexDocumentUseCase {
       );
 
       this.logger.log(`Indexing is done`);
-      await this.docIndexJobService.incrementIndexedCount(jobId);
+      const updatedJob = await this.docIndexJobService.incrementIndexed(jobId);
+
+      if (updatedJob.indexed === bot.documents.length) {
+        await this.docIndexJobService.updateStatus(jobId, JobStatus.Finished);
+        return right(Result.ok());
+      }
 
       this.logger.log(`Document is indexed successfully`);
       return right(Result.ok());

@@ -26,7 +26,7 @@ export class Document extends MongooseDocument {
   @Prop({ type: String, required: true, unique: true })
   sourceName: string;
 
-  @Prop({ type: String, required: true })
+  @Prop({ type: String })
   content: string;
 
   @Prop({ default: Date.now, type: Date })

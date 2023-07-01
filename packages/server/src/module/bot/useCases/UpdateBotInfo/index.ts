@@ -11,7 +11,6 @@ type Response = Either<
       documents: string[];
       _id: string;
       name: string;
-      crawlJobId: string;
       createdAt: Date;
       deletedAt: Date;
     };

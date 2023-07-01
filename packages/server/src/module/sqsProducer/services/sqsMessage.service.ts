@@ -11,9 +11,14 @@ export class SqsMessageService {
     private readonly sqsService: SqsService,
     private readonly config: ConfigService,
   ) {}
-  async sendMessage<T>(id: string, job: JobType, body: T) {
-    const message: Message<T> = { body, groupId: id, id: uuid() };
-    await this.sqsService.send(this.getQueueName(job), message);
+  async sendMessages<T>(id: string, job: JobType, payloads: T[]) {
+    const messages: Message<T>[] = payloads.map((payload) => ({
+      body: payload,
+      groupId: id,
+      id: uuid(),
+    }));
+
+    await this.sqsService.send(this.getQueueName(job), messages);
   }
 
   getQueueName(job: JobType) {

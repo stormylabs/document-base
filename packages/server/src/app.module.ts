@@ -7,9 +7,11 @@ import { MongoDBModule } from './module/mongodb/mongodb.module';
 import { BotModule } from './module/bot/bot.module';
 import { SqsConsumerModule } from './module/sqsConsumer/sqsConsumer.module';
 import { AppController } from './app.controller';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
+    ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       validationSchema: Joi.object({
         OPENAI_API_KEY: Joi.string().required(),

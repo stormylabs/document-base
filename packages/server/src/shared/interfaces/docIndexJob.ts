@@ -4,8 +4,9 @@ export interface DocIndexJobData {
   _id: string;
   botId: string;
   status: JobStatus;
-  indexedCount: number;
+  indexed: number;
   createdAt: Date;
+  updatedAt: Date;
   deletedAt: Date;
 }
 

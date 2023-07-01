@@ -16,7 +16,11 @@ export class DocIndexJobRepository {
   async create(
     docIndexJobData: Partial<DocIndexJobData>,
   ): Promise<DocIndexJobData> {
-    const docIndexJob = new this.docIndexJobModel(docIndexJobData);
+    const botId = new Types.ObjectId(docIndexJobData.botId);
+    const docIndexJob = new this.docIndexJobModel({
+      ...docIndexJobData,
+      bot: botId,
+    });
     const created = await docIndexJob.save();
     return created.toJSON() as DocIndexJobData;
   }
@@ -27,6 +31,17 @@ export class DocIndexJobRepository {
       .exec();
     if (!docIndexJob) return null;
     return docIndexJob.toJSON() as DocIndexJobData;
+  }
+
+  async findUnfinishedJobs(botId: string): Promise<DocIndexJobData[]> {
+    const id = new Types.ObjectId(botId);
+    const docIndexJobs = await this.docIndexJobModel
+      .find({
+        bot: id,
+        status: { $in: [JobStatus.Pending, JobStatus.Running] },
+      })
+      .exec();
+    return docIndexJobs.map((crawlJob) => crawlJob.toJSON() as DocIndexJobData);
   }
 
   async exists(docIndexJobIds: string[]): Promise<boolean> {
@@ -56,9 +71,10 @@ export class DocIndexJobRepository {
     data: Partial<{ status: JobStatus; deletedAt: Date }>,
   ): Promise<DocIndexJobData | null> {
     const id = new Types.ObjectId(docIndexJobId);
+    const now = new Date();
     const docIndexJob = await this.docIndexJobModel.findByIdAndUpdate(
       id,
-      { $set: data },
+      { $set: { ...data, updatedAt: now } },
       {
         new: true,
       },
@@ -66,11 +82,12 @@ export class DocIndexJobRepository {
     return docIndexJob.toJSON() as DocIndexJobData;
   }
 
-  async incrementIndexedCount(docIndexJobId: string) {
+  async incrementIndexed(docIndexJobId: string) {
     const id = new Types.ObjectId(docIndexJobId);
+    const now = new Date();
     const docIndexJob = await this.docIndexJobModel.findByIdAndUpdate(
       id,
-      { $inc: { indexedCount: 1 } },
+      { $inc: { indexed: 1 }, $set: { updatedAt: now } },
       { new: true },
     );
     return docIndexJob.toJSON() as DocIndexJobData;

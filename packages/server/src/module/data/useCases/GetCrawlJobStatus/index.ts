@@ -12,6 +12,7 @@ type Response = Either<
     botId: string;
     status: JobStatus;
     createdAt: Date;
+    updatedAt: Date;
     limit: number;
     progress: number;
   }>
@@ -32,7 +33,7 @@ export default class GetCrawlJobStatusUseCase {
 
       if (!crawlJob) return left(new NotFoundError('Crawl job not found'));
 
-      const { status, botId, limit } = crawlJob;
+      const { status, bot: botId, limit } = crawlJob;
 
       const bot = await this.botService.findById(botId);
 
@@ -47,6 +48,7 @@ export default class GetCrawlJobStatusUseCase {
           botId,
           status,
           createdAt: crawlJob.createdAt,
+          updatedAt: crawlJob.updatedAt,
           limit,
           progress: Math.floor((documents.length / limit) * 100),
         }),

@@ -21,6 +21,13 @@ export class DocIndexJobService {
     return docIndexJob;
   }
 
+  async findUnfinishedJobs(botId: string): Promise<DocIndexJobData[]> {
+    const unfinishedJobs = await this.docIndexJobRepository.findUnfinishedJobs(
+      botId,
+    );
+    return unfinishedJobs;
+  }
+
   async updateStatus(
     docIndexJobId: string,
     status: JobStatus,
@@ -49,9 +56,9 @@ export class DocIndexJobService {
     return this.docIndexJobRepository.exists(docIndexJobIds);
   }
 
-  async incrementIndexedCount(docIndexJobId: string) {
+  async incrementIndexed(docIndexJobId: string) {
     const exists = await this.exists([docIndexJobId]);
     if (!exists) throw new Error('DocIndex job does not exist.');
-    return this.docIndexJobRepository.incrementIndexedCount(docIndexJobId);
+    return this.docIndexJobRepository.incrementIndexed(docIndexJobId);
   }
 }

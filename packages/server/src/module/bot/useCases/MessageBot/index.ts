@@ -6,13 +6,10 @@ import UnexpectedError, {
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '../../services/bot.service';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
-import { summarizeLongDocument } from 'src/shared/utils/summarizer';
 import { templates } from '@/shared/constants/template';
-import {
-  getMatchesFromEmbeddings,
-  Metadata,
-} from '@/shared/utils/getMatchesFromEmbeddings';
 import { LangChainService } from '@/module/langChain/services/langChain.service';
+import { DocIndexJobService } from '@/module/data/services/docIndexJob.service';
+import { Metadata } from 'aws-sdk/clients/appstream';
 
 type Response = Either<
   InvalidInputError | UnexpectedError,
@@ -26,6 +23,7 @@ export default class MessageBotUseCase {
     private readonly botService: BotService,
     private readonly pineconeService: PineconeClientService,
     private readonly langChainService: LangChainService,
+    private readonly docIndexJobService: DocIndexJobService,
   ) {}
 
   public async exec(
@@ -40,6 +38,18 @@ export default class MessageBotUseCase {
 
       if (!bot) return left(new NotFoundError('Bot not found'));
 
+      const unfinishedJobs = await this.docIndexJobService.findUnfinishedJobs(
+        botId,
+      );
+
+      if (unfinishedJobs.length > 0) {
+        return left(
+          new InvalidInputError(
+            'Bot is still indexing documents. Please try again later',
+          ),
+        );
+      }
+
       this.logger.log(`User's message: ${message}`);
 
       const inquiryChain = this.langChainService.createInquiryChain(
@@ -50,6 +60,7 @@ export default class MessageBotUseCase {
       const inquiryChainResult = await inquiryChain.call({
         userPrompt: message,
         conversationHistory,
+        verbose: false,
       });
       const inquiry = inquiryChainResult.text;
 
@@ -61,12 +72,10 @@ export default class MessageBotUseCase {
 
       this.logger.log('Created embeddings from inquiry');
 
-      const matches = await getMatchesFromEmbeddings(
+      const matches = await this.pineconeService.getMatches(embeddings, {
         botId,
-        this.pineconeService.index,
-        embeddings,
-        5,
-      );
+      });
+
       this.logger.log(`Matched embeddings from inquiry: ${matches.length}`);
 
       const sourceNames =
@@ -101,16 +110,17 @@ export default class MessageBotUseCase {
 
       const combinedFullText = matchedFullText.join('\n');
 
-      const summary =
-        combinedFullText.length > 4000
-          ? await summarizeLongDocument({ document: combinedFullText, inquiry })
-          : combinedFullText;
+      const summary = await this.langChainService.summarizeLongDocument(
+        combinedFullText,
+        inquiry,
+      );
 
       const results = await chatChain.call({
         summaries: summary,
         question: message,
         conversationHistory,
         urls: sourceNames,
+        verbose: false,
       });
 
       return right(Result.ok({ message: results.text }));

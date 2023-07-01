@@ -9,10 +9,6 @@ export default class CreateCrawlJobDTO {
   urls: string[];
 
   @ApiProperty()
-  @IsString()
-  botId: string;
-
-  @ApiProperty()
   @IsNumber()
   @Min(1)
   @Max(2000)

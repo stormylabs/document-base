@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CrawlJob } from '../schemas/crawlJob.schema';
 import { JobStatus } from '@/shared/interfaces';
+import { CRAWL_JOB_TIMEOUT, ONE_MINUTE } from '@/shared/constants';
 
 @Injectable()
 export class CrawlJobRepository {
@@ -12,8 +13,13 @@ export class CrawlJobRepository {
     @InjectModel(CrawlJob.name) private readonly crawlJobModel: Model<CrawlJob>,
   ) {}
 
-  async create(crawlJobData: Partial<CrawlJobData>): Promise<CrawlJobData> {
-    const crawlJob = new this.crawlJobModel(crawlJobData);
+  async create(crawlJobData: {
+    botId: string;
+    limit: number;
+    initUrls: string[];
+  }): Promise<CrawlJobData> {
+    const botId = new Types.ObjectId(crawlJobData.botId);
+    const crawlJob = new this.crawlJobModel({ ...crawlJobData, bot: botId });
     const created = await crawlJob.save();
     return created.toJSON() as CrawlJobData;
   }
@@ -36,6 +42,32 @@ export class CrawlJobRepository {
     return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
   }
 
+  async findTimeoutJobs(
+    status: JobStatus.Running | JobStatus.Pending,
+  ): Promise<CrawlJobData[]> {
+    const timeout = Date.now() - CRAWL_JOB_TIMEOUT;
+    const crawlJobs = await this.crawlJobModel
+      .find({
+        status,
+        updatedAt: {
+          $lt: new Date(timeout),
+        },
+      })
+      .exec();
+    return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
+  }
+
+  async findUnfinishedJobs(botId: string): Promise<CrawlJobData[]> {
+    const id = new Types.ObjectId(botId);
+    const crawlJobs = await this.crawlJobModel
+      .find({
+        bot: id,
+        status: { $in: [JobStatus.Pending, JobStatus.Running] },
+      })
+      .exec();
+    return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
+  }
+
   async delete(crawlJobId: string): Promise<CrawlJobData> {
     const id = new Types.ObjectId(crawlJobId);
     const crawlJob = await this.crawlJobModel.findByIdAndDelete(id).exec();
@@ -47,9 +79,10 @@ export class CrawlJobRepository {
     data: Partial<{ status: JobStatus; deletedAt: Date }>,
   ): Promise<CrawlJobData | null> {
     const id = new Types.ObjectId(crawlJobId);
+    const now = new Date();
     const crawlJob = await this.crawlJobModel.findByIdAndUpdate(
       id,
-      { $set: data },
+      { $set: { ...data, updatedAt: now } },
       {
         new: true,
       },
@@ -62,6 +95,22 @@ export class CrawlJobRepository {
     const crawlJob = await this.crawlJobModel.findByIdAndUpdate(
       id,
       { $inc: { count: 1 } },
+      { new: true },
+    );
+    return crawlJob.toJSON() as CrawlJobData;
+  }
+
+  async upsertDocuments(crawlJobId: string, documentIds: string[]) {
+    const docObjectIds = documentIds.map((id) => new Types.ObjectId(id));
+    const id = new Types.ObjectId(crawlJobId);
+    const now = new Date();
+    const crawlJob = await this.crawlJobModel.findByIdAndUpdate(
+      id,
+      {
+        $addToSet: { documents: { $each: docObjectIds } },
+        $set: { updatedAt: now },
+      },
+
       { new: true },
     );
     return crawlJob.toJSON() as CrawlJobData;

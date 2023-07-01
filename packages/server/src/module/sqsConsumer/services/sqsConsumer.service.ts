@@ -20,12 +20,16 @@ export class SqsConsumerService {
   ) {}
   @SqsMessageHandler(process.env.WEB_CRAWL_QUEUE_NAME)
   async handleWebCrawlMessage(message: AWS.SQS.Message) {
-    const body: CrawlJobMessage = JSON.parse(message.Body);
-    const { jobId, botId, url } = body;
-    this.logger.log(
-      `Received web crawl message from SQS: ${jobId} ${botId} ${url}`,
-    );
-    await this.crawlWebsiteUseCase.exec(jobId, botId, url);
+    try {
+      const body: CrawlJobMessage = JSON.parse(message.Body);
+      const { jobId, botId, documentId } = body;
+      this.logger.log(
+        `Received web crawl message from SQS. jobId: ${jobId} botId: ${botId} documentId: ${documentId}`,
+      );
+      await this.crawlWebsiteUseCase.exec(jobId, botId, documentId);
+    } catch (err) {
+      console.log(err);
+    }
   }
 
   @SqsMessageHandler(process.env.DOC_INDEX_QUEUE_NAME)

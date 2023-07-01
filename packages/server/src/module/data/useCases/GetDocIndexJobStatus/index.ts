@@ -12,7 +12,7 @@ type Response = Either<
     botId: string;
     status: JobStatus;
     createdAt: Date;
-    indexedCount: number;
+    trained: number;
     progress: number;
   }>
 >;
@@ -32,7 +32,7 @@ export default class GetDocIndexJobStatusUseCase {
 
       if (!docIndexJob) return left(new NotFoundError('Crawl job not found'));
 
-      const { status, botId, indexedCount } = docIndexJob;
+      const { status, botId, indexed } = docIndexJob;
 
       const bot = await this.botService.findById(botId);
 
@@ -47,8 +47,8 @@ export default class GetDocIndexJobStatusUseCase {
           botId,
           status,
           createdAt: docIndexJob.createdAt,
-          indexedCount,
-          progress: Math.floor((indexedCount / documents.length) * 100),
+          trained: indexed,
+          progress: Math.floor((indexed / documents.length) * 100),
         }),
       );
     } catch (err) {

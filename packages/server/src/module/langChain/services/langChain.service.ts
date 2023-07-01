@@ -1,14 +1,19 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { LLMChain, OpenAI, PromptTemplate } from 'langchain';
 import { ChatOpenAI } from 'langchain/chat_models';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 import { Document as LCDocument } from 'langchain/document';
 import { Vector } from '@pinecone-database/pinecone';
+import { templates } from '@/shared/constants/template';
+import { chunkSubstr } from '@/shared/utils/web-utils';
+import { encode } from 'gpt-3-encoder';
+import { CHAR_LIMIT } from '@/shared/constants';
 
 @Injectable()
 export class LangChainService {
   private tokenSplitter: TokenTextSplitter;
+  private readonly logger = new Logger(LangChainService.name);
   constructor(
     @Inject(ChatOpenAI) private readonly chat: ChatOpenAI,
     @Inject(OpenAI) private readonly llm: OpenAI,
@@ -60,5 +65,55 @@ export class LangChainService {
 
   async splitDocuments(documents: LCDocument[]) {
     return this.tokenSplitter.splitDocuments(documents);
+  }
+
+  async summarize(text: string, inquiry: string) {
+    const chain = this.createChatInquiryChain(templates.summarizerTemplate, [
+      'document',
+      'inquiry',
+    ]);
+
+    const result = await chain.call({
+      document: text,
+      inquiry,
+      verbose: false,
+    });
+
+    return result.text;
+  }
+
+  async summarizeLongDocument(text: string, inquiry: string) {
+    const templateLength = templates.summarizerTemplate.length;
+    this.logger.log(`Text and template length ${text.length + templateLength}`);
+
+    if (text.length + templateLength <= CHAR_LIMIT) {
+      this.logger.log(`Summarized text is short enough`);
+      return text;
+    }
+    const chunks = chunkSubstr(text, CHAR_LIMIT - templateLength - 1);
+
+    this.logger.log(
+      `Split text into ${chunks.length} chunks, approx tokens: ${
+        encode(chunks[0]).length
+      }`,
+    );
+
+    const summaries = await Promise.all(
+      chunks.map(async (chunk) => await this.summarize(chunk, inquiry)),
+    );
+
+    const result = summaries.join('\n');
+
+    if (result.length + templateLength <= CHAR_LIMIT) {
+      this.logger.log(
+        `Summarized result tokens: ${
+          encode(result + templates.summarizerTemplate).length
+        }`,
+      );
+      return result;
+    }
+
+    this.logger.log(`Summarized text is still too long, summarizing again`);
+    return this.summarizeLongDocument(result, inquiry);
   }
 }
