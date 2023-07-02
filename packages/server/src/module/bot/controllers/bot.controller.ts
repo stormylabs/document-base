@@ -7,7 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { errorHandler } from 'src/shared/http';
 import CreateBotUseCase from '../useCases/bot/CreateBot';
@@ -74,7 +74,6 @@ export class BotController {
   }
 
   @Patch(':id')
-  @ApiParam({ name: 'Bot ID', type: String })
   @ApiBody({ type: UpdateBotInfoDTO })
   @ApiOperation({
     summary: 'Updates bot info by bot ID.',

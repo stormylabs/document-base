@@ -40,6 +40,11 @@ export default class GetDocIndexJobStatusUseCase {
 
       const { documents } = bot;
 
+      const progress =
+        documents.length === 0
+          ? 0
+          : Math.floor(indexed / documents.length) * 100;
+
       this.logger.log(`Get DocIndex job successfully`);
       return right(
         Result.ok({
@@ -48,8 +53,7 @@ export default class GetDocIndexJobStatusUseCase {
           status,
           createdAt: docIndexJob.createdAt,
           trained: indexed,
-          progress:
-            documents.length ?? Math.floor((indexed / documents.length) * 100),
+          progress,
         }),
       );
     } catch (err) {

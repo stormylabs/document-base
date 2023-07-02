@@ -1,7 +1,7 @@
 import { Controller, Logger, Get, Param } from '@nestjs/common';
 import { errorHandler } from 'src/shared/http';
 
-import { ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IdParams } from '@/shared/dto/IdParams';
 import GetCrawlJobStatusUseCase from '../useCases/jobs/GetCrawlJobStatus';
 import GetDocIndexJobStatusUseCase from '../useCases/jobs/GetDocIndexJobStatus';
@@ -35,7 +35,6 @@ export class DataController {
   }
 
   @Get('/train/:id')
-  @ApiParam({ name: 'Train Job ID', type: String })
   @ApiOperation({
     summary: 'Get train job status by job ID.',
   })
