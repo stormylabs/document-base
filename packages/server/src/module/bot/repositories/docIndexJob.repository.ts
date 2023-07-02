@@ -35,9 +35,8 @@ export class DocIndexJobRepository {
   }
 
   async findAllByBotId(botId: string): Promise<DocIndexJobData[]> {
-    const docIndexJobs = await this.docIndexJobModel
-      .find({ bot: botId })
-      .exec();
+    const id = new Types.ObjectId(botId);
+    const docIndexJobs = await this.docIndexJobModel.find({ bot: id }).exec();
     return docIndexJobs.map(
       (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData,
     );

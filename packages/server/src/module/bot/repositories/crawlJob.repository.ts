@@ -43,7 +43,8 @@ export class CrawlJobRepository {
   }
 
   async findAllByBotId(botId: string): Promise<CrawlJobData[]> {
-    const crawlJobs = await this.crawlJobModel.find({ bot: botId }).exec();
+    const id = new Types.ObjectId(botId);
+    const crawlJobs = await this.crawlJobModel.find({ bot: id }).exec();
     return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
   }
 
