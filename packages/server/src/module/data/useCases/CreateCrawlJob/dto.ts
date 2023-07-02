@@ -12,14 +12,21 @@ import {
 
 export default class CreateCrawlJobDTO {
   @ApiProperty({
+    description: 'Bot ID',
+    required: true,
+    type: String,
+  })
+  @IsString()
+  botId: string;
+
+  @ApiProperty({
     description: 'URLs to crawl',
     minItems: 1,
     maxItems: 10,
     required: true,
     type: [String],
   })
-  @IsString({ each: true })
-  @IsUrl(undefined, { each: true })
+  @IsUrl({ protocols: ['https'] }, { each: true })
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(10)

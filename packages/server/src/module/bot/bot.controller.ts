@@ -7,7 +7,7 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import ParamWithId from 'src/shared/dto/ParamWithId.dto';
 import { errorHandler } from 'src/shared/http';
 import CreateBotUseCase from './useCases/CreateBot';
@@ -33,6 +33,10 @@ export class BotController {
   ) {}
 
   @Post()
+  @ApiBody({ type: CreateBotDTO })
+  @ApiOperation({
+    summary: 'Creates a bot, name is set to default if not provided.',
+  })
   async createBot(@Body() body: CreateBotDTO) {
     const { name } = body;
     this.logger.log(`[POST] Start creating bot`);
@@ -49,6 +53,10 @@ export class BotController {
   }
 
   @Get(':id')
+  @ApiParam({ name: 'Bot ID', type: String })
+  @ApiOperation({
+    summary: 'Gets bot info by bot ID.',
+  })
   async getBotInfo(@Param() { id }: ParamWithId) {
     this.logger.log(`[GET] Start getting bot`);
     const result = await this.getBotInfoUseCase.exec(id);
@@ -62,6 +70,11 @@ export class BotController {
   }
 
   @Post('/message/:id')
+  @ApiParam({ name: 'Bot ID', type: String })
+  @ApiBody({ type: MessageBotDTO })
+  @ApiOperation({
+    summary: 'Sends messages to bot, and get bot response.',
+  })
   async messageBot(@Param() { id }: ParamWithId, @Body() body: MessageBotDTO) {
     const { message, conversationHistory } = body;
     this.logger.log(`[POST] Start messaging bot`);
@@ -82,7 +95,11 @@ export class BotController {
   }
 
   @Post('/train/:id')
-  @ApiOperation({ summary: 'Save and Train bot' })
+  @ApiParam({ name: 'Bot ID', type: String })
+  @ApiBody({ type: SaveAndIndexDocsDTO })
+  @ApiOperation({
+    summary: 'Saves documents to bot and train bot.',
+  })
   async saveAndTrainBot(
     @Param() { id }: ParamWithId,
     @Body() body: SaveAndIndexDocsDTO,
@@ -103,7 +120,11 @@ export class BotController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Update bot ' })
+  @ApiParam({ name: 'Bot ID', type: String })
+  @ApiBody({ type: UpdateBotDTO })
+  @ApiOperation({
+    summary: 'Updates bot info by bot ID.',
+  })
   async updateBot(@Param() { id }: ParamWithId, @Body() body: UpdateBotDTO) {
     this.logger.log(`[PATCH] Start updating bot`);
     const result = await this.updateBotInfoUseCase.exec(id, body);

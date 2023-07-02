@@ -4,7 +4,7 @@ import CreateCrawlJobUseCase from './useCases/CreateCrawlJob';
 import CreateCrawlJobDTO from './useCases/CreateCrawlJob/dto';
 import GetCrawlJobStatusUseCase from './useCases/GetCrawlJobStatus';
 import GetDocIndexJobStatusUseCase from './useCases/GetDocIndexJobStatus';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
 import ParamWithId from '@/shared/dto/ParamWithId.dto';
 
 @ApiTags('data')
@@ -17,14 +17,15 @@ export class DataController {
     private getDocIndexJobStatusUseCase: GetDocIndexJobStatusUseCase,
   ) {}
 
-  @Post('/crawl/:id')
-  async createCrawlJob(
-    @Param() { id }: ParamWithId,
-    @Body() body: CreateCrawlJobDTO,
-  ) {
-    const { urls, limit } = body;
+  @Post('/crawl')
+  @ApiBody({ type: CreateCrawlJobDTO })
+  @ApiOperation({
+    summary: 'Create jobs to crawl URLs to be attached to bot as documents.',
+  })
+  async createCrawlJob(@Body() body: CreateCrawlJobDTO) {
+    const { urls, limit, botId } = body;
     this.logger.log(`[POST] Start creating crawl job`);
-    const result = await this.createCrawlJobUseCase.exec(id, urls, limit);
+    const result = await this.createCrawlJobUseCase.exec(botId, urls, limit);
 
     if (result.isLeft()) {
       const error = result.value;
@@ -38,6 +39,10 @@ export class DataController {
   }
 
   @Get('/crawl/:id')
+  @ApiParam({ name: 'Crawl Job ID', type: String })
+  @ApiOperation({
+    summary: 'Get crawl job status by job ID.',
+  })
   async getCrawlJobStatus(@Param() { id }: ParamWithId) {
     this.logger.log(`[GET] Start getting crawl job status`);
     const result = await this.getCrawlJobStatusUseCase.exec(id);
@@ -54,6 +59,10 @@ export class DataController {
   }
 
   @Get('/train/:id')
+  @ApiParam({ name: 'Train Job ID', type: String })
+  @ApiOperation({
+    summary: 'Get train job status by job ID.',
+  })
   async getTrainJobStatus(@Param() { id }: ParamWithId) {
     this.logger.log(`[GET] Start getting DocIndex job status`);
     const result = await this.getDocIndexJobStatusUseCase.exec(id);
