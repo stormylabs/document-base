@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { DocIndexJob } from '../schemas/docIndexJob.schema';
 import { JobStatus } from '@/shared/interfaces';
+import { JOB_TIMEOUT } from '@/shared/constants';
 
 @Injectable()
 export class DocIndexJobRepository {
@@ -31,6 +32,21 @@ export class DocIndexJobRepository {
       .exec();
     if (!docIndexJob) return null;
     return docIndexJob.toJSON() as DocIndexJobData;
+  }
+
+  async findTimeoutJobs(
+    status: JobStatus.Running | JobStatus.Pending,
+  ): Promise<DocIndexJobData[]> {
+    const timeout = Date.now() - JOB_TIMEOUT;
+    const crawlJobs = await this.docIndexJobModel
+      .find({
+        status,
+        updatedAt: {
+          $lt: new Date(timeout),
+        },
+      })
+      .exec();
+    return crawlJobs.map((crawlJob) => crawlJob.toJSON() as DocIndexJobData);
   }
 
   async findUnfinishedJobs(botId: string): Promise<DocIndexJobData[]> {

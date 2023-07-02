@@ -5,7 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { CrawlJob } from '../schemas/crawlJob.schema';
 import { JobStatus } from '@/shared/interfaces';
-import { CRAWL_JOB_TIMEOUT, ONE_MINUTE } from '@/shared/constants';
+import { JOB_TIMEOUT } from '@/shared/constants';
 
 @Injectable()
 export class CrawlJobRepository {
@@ -45,7 +45,7 @@ export class CrawlJobRepository {
   async findTimeoutJobs(
     status: JobStatus.Running | JobStatus.Pending,
   ): Promise<CrawlJobData[]> {
-    const timeout = Date.now() - CRAWL_JOB_TIMEOUT;
+    const timeout = Date.now() - JOB_TIMEOUT;
     const crawlJobs = await this.crawlJobModel
       .find({
         status,

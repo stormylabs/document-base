@@ -21,6 +21,15 @@ export class DocIndexJobService {
     return docIndexJob;
   }
 
+  async findTimeoutJobs(
+    status: JobStatus.Running | JobStatus.Pending,
+  ): Promise<DocIndexJobData[]> {
+    const timeoutJobs = await this.docIndexJobRepository.findTimeoutJobs(
+      status,
+    );
+    return timeoutJobs;
+  }
+
   async findUnfinishedJobs(botId: string): Promise<DocIndexJobData[]> {
     const unfinishedJobs = await this.docIndexJobRepository.findUnfinishedJobs(
       botId,
