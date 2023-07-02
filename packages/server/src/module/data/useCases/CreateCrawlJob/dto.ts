@@ -25,8 +25,9 @@ export default class CreateCrawlJobDTO {
     maxItems: 10,
     required: true,
     type: [String],
+    pattern: '^https://.*$',
   })
-  @IsUrl({ protocols: ['https'] }, { each: true })
+  @IsUrl({ protocols: ['https'], require_protocol: true }, { each: true })
   @IsArray()
   @ArrayMinSize(1)
   @ArrayMaxSize(10)
