@@ -17,7 +17,7 @@ export class DocIndexJobRepository {
   async create(
     docIndexJobData: Partial<DocIndexJobData>,
   ): Promise<DocIndexJobData> {
-    const botId = new Types.ObjectId(docIndexJobData.botId);
+    const botId = new Types.ObjectId(docIndexJobData.bot);
     const docIndexJob = new this.docIndexJobModel({
       ...docIndexJobData,
       bot: botId,

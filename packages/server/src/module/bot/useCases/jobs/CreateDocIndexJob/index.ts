@@ -1,8 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, {
-  InvalidInputError,
-  NotFoundError,
-} from 'src/shared/core/AppError';
+import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
@@ -10,7 +7,6 @@ import { JobStatus } from '@/shared/interfaces';
 import { DocumentData } from '@/shared/interfaces/document';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
 import { DocIndexJobMessage } from '@/shared/interfaces/docIndexJob';
-import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 
 type Response = Either<
@@ -26,7 +22,6 @@ export default class CreateDocIndexJobUseCase {
     private readonly botService: BotService,
     private readonly pineconeService: PineconeClientService,
     private readonly docIndexJobService: DocIndexJobService,
-    private readonly crawlJobService: CrawlJobService,
   ) {}
   public async exec(
     botId: string,
@@ -37,20 +32,6 @@ export default class CreateDocIndexJobUseCase {
 
       const botExists = await this.botService.exists([botId]);
       if (!botExists) return left(new NotFoundError('Bot not found'));
-
-      const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
-        botId,
-      );
-      const unfinishedDocIndexJobs =
-        await this.docIndexJobService.findUnfinishedJobs(botId);
-
-      if ([...unfinishedCrawlJobs, ...unfinishedDocIndexJobs].length > 0) {
-        return left(
-          new InvalidInputError(
-            'There are unfinished jobs. Please wait until they are finished',
-          ),
-        );
-      }
 
       const index = this.pineconeService.index;
 

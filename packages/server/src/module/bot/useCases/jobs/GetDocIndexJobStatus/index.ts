@@ -32,7 +32,7 @@ export default class GetDocIndexJobStatusUseCase {
 
       if (!docIndexJob) return left(new NotFoundError('Crawl job not found'));
 
-      const { status, botId, indexed } = docIndexJob;
+      const { status, bot: botId, indexed } = docIndexJob;
 
       const bot = await this.botService.findById(botId);
 

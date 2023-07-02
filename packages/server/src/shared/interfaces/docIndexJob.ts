@@ -2,7 +2,7 @@ import { JobStatus } from '.';
 
 export interface DocIndexJobData {
   _id: string;
-  botId: string;
+  bot: string;
   status: JobStatus;
   indexed: number;
   createdAt: Date;

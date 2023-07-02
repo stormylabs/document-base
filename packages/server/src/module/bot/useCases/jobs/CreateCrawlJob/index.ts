@@ -12,7 +12,6 @@ import { JobStatus } from '@/shared/interfaces';
 import { DocumentService } from '@/module/bot/services/document.service';
 import { DocumentType } from '@/shared/interfaces/document';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
-import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 
 type Response = Either<
   NotFoundError | UnexpectedError | InvalidInputError,
@@ -25,7 +24,6 @@ export default class CreateCrawlJobUseCase {
   constructor(
     private readonly sqsMessageService: SqsMessageService,
     private readonly crawlJobService: CrawlJobService,
-    private readonly docIndexJobService: DocIndexJobService,
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
   ) {}

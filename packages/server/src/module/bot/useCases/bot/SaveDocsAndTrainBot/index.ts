@@ -1,4 +1,4 @@
-import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
   InvalidInputError,
   NotFoundError,
@@ -9,6 +9,8 @@ import { JobStatus } from '@/shared/interfaces';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocumentService } from '@/module/bot/services/document.service';
 import CreateDocIndexJobUseCase from '../../jobs/CreateDocIndexJob';
+import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
+import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 
 type Response = Either<
   InvalidInputError | UnexpectedError,
@@ -21,8 +23,9 @@ export default class SaveDocsAndTrainBotUseCase {
   constructor(
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
-    @Inject(forwardRef(() => CreateDocIndexJobUseCase))
     private readonly createDocIndexJobUseCase: CreateDocIndexJobUseCase,
+    private readonly crawlJobService: CrawlJobService,
+    private readonly docIndexJobService: DocIndexJobService,
   ) {}
   public async exec(botId: string, documentIds: string[]): Promise<Response> {
     try {
@@ -30,6 +33,20 @@ export default class SaveDocsAndTrainBotUseCase {
 
       const bot = await this.botService.findById(botId);
       if (!bot) return left(new NotFoundError('Bot not found'));
+
+      const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
+        botId,
+      );
+      const unfinishedDocIndexJobs =
+        await this.docIndexJobService.findUnfinishedJobs(botId);
+
+      if ([...unfinishedCrawlJobs, ...unfinishedDocIndexJobs].length > 0) {
+        return left(
+          new InvalidInputError(
+            'There are unfinished jobs. Please wait until they are finished',
+          ),
+        );
+      }
 
       if (!(await this.documentService.exists(documentIds))) {
         return left(new NotFoundError('Contains documents that are not found'));

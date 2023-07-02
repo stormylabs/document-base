@@ -9,7 +9,7 @@ export class DocIndexJobService {
 
   async create(botId: string): Promise<DocIndexJobData> {
     const createdDocIndexJob = await this.docIndexJobRepository.create({
-      botId,
+      bot: botId,
     });
     return createdDocIndexJob;
   }
