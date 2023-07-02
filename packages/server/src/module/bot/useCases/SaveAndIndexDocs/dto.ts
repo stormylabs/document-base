@@ -8,7 +8,13 @@ import {
 } from 'class-validator';
 
 export default class SaveAndIndexDocsDTO {
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Document IDs',
+    required: true,
+    minItems: 1,
+    maxItems: 2000,
+    type: [String],
+  })
   @IsString({ each: true })
   @IsArray()
   @ArrayNotEmpty()

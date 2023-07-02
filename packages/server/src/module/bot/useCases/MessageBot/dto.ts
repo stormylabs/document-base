@@ -2,11 +2,21 @@ import { ApiProperty } from '@nestjs/swagger';
 import { ArrayMaxSize, IsArray, IsString } from 'class-validator';
 
 export default class MessageBotDTO {
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Message to the bot',
+    required: true,
+    type: String,
+  })
   @IsString()
   message: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    description: "User's part of the conversation history",
+    required: true,
+    minItems: 0,
+    maxItems: 15,
+    type: [String],
+  })
   @IsString({ each: true })
   @IsArray()
   @ArrayMaxSize(15)
