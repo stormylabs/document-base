@@ -8,7 +8,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import ParamWithId from 'src/shared/dto/ParamWithId.dto';
+
 import { errorHandler } from 'src/shared/http';
 import CreateBotUseCase from './useCases/CreateBot';
 import CreateBotDTO from './useCases/CreateBot/dto';
@@ -19,6 +19,7 @@ import SaveAndIndexDocsDTO from './useCases/SaveAndIndexDocs/dto';
 import MessageBotDTO from './useCases/MessageBot/dto';
 import MessageBotUseCase from './useCases/MessageBot';
 import GetBotInfoUseCase from './useCases/GetBotInfo';
+import { IdParams } from '@/shared/dto/IdParams';
 
 @ApiTags('bot')
 @Controller('bot')
@@ -53,11 +54,10 @@ export class BotController {
   }
 
   @Get(':id')
-  @ApiParam({ name: 'Bot ID', type: String })
   @ApiOperation({
     summary: 'Gets bot info by bot ID.',
   })
-  async getBotInfo(@Param() { id }: ParamWithId) {
+  async getBotInfo(@Param() { id }: IdParams) {
     this.logger.log(`[GET] Start getting bot`);
     const result = await this.getBotInfoUseCase.exec(id);
 
@@ -69,39 +69,34 @@ export class BotController {
     return result.value.getValue();
   }
 
-  @Post('/message/:id')
+  @Patch(':id')
   @ApiParam({ name: 'Bot ID', type: String })
-  @ApiBody({ type: MessageBotDTO })
+  @ApiBody({ type: UpdateBotDTO })
   @ApiOperation({
-    summary: 'Sends messages to bot, and get bot response.',
+    summary: 'Updates bot info by bot ID.',
   })
-  async messageBot(@Param() { id }: ParamWithId, @Body() body: MessageBotDTO) {
-    const { message, conversationHistory } = body;
-    this.logger.log(`[POST] Start messaging bot`);
-    const result = await this.messageBotUseCase.exec(
-      id,
-      message,
-      conversationHistory,
-    );
+  async updateBot(@Param() { id }: IdParams, @Body() body: UpdateBotDTO) {
+    this.logger.log(`[PATCH] Start updating bot`);
+    const result = await this.updateBotInfoUseCase.exec(id, body);
 
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] message bot error ${error.errorValue().message}`,
+        `[PATCH] update bot error ${error.errorValue().message}`,
       );
+
       return errorHandler(error);
     }
     return result.value.getValue();
   }
 
   @Post('/train/:id')
-  @ApiParam({ name: 'Bot ID', type: String })
   @ApiBody({ type: SaveAndIndexDocsDTO })
   @ApiOperation({
     summary: 'Saves documents to bot and train bot.',
   })
   async saveAndTrainBot(
-    @Param() { id }: ParamWithId,
+    @Param() { id }: IdParams,
     @Body() body: SaveAndIndexDocsDTO,
   ) {
     this.logger.log(`[POST] Start indexing documents`);
@@ -119,22 +114,25 @@ export class BotController {
     return result.value.getValue();
   }
 
-  @Patch(':id')
-  @ApiParam({ name: 'Bot ID', type: String })
-  @ApiBody({ type: UpdateBotDTO })
+  @Post('/message/:id')
+  @ApiBody({ type: MessageBotDTO })
   @ApiOperation({
-    summary: 'Updates bot info by bot ID.',
+    summary: 'Sends messages to bot, and get bot response.',
   })
-  async updateBot(@Param() { id }: ParamWithId, @Body() body: UpdateBotDTO) {
-    this.logger.log(`[PATCH] Start updating bot`);
-    const result = await this.updateBotInfoUseCase.exec(id, body);
+  async messageBot(@Param() { id }: IdParams, @Body() body: MessageBotDTO) {
+    const { message, conversationHistory } = body;
+    this.logger.log(`[POST] Start messaging bot`);
+    const result = await this.messageBotUseCase.exec(
+      id,
+      message,
+      conversationHistory,
+    );
 
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[PATCH] update bot error ${error.errorValue().message}`,
+        `[POST] message bot error ${error.errorValue().message}`,
       );
-
       return errorHandler(error);
     }
     return result.value.getValue();

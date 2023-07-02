@@ -35,6 +35,11 @@ export class CrawlJobService {
     return unfinishedJobs;
   }
 
+  async findAllByBotId(botId: string): Promise<CrawlJobData[]> {
+    const docIndexJob = await this.crawlJobRepository.findAllByBotId(botId);
+    return docIndexJob;
+  }
+
   async updateStatus(
     crawlJobId: string,
     status: JobStatus,

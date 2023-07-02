@@ -34,11 +34,18 @@ export class DocIndexJobRepository {
     return docIndexJob.toJSON() as DocIndexJobData;
   }
 
+  async findAllByBotId(botId: string): Promise<DocIndexJobData[]> {
+    const docIndexJobs = await this.docIndexJobModel.find({ botId }).exec();
+    return docIndexJobs.map(
+      (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData,
+    );
+  }
+
   async findTimeoutJobs(
     status: JobStatus.Running | JobStatus.Pending,
   ): Promise<DocIndexJobData[]> {
     const timeout = Date.now() - JOB_TIMEOUT;
-    const crawlJobs = await this.docIndexJobModel
+    const docIndexJobs = await this.docIndexJobModel
       .find({
         status,
         updatedAt: {
@@ -46,7 +53,7 @@ export class DocIndexJobRepository {
         },
       })
       .exec();
-    return crawlJobs.map((crawlJob) => crawlJob.toJSON() as DocIndexJobData);
+    return docIndexJobs.map((crawlJob) => crawlJob.toJSON() as DocIndexJobData);
   }
 
   async findUnfinishedJobs(botId: string): Promise<DocIndexJobData[]> {

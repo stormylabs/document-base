@@ -5,7 +5,7 @@ import CreateCrawlJobDTO from './useCases/CreateCrawlJob/dto';
 import GetCrawlJobStatusUseCase from './useCases/GetCrawlJobStatus';
 import GetDocIndexJobStatusUseCase from './useCases/GetDocIndexJobStatus';
 import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
-import ParamWithId from '@/shared/dto/ParamWithId.dto';
+import { IdParams } from '@/shared/dto/IdParams';
 
 @ApiTags('data')
 @Controller('data')
@@ -39,11 +39,10 @@ export class DataController {
   }
 
   @Get('/crawl/:id')
-  @ApiParam({ name: 'Crawl Job ID', type: String })
   @ApiOperation({
     summary: 'Get crawl job status by job ID.',
   })
-  async getCrawlJobStatus(@Param() { id }: ParamWithId) {
+  async getCrawlJobStatus(@Param() { id }: IdParams) {
     this.logger.log(`[GET] Start getting crawl job status`);
     const result = await this.getCrawlJobStatusUseCase.exec(id);
 
@@ -63,7 +62,7 @@ export class DataController {
   @ApiOperation({
     summary: 'Get train job status by job ID.',
   })
-  async getTrainJobStatus(@Param() { id }: ParamWithId) {
+  async getTrainJobStatus(@Param() { id }: IdParams) {
     this.logger.log(`[GET] Start getting DocIndex job status`);
     const result = await this.getDocIndexJobStatusUseCase.exec(id);
 

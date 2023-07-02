@@ -21,6 +21,11 @@ export class DocIndexJobService {
     return docIndexJob;
   }
 
+  async findAllByBotId(botId: string): Promise<DocIndexJobData[]> {
+    const docIndexJob = await this.docIndexJobRepository.findAllByBotId(botId);
+    return docIndexJob;
+  }
+
   async findTimeoutJobs(
     status: JobStatus.Running | JobStatus.Pending,
   ): Promise<DocIndexJobData[]> {

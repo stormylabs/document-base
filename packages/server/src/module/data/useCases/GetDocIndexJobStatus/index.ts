@@ -48,7 +48,8 @@ export default class GetDocIndexJobStatusUseCase {
           status,
           createdAt: docIndexJob.createdAt,
           trained: indexed,
-          progress: Math.floor((indexed / documents.length) * 100),
+          progress:
+            documents.length ?? Math.floor((indexed / documents.length) * 100),
         }),
       );
     } catch (err) {

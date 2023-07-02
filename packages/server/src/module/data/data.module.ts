@@ -78,6 +78,7 @@ import MarkJobsAsFailedUseCase from './useCases/MarkJobsAsFailed';
     IndexDocumentUseCase,
     CreateDocIndexJobUseCase,
     DocIndexJobService,
+    CrawlJobService,
   ],
 })
 export class DataModule {}

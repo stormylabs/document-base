@@ -42,6 +42,11 @@ export class CrawlJobRepository {
     return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
   }
 
+  async findAllByBotId(botId: string): Promise<CrawlJobData[]> {
+    const crawlJobs = await this.crawlJobModel.find({ botId }).exec();
+    return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
+  }
+
   async findTimeoutJobs(
     status: JobStatus.Running | JobStatus.Pending,
   ): Promise<CrawlJobData[]> {
