@@ -1,6 +1,5 @@
 import { Logger, Module } from '@nestjs/common';
 import * as Joi from 'joi';
-import { DataModule } from './module/data/data.module';
 import { ConfigModule } from '@nestjs/config';
 import { PineconeModule } from './module/pinecone/pinecone.module';
 import { MongoDBModule } from './module/mongodb/mongodb.module';
@@ -28,7 +27,6 @@ import { ScheduleModule } from '@nestjs/schedule';
       }),
     }),
     MongoDBModule,
-    DataModule,
     PineconeModule,
     BotModule,
     SqsConsumerModule,

@@ -1,10 +1,10 @@
 import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { SqsConsumerEventHandler, SqsMessageHandler } from '@ssut/nestjs-sqs';
 import * as dotenv from 'dotenv';
-import CrawlWebsiteUseCase from '@/module/data/useCases/CrawlWebsite';
+import CrawlWebsiteUseCase from '@/module/bot/useCases/jobs/CrawlWebsite';
 import { CrawlJobMessage } from '@/shared/interfaces/crawlJob';
-import IndexDocumentUseCase from '@/module/data/useCases/IndexDocuments';
 import { DocIndexJobMessage } from '@/shared/interfaces/docIndexJob';
+import IndexDocumentUseCase from '@/module/bot/useCases/jobs/IndexDocuments';
 dotenv.config();
 
 @Injectable()
