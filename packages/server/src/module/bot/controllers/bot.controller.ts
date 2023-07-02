@@ -121,7 +121,7 @@ export class BotController {
   @Post('/crawl/:id')
   @ApiBody({ type: CrawlWebsitesByBotDTO })
   @ApiOperation({
-    summary: 'Saves documents to bot and train bot.',
+    summary: 'Crawl websites by bot.',
   })
   async crawlWebsitesByBot(
     @Param() { id }: IdParams,
