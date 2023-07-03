@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  InvalidInputError,
-  NotFoundError,
+  UnfinishedJobsError,
+  BotNotFoundError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 
@@ -12,7 +12,7 @@ import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 
 type Response = Either<
-  InvalidInputError | UnexpectedError,
+  UnfinishedJobsError | UnexpectedError | BotNotFoundError,
   Result<{ jobId: string; status: JobStatus }>
 >;
 
@@ -34,20 +34,17 @@ export default class CrawlWebsitesByBotUseCase {
       this.logger.log(`Start crawling websites by bot`);
 
       const bot = await this.botService.findById(botId);
-      if (!bot) return left(new NotFoundError('Bot not found'));
+      if (!bot) return left(new BotNotFoundError());
 
       const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
         botId,
       );
+
       const unfinishedDocIndexJobs =
         await this.docIndexJobService.findUnfinishedJobs(botId);
 
-      if ([...unfinishedCrawlJobs, ...unfinishedDocIndexJobs].length > 0) {
-        return left(
-          new InvalidInputError(
-            'There are unfinished jobs. Please wait until they are finished',
-          ),
-        );
+      if (unfinishedCrawlJobs.length + unfinishedDocIndexJobs.length > 0) {
+        return left(new UnfinishedJobsError());
       }
 
       // remove all documents before start crawling
@@ -63,7 +60,6 @@ export default class CrawlWebsitesByBotUseCase {
       this.logger.log(`Websites are crawled by bot successfully`);
       return right(Result.ok({ ...result.value.getValue() }));
     } catch (err) {
-      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

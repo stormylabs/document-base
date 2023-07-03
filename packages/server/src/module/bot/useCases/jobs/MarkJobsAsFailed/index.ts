@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
+import UnexpectedError from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { JobStatus } from '@/shared/interfaces';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 
-type Response = Either<NotFoundError | UnexpectedError, Result<void>>;
+type Response = Either<UnexpectedError, Result<void>>;
 
 @Injectable()
 export default class MarkJobsAsFailedUseCase {
@@ -66,7 +66,6 @@ export default class MarkJobsAsFailedUseCase {
       );
       return right(Result.ok());
     } catch (err) {
-      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

@@ -1,13 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { InvalidInputError } from 'src/shared/core/AppError';
+import UnexpectedError from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '../../../services/bot.service';
 import { CreateBotResponseDTO } from './dto';
 
-type Response = Either<
-  InvalidInputError | UnexpectedError,
-  Result<CreateBotResponseDTO>
->;
+type Response = Either<UnexpectedError, Result<CreateBotResponseDTO>>;
 
 @Injectable()
 export default class CreateBotUseCase {
@@ -21,7 +18,6 @@ export default class CreateBotUseCase {
 
       return right(Result.ok({ bot }));
     } catch (err) {
-      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

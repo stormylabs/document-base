@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  InvalidInputError,
-  NotFoundError,
+  BotNotFoundError,
+  SQSSendMessageError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 
@@ -14,7 +14,7 @@ import { DocumentType } from '@/shared/interfaces/document';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 
 type Response = Either<
-  NotFoundError | UnexpectedError | InvalidInputError,
+  UnexpectedError | SQSSendMessageError | BotNotFoundError,
   Result<{ jobId: string; status: JobStatus }>
 >;
 
@@ -36,7 +36,7 @@ export default class CreateCrawlJobUseCase {
       this.logger.log(`Start creating crawl job`);
 
       const botExists = await this.botService.exists([botId]);
-      if (!botExists) return left(new NotFoundError('Bot not found'));
+      if (!botExists) return left(new BotNotFoundError());
 
       const crawlJob = await this.crawlJobService.create({
         botId,
@@ -48,7 +48,11 @@ export default class CreateCrawlJobUseCase {
 
       const payloads = await this.createPayloads(jobId, botId, urls);
 
-      await this.sendMessages(jobId, payloads);
+      try {
+        await this.sendMessages(jobId, payloads);
+      } catch (e) {
+        return left(new SQSSendMessageError(e));
+      }
       this.logger.log(`Sent ${payloads.length} messages to the queue`);
 
       // to keep track of the number of documents sent to the queue
@@ -59,7 +63,6 @@ export default class CreateCrawlJobUseCase {
       this.logger.log(`Crawl job is created successfully`);
       return right(Result.ok({ jobId, status }));
     } catch (err) {
-      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

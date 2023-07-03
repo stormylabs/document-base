@@ -1,7 +1,12 @@
 import { Controller, Logger, Get, Param } from '@nestjs/common';
 import { errorHandler } from 'src/shared/http';
 
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { IdParams } from '@/shared/dto/IdParams';
 import GetCrawlJobStatusUseCase from '../useCases/jobs/GetCrawlJobStatus';
 import GetDocIndexJobStatusUseCase from '../useCases/jobs/GetDocIndexJobStatus';
@@ -25,6 +30,9 @@ export class DataController {
     description: 'Crawl job status',
     type: GetCrawlJobStatusResponseDTO,
   })
+  @ApiNotFoundResponse({
+    description: 'Bot or crawl job not found',
+  })
   async getCrawlJobStatus(@Param() { id }: IdParams) {
     this.logger.log(`[GET] Start getting crawl job status`);
     const result = await this.getCrawlJobStatusUseCase.exec(id);
@@ -47,6 +55,9 @@ export class DataController {
   @ApiOkResponse({
     description: 'Train job status',
     type: GetDocIndexJobStatusResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Bot or train job not found',
   })
   async getTrainJobStatus(@Param() { id }: IdParams) {
     this.logger.log(`[GET] Start getting DocIndex job status`);

@@ -1,12 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
+import UnexpectedError, {
+  BotNotFoundError,
+  DocIndexJobNotFoundError,
+} from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { GetDocIndexJobStatusResponseDTO } from './dto';
 
 type Response = Either<
-  NotFoundError | UnexpectedError,
+  DocIndexJobNotFoundError | UnexpectedError | BotNotFoundError,
   Result<GetDocIndexJobStatusResponseDTO>
 >;
 
@@ -23,13 +26,13 @@ export default class GetDocIndexJobStatusUseCase {
 
       const docIndexJob = await this.docIndexJobService.findById(jobId);
 
-      if (!docIndexJob) return left(new NotFoundError('Crawl job not found'));
+      if (!docIndexJob) return left(new DocIndexJobNotFoundError());
 
       const { status, bot: botId, indexed, createdAt, updatedAt } = docIndexJob;
 
       const bot = await this.botService.findById(botId);
 
-      if (!bot) return left(new NotFoundError('Bot not found'));
+      if (!bot) return left(new BotNotFoundError());
 
       const { documents } = bot;
 
@@ -51,7 +54,6 @@ export default class GetDocIndexJobStatusUseCase {
         }),
       );
     } catch (err) {
-      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

@@ -1,12 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { InvalidInputError } from 'src/shared/core/AppError';
+import UnexpectedError, { BotNotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 
 import UpdateBotInfoDTO, { UpdateBotInfoResponseDTO } from './dto';
 import { BotService } from '@/module/bot/services/bot.service';
 
 type Response = Either<
-  InvalidInputError | UnexpectedError,
+  BotNotFoundError | UnexpectedError,
   Result<UpdateBotInfoResponseDTO>
 >;
 
@@ -22,11 +22,17 @@ export default class UpdateBotInfoUseCase {
     try {
       this.logger.log(`Start updating bot`);
 
-      const bot = await this.botService.updateInfo(botId, botData);
+      const bot = await this.botService.findById(botId);
+      if (!bot) return left(new BotNotFoundError());
+
+      const updatedBot = await this.botService.updateInfo(botId, botData);
 
       return right(
         Result.ok({
-          bot: { ...bot, documents: bot.documents.map((doc) => doc._id) },
+          bot: {
+            ...updatedBot,
+            documents: updatedBot.documents.map((doc) => doc._id),
+          },
         }),
       );
     } catch (err) {

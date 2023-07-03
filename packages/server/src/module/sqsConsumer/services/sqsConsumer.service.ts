@@ -5,6 +5,7 @@ import CrawlWebsiteUseCase from '@/module/bot/useCases/jobs/CrawlWebsite';
 import { CrawlJobMessage } from '@/shared/interfaces/crawlJob';
 import { DocIndexJobMessage } from '@/shared/interfaces/docIndexJob';
 import IndexDocumentUseCase from '@/module/bot/useCases/jobs/IndexDocuments';
+import { errorHandler } from '@/shared/http';
 dotenv.config();
 
 @Injectable()
@@ -20,15 +21,22 @@ export class SqsConsumerService {
   ) {}
   @SqsMessageHandler(process.env.WEB_CRAWL_QUEUE_NAME)
   async handleWebCrawlMessage(message: AWS.SQS.Message) {
-    try {
-      const body: CrawlJobMessage = JSON.parse(message.Body);
-      const { jobId, botId, documentId } = body;
-      this.logger.log(
-        `Received web crawl message from SQS. jobId: ${jobId} botId: ${botId} documentId: ${documentId}`,
+    const body: CrawlJobMessage = JSON.parse(message.Body);
+    const { jobId, botId, documentId } = body;
+    this.logger.log(
+      `Received web crawl message from SQS. jobId: ${jobId} botId: ${botId} documentId: ${documentId}`,
+    );
+    const result = await this.crawlWebsiteUseCase.exec(
+      jobId,
+      botId,
+      documentId,
+    );
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[WebCrawl] web crawl error ${error.errorValue().message}`,
       );
-      await this.crawlWebsiteUseCase.exec(jobId, botId, documentId);
-    } catch (err) {
-      console.log(err);
+      return errorHandler(error);
     }
   }
 
@@ -39,10 +47,13 @@ export class SqsConsumerService {
     this.logger.log(
       `Received doc index message from SQS: ${jobId} ${botId} ${document.sourceName}`,
     );
-    try {
-      await this.indexDocumentUseCase.exec(botId, jobId, document);
-    } catch (error) {
-      this.logger.error(error);
+    const result = await this.indexDocumentUseCase.exec(botId, jobId, document);
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[DocIndex] doc index error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
     }
   }
 

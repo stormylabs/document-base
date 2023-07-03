@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  InvalidInputError,
-  NotFoundError,
+  UnfinishedJobsError,
+  BotNotFoundError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
@@ -11,9 +11,23 @@ import { Metadata } from 'aws-sdk/clients/appstream';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { MessageBotResponseDTO } from './dto';
+import { ChainValues } from 'langchain/dist/schema';
+import { QueryResponse } from '@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch';
+import {
+  LangChainCallError,
+  LangChainGetEmbeddingError,
+  LangChainSummarizeError,
+} from '@/shared/core/LangChainError';
+import { PineconeGetMatchesError } from '@/shared/core/PineconeError';
 
 type Response = Either<
-  InvalidInputError | UnexpectedError,
+  | UnexpectedError
+  | UnfinishedJobsError
+  | BotNotFoundError
+  | LangChainCallError
+  | LangChainGetEmbeddingError
+  | PineconeGetMatchesError
+  | LangChainSummarizeError,
   Result<MessageBotResponseDTO>
 >;
 
@@ -37,18 +51,14 @@ export default class MessageBotUseCase {
 
       const bot = await this.botService.findById(botId);
 
-      if (!bot) return left(new NotFoundError('Bot not found'));
+      if (!bot) return left(new BotNotFoundError());
 
       const unfinishedJobs = await this.docIndexJobService.findUnfinishedJobs(
         botId,
       );
 
       if (unfinishedJobs.length > 0) {
-        return left(
-          new InvalidInputError(
-            'Bot is still indexing documents. Please try again later',
-          ),
-        );
+        return left(new UnfinishedJobsError());
       }
 
       this.logger.log(`User's message: ${message}`);
@@ -58,24 +68,41 @@ export default class MessageBotUseCase {
         ['userPrompt', 'conversationHistory'],
       );
 
-      const inquiryChainResult = await inquiryChain.call({
-        userPrompt: message,
-        conversationHistory,
-        verbose: false,
-      });
+      let inquiryChainResult: ChainValues;
+
+      try {
+        inquiryChainResult = await inquiryChain.call({
+          userPrompt: message,
+          conversationHistory,
+          verbose: false,
+        });
+      } catch (e) {
+        return left(new LangChainCallError(e.message));
+      }
+
       const inquiry = inquiryChainResult.text;
 
       this.logger.log(
         `Summarized inquiry with conversation history: ${inquiry}`,
       );
 
-      const embeddings = await this.langChainService.embedQuery(inquiry);
+      let embeddings: number[];
+      try {
+        embeddings = await this.langChainService.embedQuery(inquiry);
+      } catch (e) {
+        return left(new LangChainGetEmbeddingError(e.message));
+      }
 
       this.logger.log('Created embeddings from inquiry');
 
-      const matches = await this.pineconeService.getMatches(embeddings, {
-        botId,
-      });
+      let matches: Array<QueryResponse & { metadata: Metadata }>;
+      try {
+        matches = await this.pineconeService.getMatches(embeddings, {
+          botId,
+        });
+      } catch (e) {
+        return left(new PineconeGetMatchesError(e.message));
+      }
 
       this.logger.log(`Matched embeddings from inquiry: ${matches.length}`);
 
@@ -102,6 +129,7 @@ export default class MessageBotUseCase {
             }
             return map;
           }, new Map()),
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ).map(([_, text]) => text);
 
       const chatChain = this.langChainService.createChatInquiryChain(
@@ -111,19 +139,29 @@ export default class MessageBotUseCase {
 
       const combinedFullText = matchedFullText.join('\n');
 
-      const summary = await this.langChainService.summarizeLongDocument(
-        combinedFullText,
-        inquiry,
-      );
+      let summary: string;
+      try {
+        summary = await this.langChainService.summarizeLongDocument(
+          combinedFullText,
+          inquiry,
+        );
+      } catch (e) {
+        return left(new LangChainSummarizeError(e.message));
+      }
 
-      const results = await chatChain.call({
-        summaries: summary,
-        question: message,
-        conversationHistory,
-        urls: sourceNames,
-        verbose: false,
-      });
+      let results: ChainValues;
 
+      try {
+        results = await chatChain.call({
+          summaries: summary,
+          question: message,
+          conversationHistory,
+          urls: sourceNames,
+          verbose: false,
+        });
+      } catch (e) {
+        return left(new LangChainCallError(e.message));
+      }
       return right(Result.ok({ message: results.text }));
     } catch (err) {
       return left(new UnexpectedError(err));

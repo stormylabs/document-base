@@ -1,5 +1,10 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
+import UnexpectedError, {
+  BotNotFoundError,
+  CrawlJobNotFoundError,
+  CrawlerError,
+  DocumentNotFoundError,
+} from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { CrawlJobService } from '../../../services/crawlJob.service';
 import { BotService } from '@/module/bot/services/bot.service';
@@ -9,7 +14,14 @@ import { DocumentType } from '@/shared/interfaces/document';
 import { JobStatus } from '@/shared/interfaces';
 import CreateCrawlJobUseCase from '../CreateCrawlJob';
 
-type Response = Either<NotFoundError | UnexpectedError, Result<void>>;
+type Response = Either<
+  | CrawlJobNotFoundError
+  | DocumentNotFoundError
+  | BotNotFoundError
+  | UnexpectedError
+  | CrawlerError,
+  Result<void>
+>;
 
 @Injectable()
 export default class CrawlWebsiteUseCase {
@@ -30,16 +42,16 @@ export default class CrawlWebsiteUseCase {
 
       const bot = await this.botService.findById(botId);
       if (!bot) {
-        return left(new NotFoundError('Bot not found'));
+        return left(new BotNotFoundError());
       }
       const crawlJob = await this.crawlJobService.findById(jobId);
       if (!crawlJob) {
-        return left(new NotFoundError('CrawlJob not found'));
+        return left(new CrawlJobNotFoundError());
       }
 
       const document = await this.documentService.findById(documentId);
       if (!document) {
-        return left(new NotFoundError('Document not found'));
+        return left(new DocumentNotFoundError());
       }
 
       if (crawlJob.status === JobStatus.Finished) {
@@ -63,10 +75,18 @@ export default class CrawlWebsiteUseCase {
       const crawlJobDocIds = crawlJob.documents;
       const crawler = new Crawler(url);
 
-      const data = (await crawler.start()) as {
+      let data: {
         text: string;
         urls: string[];
       };
+      try {
+        data = (await crawler.start()) as {
+          text: string;
+          urls: string[];
+        };
+      } catch (e) {
+        return left(new CrawlerError(e));
+      }
       this.logger.log('data crawled');
 
       await this.documentService.updateContent(documentId, data.text);
@@ -114,7 +134,6 @@ export default class CrawlWebsiteUseCase {
       this.logger.log(`Website is crawled successfully`);
       return right(Result.ok());
     } catch (err) {
-      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
+import UnexpectedError, {
+  BotNotFoundError,
+  CrawlJobNotFoundError,
+} from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 
 import { BotService } from '@/module/bot/services/bot.service';
@@ -7,7 +10,7 @@ import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { GetCrawlJobStatusResponseDTO } from './dto';
 
 type Response = Either<
-  NotFoundError | UnexpectedError,
+  CrawlJobNotFoundError | BotNotFoundError | UnexpectedError,
   Result<GetCrawlJobStatusResponseDTO>
 >;
 
@@ -24,13 +27,13 @@ export default class GetCrawlJobStatusUseCase {
 
       const crawlJob = await this.crawlJobService.findById(jobId);
 
-      if (!crawlJob) return left(new NotFoundError('Crawl job not found'));
+      if (!crawlJob) return left(new CrawlJobNotFoundError());
 
       const { status, bot: botId, limit, createdAt, updatedAt } = crawlJob;
 
       const bot = await this.botService.findById(botId);
 
-      if (!bot) return left(new NotFoundError('Bot not found'));
+      if (!bot) return left(new BotNotFoundError());
 
       const { documents } = bot;
 
@@ -47,7 +50,6 @@ export default class GetCrawlJobStatusUseCase {
         }),
       );
     } catch (err) {
-      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

@@ -7,7 +7,15 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBody,
+  ApiConflictResponse,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 
 import { errorHandler } from 'src/shared/http';
 import CreateBotUseCase from '../useCases/bot/CreateBot';
@@ -54,7 +62,7 @@ export class BotController {
   @ApiOperation({
     summary: 'Creates a bot, name is set to default if not provided.',
   })
-  @ApiOkResponse({
+  @ApiCreatedResponse({
     description: 'Created bot info',
     type: CreateBotResponseDTO,
   })
@@ -81,6 +89,9 @@ export class BotController {
     description: 'Get bot info',
     type: GetBotInfoResponseDTO,
   })
+  @ApiNotFoundResponse({
+    description: 'Bot not found',
+  })
   async getBotInfo(@Param() { id }: IdParams) {
     this.logger.log(`[GET] Start getting bot`);
     const result = await this.getBotInfoUseCase.exec(id);
@@ -101,6 +112,9 @@ export class BotController {
   })
   @ApiOperation({
     summary: 'Updates bot info by bot ID.',
+  })
+  @ApiNotFoundResponse({
+    description: 'Bot not found',
   })
   async updateBot(@Param() { id }: IdParams, @Body() body: UpdateBotInfoDTO) {
     this.logger.log(`[PATCH] Start updating bot`);
@@ -125,6 +139,13 @@ export class BotController {
   @ApiOkResponse({
     description: 'Train Job id and status',
     type: SaveDocsAndTrainBotResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Bot or document not found',
+  })
+  @ApiConflictResponse({
+    description:
+      'If there are unfinished web crawl jobs or train jobs, this error will be returned.',
   })
   async saveAndTrainBot(
     @Param() { id }: IdParams,
@@ -154,6 +175,13 @@ export class BotController {
     description: 'Crawl Job id and status',
     type: CrawlWebsitesByBotResponseDTO,
   })
+  @ApiNotFoundResponse({
+    description: 'Bot not found',
+  })
+  @ApiConflictResponse({
+    description:
+      'If there are unfinished web crawl jobs or train jobs, this error will be returned.',
+  })
   async crawlWebsitesByBot(
     @Param() { id }: IdParams,
     @Body() body: CrawlWebsitesByBotDTO,
@@ -181,6 +209,13 @@ export class BotController {
   @ApiOkResponse({
     description: 'Message bot response',
     type: MessageBotResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Bot not found',
+  })
+  @ApiConflictResponse({
+    description:
+      'If there are unfinished train jobs, this error will be returned.',
   })
   async messageBot(@Param() { id }: IdParams, @Body() body: MessageBotDTO) {
     const { message, conversationHistory } = body;

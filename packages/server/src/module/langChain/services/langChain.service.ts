@@ -30,7 +30,7 @@ export class LangChainService {
     return this.embedder.embedQuery(query);
   }
 
-  public async getVector(
+  public async getVectors(
     id: string,
     doc: LCDocument,
     metadata: Vector['metadata'],

@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  InvalidInputError,
-  NotFoundError,
+  BotNotFoundError,
+  DocumentNotFoundError,
+  UnfinishedJobsError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
@@ -12,7 +13,10 @@ import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { SaveDocsAndTrainBotResponseDTO } from './dto';
 
 type Response = Either<
-  InvalidInputError | UnexpectedError,
+  | UnexpectedError
+  | BotNotFoundError
+  | DocumentNotFoundError
+  | UnfinishedJobsError,
   Result<SaveDocsAndTrainBotResponseDTO>
 >;
 
@@ -31,7 +35,7 @@ export default class SaveDocsAndTrainBotUseCase {
       this.logger.log(`Start saving to bot and indexing documents`);
 
       const bot = await this.botService.findById(botId);
-      if (!bot) return left(new NotFoundError('Bot not found'));
+      if (!bot) return left(new BotNotFoundError());
 
       const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
         botId,
@@ -40,15 +44,11 @@ export default class SaveDocsAndTrainBotUseCase {
         await this.docIndexJobService.findUnfinishedJobs(botId);
 
       if ([...unfinishedCrawlJobs, ...unfinishedDocIndexJobs].length > 0) {
-        return left(
-          new InvalidInputError(
-            'There are unfinished jobs. Please wait until they are finished',
-          ),
-        );
+        return left(new UnfinishedJobsError());
       }
 
       if (!(await this.documentService.exists(documentIds))) {
-        return left(new NotFoundError('Contains documents that are not found'));
+        return left(new DocumentNotFoundError());
       }
 
       const documentIdsSet = new Set(documentIds);
@@ -79,7 +79,6 @@ export default class SaveDocsAndTrainBotUseCase {
 
       return right(Result.ok({ ...result.value.getValue() }));
     } catch (err) {
-      console.log(err);
       return left(new UnexpectedError(err));
     }
   }
