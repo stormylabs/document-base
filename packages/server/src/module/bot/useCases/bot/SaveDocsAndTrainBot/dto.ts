@@ -1,3 +1,4 @@
+import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   ArrayMaxSize,
@@ -21,4 +22,18 @@ export default class SaveDocsAndTrainBotDTO {
   @ArrayMaxSize(2000)
   @ArrayMinSize(1)
   documentIds: string[];
+}
+
+export class SaveDocsAndTrainBotResponseDTO {
+  @ApiProperty({
+    description: 'Train Job ID',
+    type: String,
+  })
+  jobId: string;
+
+  @ApiProperty({
+    description: 'Train Job Status',
+    enum: JobStatus,
+  })
+  status: JobStatus;
 }

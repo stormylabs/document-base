@@ -2,19 +2,12 @@ import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
-import { JobStatus } from '@/shared/interfaces';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
+import { GetDocIndexJobStatusResponseDTO } from './dto';
 
 type Response = Either<
   NotFoundError | UnexpectedError,
-  Result<{
-    jobId: string;
-    botId: string;
-    status: JobStatus;
-    createdAt: Date;
-    trained: number;
-    progress: number;
-  }>
+  Result<GetDocIndexJobStatusResponseDTO>
 >;
 
 @Injectable()
@@ -32,7 +25,7 @@ export default class GetDocIndexJobStatusUseCase {
 
       if (!docIndexJob) return left(new NotFoundError('Crawl job not found'));
 
-      const { status, bot: botId, indexed } = docIndexJob;
+      const { status, bot: botId, indexed, createdAt, updatedAt } = docIndexJob;
 
       const bot = await this.botService.findById(botId);
 
@@ -43,7 +36,7 @@ export default class GetDocIndexJobStatusUseCase {
       const progress =
         documents.length === 0
           ? 0
-          : Math.floor(indexed / documents.length) * 100;
+          : Math.floor((indexed / documents.length) * 100);
 
       this.logger.log(`Get DocIndex job successfully`);
       return right(
@@ -51,7 +44,8 @@ export default class GetDocIndexJobStatusUseCase {
           jobId,
           botId,
           status,
-          createdAt: docIndexJob.createdAt,
+          createdAt,
+          updatedAt,
           trained: indexed,
           progress,
         }),

@@ -3,20 +3,12 @@ import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 
 import { BotService } from '@/module/bot/services/bot.service';
-import { JobStatus } from '@/shared/interfaces';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
+import { GetCrawlJobStatusResponseDTO } from './dto';
 
 type Response = Either<
   NotFoundError | UnexpectedError,
-  Result<{
-    jobId: string;
-    botId: string;
-    status: JobStatus;
-    createdAt: Date;
-    updatedAt: Date;
-    limit: number;
-    progress: number;
-  }>
+  Result<GetCrawlJobStatusResponseDTO>
 >;
 
 @Injectable()
@@ -34,7 +26,7 @@ export default class GetCrawlJobStatusUseCase {
 
       if (!crawlJob) return left(new NotFoundError('Crawl job not found'));
 
-      const { status, bot: botId, limit } = crawlJob;
+      const { status, bot: botId, limit, createdAt, updatedAt } = crawlJob;
 
       const bot = await this.botService.findById(botId);
 
@@ -48,8 +40,8 @@ export default class GetCrawlJobStatusUseCase {
           jobId,
           botId,
           status,
-          createdAt: crawlJob.createdAt,
-          updatedAt: crawlJob.updatedAt,
+          createdAt,
+          updatedAt,
           limit,
           progress: Math.floor((documents.length / limit) * 100),
         }),

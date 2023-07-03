@@ -7,22 +7,34 @@ import {
   Patch,
   Post,
 } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { errorHandler } from 'src/shared/http';
 import CreateBotUseCase from '../useCases/bot/CreateBot';
-import CreateBotDTO from '../useCases/bot/CreateBot/dto';
+import CreateBotDTO, {
+  CreateBotResponseDTO,
+} from '../useCases/bot/CreateBot/dto';
 
 import { IdParams } from '@/shared/dto/IdParams';
 import GetBotInfoUseCase from '../useCases/bot/GetBotInfo';
 import MessageBotUseCase from '../useCases/bot/MessageBot';
-import MessageBotDTO from '../useCases/bot/MessageBot/dto';
+import MessageBotDTO, {
+  MessageBotResponseDTO,
+} from '../useCases/bot/MessageBot/dto';
 import UpdateBotInfoUseCase from '../useCases/bot/UpdateBotInfo';
-import UpdateBotInfoDTO from '../useCases/bot/UpdateBotInfo/dto';
+import UpdateBotInfoDTO, {
+  UpdateBotInfoResponseDTO,
+} from '../useCases/bot/UpdateBotInfo/dto';
 import SaveDocsAndTrainBotUseCase from '../useCases/bot/SaveDocsAndTrainBot';
 import CrawlWebsitesByBotUseCase from '../useCases/bot/CrawlWebsitesByBotUseCase';
-import SaveDocsAndTrainBotDTO from '../useCases/bot/SaveDocsAndTrainBot/dto';
-import CrawlWebsitesByBotDTO from '../useCases/bot/CrawlWebsitesByBotUseCase/dto';
+import SaveDocsAndTrainBotDTO, {
+  SaveDocsAndTrainBotResponseDTO,
+} from '../useCases/bot/SaveDocsAndTrainBot/dto';
+import {
+  CrawlWebsitesByBotDTO,
+  CrawlWebsitesByBotResponseDTO,
+} from '../useCases/bot/CrawlWebsitesByBotUseCase/dto';
+import { GetBotInfoResponseDTO } from '../useCases/bot/GetBotInfo/dto';
 
 @ApiTags('bot')
 @Controller('bot')
@@ -41,6 +53,10 @@ export class BotController {
   @ApiBody({ type: CreateBotDTO })
   @ApiOperation({
     summary: 'Creates a bot, name is set to default if not provided.',
+  })
+  @ApiOkResponse({
+    description: 'Created bot info',
+    type: CreateBotResponseDTO,
   })
   async createBot(@Body() body: CreateBotDTO) {
     const { name } = body;
@@ -61,6 +77,10 @@ export class BotController {
   @ApiOperation({
     summary: 'Gets bot info by bot ID.',
   })
+  @ApiOkResponse({
+    description: 'Get bot info',
+    type: GetBotInfoResponseDTO,
+  })
   async getBotInfo(@Param() { id }: IdParams) {
     this.logger.log(`[GET] Start getting bot`);
     const result = await this.getBotInfoUseCase.exec(id);
@@ -75,6 +95,10 @@ export class BotController {
 
   @Patch(':id')
   @ApiBody({ type: UpdateBotInfoDTO })
+  @ApiOkResponse({
+    description: 'Bot info',
+    type: UpdateBotInfoResponseDTO,
+  })
   @ApiOperation({
     summary: 'Updates bot info by bot ID.',
   })
@@ -97,6 +121,10 @@ export class BotController {
   @ApiBody({ type: SaveDocsAndTrainBotDTO })
   @ApiOperation({
     summary: 'Saves documents to bot and train bot.',
+  })
+  @ApiOkResponse({
+    description: 'Train Job id and status',
+    type: SaveDocsAndTrainBotResponseDTO,
   })
   async saveAndTrainBot(
     @Param() { id }: IdParams,
@@ -122,6 +150,10 @@ export class BotController {
   @ApiOperation({
     summary: 'Crawl websites by bot.',
   })
+  @ApiOkResponse({
+    description: 'Crawl Job id and status',
+    type: CrawlWebsitesByBotResponseDTO,
+  })
   async crawlWebsitesByBot(
     @Param() { id }: IdParams,
     @Body() body: CrawlWebsitesByBotDTO,
@@ -145,6 +177,10 @@ export class BotController {
   @ApiBody({ type: MessageBotDTO })
   @ApiOperation({
     summary: 'Sends messages to bot, and get bot response.',
+  })
+  @ApiOkResponse({
+    description: 'Message bot response',
+    type: MessageBotResponseDTO,
   })
   async messageBot(@Param() { id }: IdParams, @Body() body: MessageBotDTO) {
     const { message, conversationHistory } = body;

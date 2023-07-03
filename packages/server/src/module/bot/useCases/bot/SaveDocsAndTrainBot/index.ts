@@ -4,17 +4,16 @@ import UnexpectedError, {
   NotFoundError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
-
-import { JobStatus } from '@/shared/interfaces';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocumentService } from '@/module/bot/services/document.service';
 import CreateDocIndexJobUseCase from '../../jobs/CreateDocIndexJob';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
+import { SaveDocsAndTrainBotResponseDTO } from './dto';
 
 type Response = Either<
   InvalidInputError | UnexpectedError,
-  Result<{ jobId: string; status: JobStatus }>
+  Result<SaveDocsAndTrainBotResponseDTO>
 >;
 
 @Injectable()

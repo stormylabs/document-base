@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { BotResponse } from '@/shared/dto/bot';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
 
 export default class CreateBotDTO {
@@ -15,4 +16,11 @@ export default class CreateBotDTO {
   @MinLength(1)
   @IsOptional()
   name?: string;
+}
+
+export class CreateBotResponseDTO {
+  @ApiProperty({
+    type: OmitType(BotResponse, ['deletedAt'] as const),
+  })
+  bot: Omit<BotResponse, 'deletedAt'>;
 }

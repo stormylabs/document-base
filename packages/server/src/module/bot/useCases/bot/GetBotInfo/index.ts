@@ -4,39 +4,15 @@ import UnexpectedError, {
   NotFoundError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
-
-import { DocumentType } from '@/shared/interfaces/document';
 import { encode } from 'gpt-3-encoder';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
-import { JobStatus } from '@/shared/interfaces';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
+import { GetBotInfoResponseDTO } from './dto';
 
 type Response = Either<
   InvalidInputError | UnexpectedError,
-  Result<{
-    bot: {
-      _id: string;
-      name: string;
-      documents: {
-        _id: string;
-        sourceName: string;
-        type: DocumentType;
-        tokens: number;
-      }[];
-      createdAt: Date;
-      trainJobs: {
-        _id: string;
-        status: JobStatus;
-        createdAt: Date;
-      }[];
-      crawlJobs: {
-        _id: string;
-        status: JobStatus;
-        createdAt: Date;
-      }[];
-    };
-  }>
+  Result<GetBotInfoResponseDTO>
 >;
 
 @Injectable()

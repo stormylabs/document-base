@@ -22,3 +22,11 @@ export default class MessageBotDTO {
   @ArrayMaxSize(15)
   conversationHistory: string[];
 }
+
+export class MessageBotResponseDTO {
+  @ApiProperty({
+    description: 'Message to the bot',
+    type: String,
+  })
+  message: string;
+}

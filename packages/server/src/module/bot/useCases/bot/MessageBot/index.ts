@@ -10,10 +10,11 @@ import { LangChainService } from '@/module/langChain/services/langChain.service'
 import { Metadata } from 'aws-sdk/clients/appstream';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
+import { MessageBotResponseDTO } from './dto';
 
 type Response = Either<
   InvalidInputError | UnexpectedError,
-  Result<{ message: string }>
+  Result<MessageBotResponseDTO>
 >;
 
 @Injectable()

@@ -1,3 +1,4 @@
+import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   ArrayMaxSize,
@@ -9,7 +10,7 @@ import {
   Min,
 } from 'class-validator';
 
-export default class CrawlWebsitesByBotDTO {
+export class CrawlWebsitesByBotDTO {
   @ApiProperty({
     description: 'URLs to crawl',
     minItems: 1,
@@ -35,4 +36,18 @@ export default class CrawlWebsitesByBotDTO {
   @Min(1)
   @Max(2000)
   limit: number;
+}
+
+export class CrawlWebsitesByBotResponseDTO {
+  @ApiProperty({
+    description: 'Crawl Job ID',
+    type: String,
+  })
+  jobId: string;
+
+  @ApiProperty({
+    description: 'Crawl Job Status',
+    enum: JobStatus,
+  })
+  status: JobStatus;
 }

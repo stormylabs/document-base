@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { BotResponse } from '@/shared/dto/bot';
+import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { IsString, MaxLength, MinLength } from 'class-validator';
 
 export default class UpdateBotInfoDTO {
@@ -14,4 +15,26 @@ export default class UpdateBotInfoDTO {
   @MaxLength(50)
   @MinLength(1)
   name: string;
+}
+
+export class UpdateBotResponse extends PartialType(
+  PickType(BotResponse, ['_id', 'name', 'createdAt', 'deletedAt'] as const),
+) {
+  _id: string;
+  name: string;
+  createdAt: Date;
+  deletedAt: Date;
+
+  @ApiProperty({
+    type: () => [String],
+    isArray: true,
+  })
+  documents: string[];
+}
+
+export class UpdateBotInfoResponseDTO {
+  @ApiProperty({
+    type: UpdateBotResponse,
+  })
+  bot: UpdateBotResponse;
 }
