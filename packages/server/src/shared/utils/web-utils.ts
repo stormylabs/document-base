@@ -1,5 +1,7 @@
 import { Vector } from '@pinecone-database/pinecone';
+import { encode } from 'gpt-3-encoder';
 import { camelCase, isDate, isObject, isArray, transform } from 'lodash';
+import { TOKEN_LIMIT } from '../constants';
 
 export const camelize = (obj: any) =>
   transform(obj, (acc, value, key, target) => {
@@ -24,11 +26,21 @@ export const sliceIntoChunks = (arr: Vector[], chunkSize: number) => {
   );
 };
 
-export function chunkSubstr(text: string, chunkLength: number) {
+export function chunkSubstr(text: string) {
   const chunks = [];
+  const maxChunkLength = Math.floor(TOKEN_LIMIT / encode(' ').length);
+
   let index = 0;
 
   while (index < text.length) {
+    let chunkLength = maxChunkLength;
+    console.log({ chunkLength });
+    while (
+      encode(text.slice(index, index + chunkLength)).length > TOKEN_LIMIT
+    ) {
+      chunkLength--;
+    }
+
     const subtext = text.slice(index, index + chunkLength);
     chunks.push(subtext);
     index += chunkLength;

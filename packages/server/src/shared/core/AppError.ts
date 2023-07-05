@@ -47,12 +47,23 @@ export class ConflictError extends Result<UseCaseError> {
   }
 }
 
-export class UnfinishedJobsError extends Result<UseCaseError> {
-  public constructor() {
-    const message =
-      'There are unfinished jobs. Please wait until they are finished';
+export class UnfinishedCrawlJobsError extends Result<UseCaseError> {
+  public constructor(jobIds: string[]) {
+    const message = `There are unfinished crawl jobs. Please wait until they are finished: ${jobIds.join(
+      ', ',
+    )}`;
     super(false, { message } as UseCaseError);
-    Logger.log(message, UnfinishedJobsError.name);
+    Logger.log(message, UnfinishedCrawlJobsError.name);
+  }
+}
+
+export class UnfinishedDocIndexJobsError extends Result<UseCaseError> {
+  public constructor(jobIds: string[]) {
+    const message = `There are unfinished train jobs. Please wait until they are finished: ${jobIds.join(
+      ', ',
+    )}`;
+    super(false, { message } as UseCaseError);
+    Logger.log(message, UnfinishedDocIndexJobsError.name);
   }
 }
 

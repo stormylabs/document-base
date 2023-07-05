@@ -76,4 +76,10 @@ export class CrawlJobService {
     if (!exists) throw new Error('Crawl job does not exist.');
     return this.crawlJobRepository.upsertDocuments(crawlJobId, documentIds);
   }
+
+  async removeDocument(crawlJobId: string, documentId: string) {
+    const exists = await this.exists([crawlJobId]);
+    if (!exists) throw new Error('Crawl job does not exist.');
+    return this.crawlJobRepository.removeDocument(crawlJobId, documentId);
+  }
 }

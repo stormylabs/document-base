@@ -1,7 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  UnfinishedJobsError,
   BotNotFoundError,
+  UnfinishedCrawlJobsError,
+  UnfinishedDocIndexJobsError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 
@@ -12,7 +13,10 @@ import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 
 type Response = Either<
-  UnfinishedJobsError | UnexpectedError | BotNotFoundError,
+  | UnfinishedDocIndexJobsError
+  | UnfinishedCrawlJobsError
+  | UnexpectedError
+  | BotNotFoundError,
   Result<{ jobId: string; status: JobStatus }>
 >;
 
@@ -43,8 +47,20 @@ export default class CrawlWebsitesByBotUseCase {
       const unfinishedDocIndexJobs =
         await this.docIndexJobService.findUnfinishedJobs(botId);
 
-      if (unfinishedCrawlJobs.length + unfinishedDocIndexJobs.length > 0) {
-        return left(new UnfinishedJobsError());
+      if (unfinishedCrawlJobs.length > 0) {
+        return left(
+          new UnfinishedCrawlJobsError(
+            unfinishedCrawlJobs.map((job) => job._id),
+          ),
+        );
+      }
+
+      if (unfinishedDocIndexJobs.length > 0) {
+        return left(
+          new UnfinishedDocIndexJobsError(
+            unfinishedDocIndexJobs.map((job) => job._id),
+          ),
+        );
       }
 
       // remove all documents before start crawling

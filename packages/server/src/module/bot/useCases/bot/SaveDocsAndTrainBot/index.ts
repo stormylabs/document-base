@@ -2,7 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
   BotNotFoundError,
   DocumentNotFoundError,
-  UnfinishedJobsError,
+  UnfinishedCrawlJobsError,
+  UnfinishedDocIndexJobsError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
@@ -16,7 +17,8 @@ type Response = Either<
   | UnexpectedError
   | BotNotFoundError
   | DocumentNotFoundError
-  | UnfinishedJobsError,
+  | UnfinishedDocIndexJobsError
+  | UnfinishedCrawlJobsError,
   Result<SaveDocsAndTrainBotResponseDTO>
 >;
 
@@ -43,8 +45,20 @@ export default class SaveDocsAndTrainBotUseCase {
       const unfinishedDocIndexJobs =
         await this.docIndexJobService.findUnfinishedJobs(botId);
 
-      if ([...unfinishedCrawlJobs, ...unfinishedDocIndexJobs].length > 0) {
-        return left(new UnfinishedJobsError());
+      if (unfinishedCrawlJobs.length > 0) {
+        return left(
+          new UnfinishedCrawlJobsError(
+            unfinishedCrawlJobs.map((job) => job._id),
+          ),
+        );
+      }
+
+      if (unfinishedDocIndexJobs.length > 0) {
+        return left(
+          new UnfinishedDocIndexJobsError(
+            unfinishedDocIndexJobs.map((job) => job._id),
+          ),
+        );
       }
 
       if (!(await this.documentService.exists(documentIds))) {

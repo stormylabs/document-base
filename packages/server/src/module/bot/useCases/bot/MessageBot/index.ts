@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  UnfinishedJobsError,
+  UnfinishedDocIndexJobsError,
   BotNotFoundError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
@@ -11,18 +11,18 @@ import { Metadata } from 'aws-sdk/clients/appstream';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { MessageBotResponseDTO } from './dto';
-import { ChainValues } from 'langchain/dist/schema';
-import { QueryResponse } from '@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch';
+import { ChainValues } from 'langchain/schema';
 import {
   LangChainCallError,
   LangChainGetEmbeddingError,
   LangChainSummarizeError,
 } from '@/shared/core/LangChainError';
 import { PineconeGetMatchesError } from '@/shared/core/PineconeError';
+import { QueryResponse } from '@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch';
 
 type Response = Either<
   | UnexpectedError
-  | UnfinishedJobsError
+  | UnfinishedDocIndexJobsError
   | BotNotFoundError
   | LangChainCallError
   | LangChainGetEmbeddingError
@@ -58,7 +58,9 @@ export default class MessageBotUseCase {
       );
 
       if (unfinishedJobs.length > 0) {
-        return left(new UnfinishedJobsError());
+        return left(
+          new UnfinishedDocIndexJobsError(unfinishedJobs.map((job) => job._id)),
+        );
       }
 
       this.logger.log(`User's message: ${message}`);
@@ -74,7 +76,6 @@ export default class MessageBotUseCase {
         inquiryChainResult = await inquiryChain.call({
           userPrompt: message,
           conversationHistory,
-          verbose: false,
         });
       } catch (e) {
         return left(new LangChainCallError(e.message));
@@ -154,10 +155,9 @@ export default class MessageBotUseCase {
       try {
         results = await chatChain.call({
           summaries: summary,
-          question: message,
+          question: inquiry,
           conversationHistory,
           urls: sourceNames,
-          verbose: false,
         });
       } catch (e) {
         return left(new LangChainCallError(e.message));

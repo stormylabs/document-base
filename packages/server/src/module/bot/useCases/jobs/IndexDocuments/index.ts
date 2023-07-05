@@ -2,6 +2,7 @@ import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
   BotNotFoundError,
   DocIndexJobNotFoundError,
+  DocumentNotFoundError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { Document as LCDocument } from 'langchain/document';
@@ -20,6 +21,7 @@ import {
   LangChainSplitDocsError,
 } from '@/shared/core/LangChainError';
 import { PineconeUpsertError } from '@/shared/core/PineconeError';
+import { DocumentService } from '@/module/bot/services/document.service';
 
 type Response = Either<
   | DocIndexJobNotFoundError
@@ -44,22 +46,28 @@ export default class IndexDocumentUseCase {
   constructor(
     private readonly pineconeService: PineconeClientService,
     private readonly botService: BotService,
+    private readonly documentService: DocumentService,
     private readonly docIndexJobService: DocIndexJobService,
     private readonly langChainService: LangChainService,
   ) {}
   public async exec(
     botId: string,
     jobId: string,
-    document: { _id: string; sourceName: string; content: string },
+    documentId: string,
   ): Promise<Response> {
     try {
       this.logger.log(`Start indexing document`);
 
       const bot = await this.botService.findById(botId);
-
       if (!bot) {
         return left(new BotNotFoundError());
       }
+
+      const document = await this.documentService.findById(documentId);
+      if (!document) {
+        return left(new DocumentNotFoundError());
+      }
+
       const docIndexJob = await this.docIndexJobService.findById(jobId);
       if (!docIndexJob) {
         return left(new DocIndexJobNotFoundError());
@@ -72,7 +80,7 @@ export default class IndexDocumentUseCase {
         await this.docIndexJobService.updateStatus(jobId, JobStatus.Running);
       }
 
-      this.logger.log('Start splitting document');
+      this.logger.log(`Start splitting document: ${document.sourceName}`);
 
       let docs: LCDocument<Record<string, any>>[];
       try {
@@ -87,6 +95,7 @@ export default class IndexDocumentUseCase {
           }),
         ]);
       } catch (e) {
+        await this.docIndexJobService.incrementIndexed(jobId);
         return left(new LangChainSplitDocsError(e));
       }
 
@@ -104,6 +113,7 @@ export default class IndexDocumentUseCase {
           ),
         );
       } catch (e) {
+        await this.docIndexJobService.incrementIndexed(jobId);
         return left(new LangChainGetVectorsError(e));
       }
 
@@ -126,6 +136,7 @@ export default class IndexDocumentUseCase {
           ),
         );
       } catch (e) {
+        await this.docIndexJobService.incrementIndexed(jobId);
         return left(new PineconeUpsertError(e));
       }
 
@@ -140,6 +151,7 @@ export default class IndexDocumentUseCase {
       this.logger.log(`Document is indexed successfully`);
       return right(Result.ok());
     } catch (err) {
+      await this.docIndexJobService.incrementIndexed(jobId);
       return left(new UnexpectedError(err));
     }
   }

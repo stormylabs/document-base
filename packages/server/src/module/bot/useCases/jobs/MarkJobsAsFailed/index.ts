@@ -19,7 +19,7 @@ export default class MarkJobsAsFailedUseCase {
   @Cron(CronExpression.EVERY_5_MINUTES)
   public async exec(): Promise<Response> {
     try {
-      this.logger.log(`Start marking timeout jobs as finished`);
+      this.logger.log(`Start marking timeout jobs as failed`);
 
       const runningCrawlJobs = await this.crawlJobService.findTimeoutJobs(
         JobStatus.Running,

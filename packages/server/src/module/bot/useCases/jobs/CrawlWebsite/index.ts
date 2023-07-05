@@ -55,6 +55,7 @@ export default class CrawlWebsiteUseCase {
       }
 
       if (crawlJob.status === JobStatus.Finished) {
+        this.logger.log('crawl job finished');
         return right(Result.ok());
       }
 
@@ -85,9 +86,23 @@ export default class CrawlWebsiteUseCase {
           urls: string[];
         };
       } catch (e) {
+        await this.crawlJobService.removeDocument(jobId, documentId);
+        await this.documentService.delete(documentId);
+        this.logger.log(
+          'Delete document and remove from crawl job as crawler error',
+        );
         return left(new CrawlerError(e));
       }
       this.logger.log('data crawled');
+
+      if (!data.text) {
+        await this.crawlJobService.removeDocument(jobId, documentId);
+        await this.documentService.delete(documentId);
+        this.logger.log(
+          'Delete document and remove from crawl job as no text is found',
+        );
+        return right(Result.ok());
+      }
 
       await this.documentService.updateContent(documentId, data.text);
       this.logger.log('document content updated');
@@ -122,18 +137,20 @@ export default class CrawlWebsiteUseCase {
         botId,
         urlsToSend,
       );
+      // to keep track of the number of documents sent to the queue
+      const documentIds = payloads.map((payload) => payload.documentId);
+
+      await this.crawlJobService.upsertDocuments(jobId, documentIds);
 
       await this.createCrawlJobUseCase.sendMessages(jobId, payloads);
       this.logger.log(`Sent ${payloads.length} messages to the queue`);
 
-      // to keep track of the number of documents sent to the queue
-      const documentIds = payloads.map((payload) => payload.documentId);
-      await this.crawlJobService.upsertDocuments(jobId, documentIds);
       this.logger.log('documents upserted to crawl job');
 
       this.logger.log(`Website is crawled successfully`);
       return right(Result.ok());
     } catch (err) {
+      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

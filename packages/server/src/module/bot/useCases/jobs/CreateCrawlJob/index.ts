@@ -48,11 +48,16 @@ export default class CreateCrawlJobUseCase {
 
       const payloads = await this.createPayloads(jobId, botId, urls);
 
-      try {
-        await this.sendMessages(jobId, payloads);
-      } catch (e) {
-        return left(new SQSSendMessageError(e));
+      const batchSize = 100;
+
+      for (let i = 0; i < payloads.length; i += batchSize) {
+        try {
+          await this.sendMessages(jobId, payloads.slice(i, i + batchSize));
+        } catch (e) {
+          return left(new SQSSendMessageError(e));
+        }
       }
+
       this.logger.log(`Sent ${payloads.length} messages to the queue`);
 
       // to keep track of the number of documents sent to the queue
@@ -90,6 +95,9 @@ export default class CreateCrawlJobUseCase {
         documentId = _id;
       } else {
         documentId = document._id;
+        if (document.deletedAt) {
+          await this.documentService.restore(document._id);
+        }
       }
 
       payloads.push({ botId, jobId, documentId });

@@ -8,16 +8,16 @@ import { Vector } from '@pinecone-database/pinecone';
 import { templates } from '@/shared/constants/template';
 import { chunkSubstr } from '@/shared/utils/web-utils';
 import { encode } from 'gpt-3-encoder';
-import { CHAR_LIMIT } from '@/shared/constants';
+import { TOKEN_LIMIT } from '@/shared/constants';
 
 @Injectable()
 export class LangChainService {
   private tokenSplitter: TokenTextSplitter;
   private readonly logger = new Logger(LangChainService.name);
   constructor(
-    @Inject(ChatOpenAI) private readonly chat: ChatOpenAI,
-    @Inject(OpenAI) private readonly llm: OpenAI,
-    @Inject(OpenAIEmbeddings) private readonly embedder: OpenAIEmbeddings,
+    @Inject(ChatOpenAI) public readonly chat: ChatOpenAI,
+    @Inject(OpenAI) public readonly llm: OpenAI,
+    @Inject(OpenAIEmbeddings) public readonly embedder: OpenAIEmbeddings,
   ) {
     this.tokenSplitter = new TokenTextSplitter({
       encodingName: 'gpt2',
@@ -76,21 +76,23 @@ export class LangChainService {
     const result = await chain.call({
       document: text,
       inquiry,
-      verbose: false,
     });
 
     return result.text;
   }
 
   async summarizeLongDocument(text: string, inquiry: string) {
-    const templateLength = templates.summarizerTemplate.length;
-    this.logger.log(`Text and template length ${text.length + templateLength}`);
+    const templateTokenLength = encode(templates.summarizerTemplate).length;
+    const textTokenLength = encode(text).length;
+    this.logger.log(
+      `Text and template length ${textTokenLength + templateTokenLength}`,
+    );
 
-    if (text.length + templateLength <= CHAR_LIMIT) {
+    if (textTokenLength + templateTokenLength <= TOKEN_LIMIT) {
       this.logger.log(`Summarized text is short enough`);
       return text;
     }
-    const chunks = chunkSubstr(text, CHAR_LIMIT - templateLength - 1);
+    const chunks = chunkSubstr(text);
 
     this.logger.log(
       `Split text into ${chunks.length} chunks, approx tokens: ${
@@ -104,7 +106,7 @@ export class LangChainService {
 
     const result = summaries.join('\n');
 
-    if (result.length + templateLength <= CHAR_LIMIT) {
+    if (encode(result).length + templateTokenLength <= TOKEN_LIMIT) {
       this.logger.log(
         `Summarized result tokens: ${
           encode(result + templates.summarizerTemplate).length

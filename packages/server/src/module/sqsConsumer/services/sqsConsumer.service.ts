@@ -23,9 +23,7 @@ export class SqsConsumerService {
   async handleWebCrawlMessage(message: AWS.SQS.Message) {
     const body: CrawlJobMessage = JSON.parse(message.Body);
     const { jobId, botId, documentId } = body;
-    this.logger.log(
-      `Received web crawl message from SQS. jobId: ${jobId} botId: ${botId} documentId: ${documentId}`,
-    );
+    this.logger.log(`Received web crawl message from SQS`);
     const result = await this.crawlWebsiteUseCase.exec(
       jobId,
       botId,
@@ -43,11 +41,13 @@ export class SqsConsumerService {
   @SqsMessageHandler(process.env.DOC_INDEX_QUEUE_NAME)
   async handleDocIndexMessage(message: AWS.SQS.Message) {
     const body: DocIndexJobMessage = JSON.parse(message.Body);
-    const { jobId, botId, document } = body;
-    this.logger.log(
-      `Received doc index message from SQS: ${jobId} ${botId} ${document.sourceName}`,
+    const { jobId, botId, documentId } = body;
+    this.logger.log(`Received doc index message from SQS`);
+    const result = await this.indexDocumentUseCase.exec(
+      botId,
+      jobId,
+      documentId,
     );
-    const result = await this.indexDocumentUseCase.exec(botId, jobId, document);
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(

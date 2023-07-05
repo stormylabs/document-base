@@ -1,4 +1,4 @@
-export const CHAR_LIMIT = 24576;
+export const TOKEN_LIMIT = 7500;
 
 export const ONE_SECOND = 1000;
 export const ONE_MINUTE = 60 * ONE_SECOND;

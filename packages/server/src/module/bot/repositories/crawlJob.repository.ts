@@ -121,4 +121,20 @@ export class CrawlJobRepository {
     );
     return crawlJob.toJSON() as CrawlJobData;
   }
+
+  async removeDocument(crawlJobId: string, documentId: string) {
+    const crawlObjId = new Types.ObjectId(crawlJobId);
+    const docObjId = new Types.ObjectId(documentId);
+    const now = new Date();
+    const crawlJob = await this.crawlJobModel.findByIdAndUpdate(
+      crawlObjId,
+      {
+        $pull: { documents: docObjId },
+        $set: { updatedAt: now },
+      },
+
+      { new: true },
+    );
+    return crawlJob.toJSON() as CrawlJobData;
+  }
 }

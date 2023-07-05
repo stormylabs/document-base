@@ -47,4 +47,11 @@ export class DocumentService {
     });
     return updatedDocument;
   }
+
+  async restore(documentId: string): Promise<DocumentData> {
+    const updatedDocument = await this.documentRepository.update(documentId, {
+      deletedAt: null,
+    });
+    return updatedDocument;
+  }
 }

@@ -57,11 +57,16 @@ export default class CreateDocIndexJobUseCase {
 
       const payloads = this.createPayloads(_id, botId, documents);
 
-      try {
-        await this.sendMessages(_id, payloads);
-      } catch (e) {
-        return left(new SQSSendMessageError(e));
+      const batchSize = 100;
+
+      for (let i = 0; i < payloads.length; i += batchSize) {
+        try {
+          await this.sendMessages(_id, payloads.slice(i, i + batchSize));
+        } catch (e) {
+          return left(new SQSSendMessageError(e));
+        }
       }
+
       this.logger.log(`Sent ${payloads.length} messages to the queue`);
 
       this.logger.log(`Doc indexing job is created successfully`);
@@ -83,11 +88,7 @@ export default class CreateDocIndexJobUseCase {
     return documents.map((document) => ({
       botId,
       jobId,
-      document: {
-        _id: document._id,
-        sourceName: document.sourceName,
-        content: document.content,
-      },
+      documentId: document._id,
     }));
   }
 }

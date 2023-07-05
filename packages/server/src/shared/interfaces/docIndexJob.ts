@@ -13,9 +13,5 @@ export interface DocIndexJobData {
 export interface DocIndexJobMessage {
   botId: string;
   jobId: string;
-  document: {
-    _id: string;
-    sourceName: string;
-    content: string;
-  };
+  documentId: string;
 }

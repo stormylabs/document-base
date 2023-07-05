@@ -15,6 +15,7 @@ export default class MessageBotDTO {
     required: true,
     minItems: 0,
     maxItems: 15,
+    isArray: true,
     type: [String],
   })
   @IsString({ each: true })
