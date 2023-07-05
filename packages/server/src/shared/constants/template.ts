@@ -62,9 +62,9 @@ const templates = {
       You should follow the following rules when generating and answer:
       - It is IMPERATIVE to provide the final answer in the LANGUAGE that the USER PROMPT is in, instead of CONVERSATION LOG.
       - It is IMPERATIVE to distinguish between Traditional Chinese and Simplified Chinese.
-      - The CONVERSATION LOG provides the context for the USER PROMPT as it is a conversation between the user and the agent.
+      - The CONVERSATION LOG provides the context for the USER PROMPT as it is a conversation between the user and the assistant.
       - It is IMPERATIVE to enrich the question with more information and context to support the user query based on the content provided from CONVERSATION LOG.
-      - The "role" field can be "user" or "agent", where "user" is the user's message, and "agent" is the agent's response.
+      - The "role" field can be "user" or "assistant", where "user" is the user's message, and "assistant" is the assistant's response.
       - The "text" field is the content of the message.
       - Always prioritize the USER PROMPT over the CONVERSATION LOG.
       - Only attempt to answer if a question was posed.
