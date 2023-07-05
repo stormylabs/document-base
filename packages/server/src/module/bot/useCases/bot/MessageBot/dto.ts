@@ -19,9 +19,9 @@ export default class MessageBotDTO {
     isArray: true,
     type: [String],
     example: [
-      'agent: 很抱歉，目前未能從上下文中找到具體關於如何在Bowtie官方網站獲取戰癌保300報價的步驟。\n\n...',
+      'assistant: 很抱歉，目前未能從上下文中找到具體關於如何在Bowtie官方網站獲取戰癌保300報價的步驟。\n\n...',
       'user: 請問如何得到報價？',
-      'agent: The Cancer Fighter insurance plan is not available for certain individuals based on ...',
+      'assistant: The Cancer Fighter insurance plan is not available for certain individuals based on ...',
       'user: What type of people are not eligible to purchase this particular insurance plan?',
     ],
   })
