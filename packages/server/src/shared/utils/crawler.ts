@@ -5,6 +5,7 @@ import * as parse from 'url-parse';
 import { Logger } from '@nestjs/common';
 import * as path from 'path';
 import * as iconv from 'iconv-lite';
+import { EXTENSIONS } from '../constants';
 
 const turndownService = new TurndownService();
 
@@ -69,7 +70,7 @@ class Crawler {
       if (
         !targetUrl ||
         targetUrlParts.hostname !== uParts.hostname ||
-        extension === '.pdf'
+        EXTENSIONS.includes(extension)
       ) {
         this.logger.log(`Ignoring url ${targetUrl}, extension: ${extension}`);
         return;

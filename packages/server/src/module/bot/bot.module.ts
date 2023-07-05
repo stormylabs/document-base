@@ -21,7 +21,7 @@ import CreateDocIndexJobUseCase from './useCases/jobs/CreateDocIndexJob';
 import GetCrawlJobStatusUseCase from './useCases/jobs/GetCrawlJobStatus';
 import GetDocIndexJobStatusUseCase from './useCases/jobs/GetDocIndexJobStatus';
 import IndexDocumentUseCase from './useCases/jobs/IndexDocuments';
-import MarkJobsAsFailedUseCase from './useCases/jobs/MarkJobsAsFailed';
+import MarkJobsAsFinishedUseCase from './useCases/jobs/MarkJobsAsFinished';
 import { CrawlJobService } from './services/crawlJob.service';
 import { DocIndexJobService } from './services/docIndexJob.service';
 import { SqsConsumerModule } from '../sqsConsumer/sqsConsumer.module';
@@ -87,7 +87,7 @@ import CrawlWebsitesByBotUseCase from './useCases/bot/CrawlWebsitesByBotUseCase'
     DocIndexJobRepository,
     CreateDocIndexJobUseCase,
     GetDocIndexJobStatusUseCase,
-    MarkJobsAsFailedUseCase,
+    MarkJobsAsFinishedUseCase,
     CrawlWebsitesByBotUseCase,
   ],
   exports: [BotService, CrawlWebsiteUseCase, IndexDocumentUseCase],
