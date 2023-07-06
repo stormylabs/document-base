@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 
 import { LangChainService } from './services/langChain.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ChatOpenAI } from 'langchain/chat_models';
+import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { OpenAI } from 'langchain';
 

@@ -3,6 +3,7 @@ import UnexpectedError, {
   BotNotFoundError,
   DocIndexJobNotFoundError,
   DocumentNotFoundError,
+  LockedDocIndexJobError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { Document as LCDocument } from 'langchain/document';
@@ -57,6 +58,11 @@ export default class IndexDocumentUseCase {
   ): Promise<Response> {
     try {
       this.logger.log(`Start indexing document`);
+      const lockAcquired = await this.docIndexJobService.acquireLock(jobId);
+
+      if (!lockAcquired) {
+        return left(new LockedDocIndexJobError(jobId));
+      }
 
       const bot = await this.botService.findById(botId);
       if (!bot) {
@@ -95,7 +101,6 @@ export default class IndexDocumentUseCase {
           }),
         ]);
       } catch (e) {
-        await this.docIndexJobService.incrementIndexed(jobId);
         return left(new LangChainSplitDocsError(e));
       }
 
@@ -113,7 +118,6 @@ export default class IndexDocumentUseCase {
           ),
         );
       } catch (e) {
-        await this.docIndexJobService.incrementIndexed(jobId);
         return left(new LangChainGetVectorsError(e));
       }
 
@@ -136,7 +140,6 @@ export default class IndexDocumentUseCase {
           ),
         );
       } catch (e) {
-        await this.docIndexJobService.incrementIndexed(jobId);
         return left(new PineconeUpsertError(e));
       }
 
@@ -151,8 +154,9 @@ export default class IndexDocumentUseCase {
       this.logger.log(`Document is indexed successfully`);
       return right(Result.ok());
     } catch (err) {
-      await this.docIndexJobService.incrementIndexed(jobId);
       return left(new UnexpectedError(err));
+    } finally {
+      await this.docIndexJobService.releaseLock(jobId);
     }
   }
 }

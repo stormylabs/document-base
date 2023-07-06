@@ -67,6 +67,14 @@ export class UnfinishedDocIndexJobsError extends Result<UseCaseError> {
   }
 }
 
+export class LockedDocIndexJobError extends Result<UseCaseError> {
+  public constructor(jobId: string) {
+    const message = `Doc Index job is locked: ${jobId}`;
+    super(false, { message } as UseCaseError);
+    Logger.log(message, LockedDocIndexJobError.name);
+  }
+}
+
 export class NotFoundError extends Result<UseCaseError> {
   public constructor(message: string) {
     super(false, { message } as UseCaseError);
