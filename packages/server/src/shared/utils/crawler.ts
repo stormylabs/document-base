@@ -70,7 +70,7 @@ class Crawler {
       if (
         !targetUrl ||
         targetUrlParts.hostname !== uParts.hostname ||
-        EXTENSIONS.includes(extension)
+        EXTENSIONS.includes(extension.toLowerCase())
       ) {
         this.logger.log(`Ignoring url ${targetUrl}, extension: ${extension}`);
         return;
