@@ -1,3 +1,4 @@
+import { DOCUMENT_LIMIT } from '@/shared/constants';
 import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -13,13 +14,13 @@ export default class SaveDocsAndTrainBotDTO {
     description: 'Document IDs',
     required: true,
     minItems: 1,
-    maxItems: 2000,
+    maxItems: DOCUMENT_LIMIT,
     type: [String],
   })
   @IsString({ each: true })
   @IsArray()
   @ArrayNotEmpty()
-  @ArrayMaxSize(2000)
+  @ArrayMaxSize(DOCUMENT_LIMIT)
   @ArrayMinSize(1)
   documentIds: string[];
 }

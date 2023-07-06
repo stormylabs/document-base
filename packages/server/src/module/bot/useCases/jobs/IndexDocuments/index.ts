@@ -57,7 +57,7 @@ export default class IndexDocumentUseCase {
     documentId: string,
   ): Promise<Response> {
     try {
-      this.logger.log(`Start indexing document`);
+      this.logger.log(`Start indexing document, locking job: ${jobId}`);
       const lockAcquired = await this.docIndexJobService.acquireLock(jobId);
 
       if (!lockAcquired) {
@@ -156,6 +156,7 @@ export default class IndexDocumentUseCase {
     } catch (err) {
       return left(new UnexpectedError(err));
     } finally {
+      this.logger.log(`Release lock: ${jobId}`);
       await this.docIndexJobService.releaseLock(jobId);
     }
   }

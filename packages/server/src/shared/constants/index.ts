@@ -1,3 +1,6 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 export const TOKEN_LIMIT = 7500;
 
 export const ONE_SECOND = 1000;
@@ -6,6 +9,9 @@ export const ONE_HOUR = 60 * ONE_MINUTE;
 export const ONE_DAY = 24 * ONE_HOUR;
 
 export const JOB_TIMEOUT = 5 * ONE_MINUTE;
+
+export const DOCUMENT_LIMIT =
+  process.env.NODE_ENV === 'production' ? 2000 : 500;
 
 export const EXTENSIONS = [
   '.pdf',
