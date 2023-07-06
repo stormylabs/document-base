@@ -18,7 +18,8 @@ export class DocumentRepository {
   }
 
   async findById(documentId: string): Promise<DocumentData | null> {
-    const document = await this.documentModel.findById(documentId).exec();
+    const id = new Types.ObjectId(documentId);
+    const document = await this.documentModel.findById(id).exec();
     if (!document) return null;
     return document.toJSON() as DocumentData;
   }

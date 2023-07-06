@@ -14,9 +14,6 @@ export class Bot extends Document {
   @Prop({ type: String, maxlength: 50, default: 'default', required: true })
   name: string;
 
-  @Prop({ type: String })
-  crawlJobId: string;
-
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Document' }] })
   documents: DocumentDocument[];
 
