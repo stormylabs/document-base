@@ -23,6 +23,9 @@ export class DocIndexJob extends Document {
   @Prop({ type: Number, default: 0 })
   indexed: number;
 
+  @Prop({ type: Boolean, default: false, required: true })
+  locked: boolean;
+
   @Prop({ type: Types.ObjectId, ref: 'Bot' })
   bot: BotDocument;
 

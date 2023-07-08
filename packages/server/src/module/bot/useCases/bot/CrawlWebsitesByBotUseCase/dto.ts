@@ -1,3 +1,4 @@
+import { DOCUMENT_LIMIT } from '@/shared/constants';
 import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -28,13 +29,13 @@ export class CrawlWebsitesByBotDTO {
   @ApiProperty({
     description: 'Max number of URLs to crawl',
     minimum: 1,
-    maximum: 2000,
+    maximum: DOCUMENT_LIMIT,
     required: true,
     type: Number,
   })
   @IsNumber()
   @Min(1)
-  @Max(2000)
+  @Max(DOCUMENT_LIMIT)
   limit: number;
 }
 

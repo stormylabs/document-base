@@ -116,4 +116,26 @@ export class DocIndexJobRepository {
     );
     return docIndexJob.toJSON() as DocIndexJobData;
   }
+
+  async acquireLock(docIndexJobId: string) {
+    const id = new Types.ObjectId(docIndexJobId);
+    const docIndexJob = await this.docIndexJobModel.findOneAndUpdate(
+      { _id: id, locked: false },
+      { $set: { locked: true } },
+      { new: true },
+    );
+    if (!docIndexJob) return false;
+    return true;
+  }
+
+  async releaseLock(docIndexJobId: string) {
+    const id = new Types.ObjectId(docIndexJobId);
+    const docIndexJob = await this.docIndexJobModel.findOneAndUpdate(
+      { _id: id, locked: true },
+      { $set: { locked: false } },
+      { new: true },
+    );
+    if (!docIndexJob) return false;
+    return true;
+  }
 }

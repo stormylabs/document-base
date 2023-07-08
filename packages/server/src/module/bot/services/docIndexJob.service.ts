@@ -70,6 +70,18 @@ export class DocIndexJobService {
     return this.docIndexJobRepository.exists(docIndexJobIds);
   }
 
+  async acquireLock(docIndexJobId: string): Promise<boolean> {
+    const exist = await this.exists([docIndexJobId]);
+    if (!exist) throw new Error('DocIndex job does not exist.');
+    return this.docIndexJobRepository.acquireLock(docIndexJobId);
+  }
+
+  async releaseLock(docIndexJobId: string): Promise<boolean> {
+    const exist = await this.exists([docIndexJobId]);
+    if (!exist) throw new Error('DocIndex job does not exist.');
+    return this.docIndexJobRepository.releaseLock(docIndexJobId);
+  }
+
   async incrementIndexed(docIndexJobId: string) {
     const exists = await this.exists([docIndexJobId]);
     if (!exists) throw new Error('DocIndex job does not exist.');

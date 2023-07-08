@@ -5,6 +5,7 @@ export interface DocIndexJobData {
   bot: string;
   status: JobStatus;
   indexed: number;
+  locked: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;

@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { LLMChain, OpenAI, PromptTemplate } from 'langchain';
-import { ChatOpenAI } from 'langchain/chat_models';
+import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 import { Document as LCDocument } from 'langchain/document';
 import { Vector } from '@pinecone-database/pinecone';
