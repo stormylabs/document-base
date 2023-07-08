@@ -14,8 +14,6 @@ COPY --chown=node:node . .
 
 RUN yarn build
 
-ENV NODE_ENV production
-
 RUN yarn install --production --cache-folder ./ycache && rm -rf ./ycache
 
 USER node
