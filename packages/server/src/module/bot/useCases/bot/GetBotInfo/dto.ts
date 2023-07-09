@@ -44,20 +44,18 @@ class GetBotResponse extends PartialType(
 
   @ApiProperty({
     type: () => [GetBotDocResponse],
-    isArray: true,
     required: true,
   })
   documents: GetBotDocResponse[];
 
   @ApiProperty({
     type: () => [GetBotDocIndexJobResponse],
-    isArray: true,
     required: true,
   })
   trainJobs: GetBotDocIndexJobResponse[];
+
   @ApiProperty({
     type: () => [GetBotCrawlJobResponse],
-    isArray: true,
     required: true,
   })
   crawlJobs: GetBotCrawlJobResponse[];

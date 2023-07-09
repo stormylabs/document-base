@@ -16,7 +16,6 @@ export class BotResponse {
 
   @ApiProperty({
     description: 'Bot Documents',
-    isArray: true,
     type: () => [DocumentResponse],
   })
   documents?: DocumentResponse[];
