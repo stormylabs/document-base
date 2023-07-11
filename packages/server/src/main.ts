@@ -2,6 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import { config as awsConfig } from 'aws-sdk';
 
 import { AppModule } from './app.module';
 import { NormalizeQueryParamsValidationPipe } from './shared/NormalizeQueryParamsValidationPipe';
@@ -20,6 +21,12 @@ async function bootstrap() {
   app.use(cookieParser());
   app.enableCors();
   const config = app.get(ConfigService);
+
+  awsConfig.update({
+    accessKeyId: config.get('AWS_ACCESS_KEY_ID'),
+    secretAccessKey: config.get('AWS_SECRET_ACCESS_KEY'),
+    region: config.get('AWS_REGION'),
+  });
 
   const NODE_ENV = config.get<string>('NODE_ENV');
 
