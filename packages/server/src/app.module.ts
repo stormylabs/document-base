@@ -7,6 +7,7 @@ import { BotModule } from './module/bot/bot.module';
 import { SqsConsumerModule } from './module/sqsConsumer/sqsConsumer.module';
 import { AppController } from './app.controller';
 import { ScheduleModule } from '@nestjs/schedule';
+import { ThrottlerAsyncModule } from './module/throttler/throttler.module';
 
 @Module({
   imports: [
@@ -24,8 +25,11 @@ import { ScheduleModule } from '@nestjs/schedule';
         WEB_CRAWL_QUEUE_NAME: Joi.string().required(),
         WEB_CRAWL_QUEUE_URL: Joi.string().required(),
         SQS_REGION: Joi.string().required(),
+        THROTTLE_TTL: Joi.string().required(),
+        THROTTLE_LIMIT: Joi.string().required(),
       }),
     }),
+    ThrottlerAsyncModule,
     MongoDBModule,
     PineconeModule,
     BotModule,
