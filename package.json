@@ -19,5 +19,8 @@
       "packages/*"
     ],
     "nohoist": []
+  },
+  "devDependencies": {
+    "nx": "16.5.0"
   }
 }
