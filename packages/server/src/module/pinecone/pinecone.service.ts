@@ -60,7 +60,7 @@ export class PineconeClientService implements OnModuleInit {
   public async getMatches(embeddings: number[], metadata: Partial<Metadata>) {
     const queryRequest = {
       vector: embeddings,
-      topK: 3,
+      topK: 2,
       includeMetadata: true,
       filter: metadata,
     };

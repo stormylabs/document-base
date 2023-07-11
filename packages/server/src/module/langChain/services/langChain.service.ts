@@ -85,7 +85,9 @@ export class LangChainService {
     const templateTokenLength = encode(templates.summarizerTemplate).length;
     const textTokenLength = encode(text).length;
     this.logger.log(
-      `Text and template length ${textTokenLength + templateTokenLength}`,
+      `Text length: ${textTokenLength}, template length: ${templateTokenLength}, total: ${
+        textTokenLength + templateTokenLength
+      }`,
     );
 
     if (textTokenLength + templateTokenLength <= TOKEN_LIMIT) {
