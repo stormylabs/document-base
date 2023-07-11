@@ -187,8 +187,13 @@ export class BotController {
     @Body() body: CrawlWebsitesByBotDTO,
   ) {
     this.logger.log(`[POST] Start crawling websites`);
-    const { urls, limit } = body;
-    const result = await this.crawlWebsitesByBotUseCase.exec(id, urls, limit);
+    const { urls, limit, only } = body;
+    const result = await this.crawlWebsitesByBotUseCase.exec(
+      id,
+      urls,
+      limit,
+      only,
+    );
 
     if (result.isLeft()) {
       const error = result.value;

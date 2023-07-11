@@ -5,6 +5,7 @@ import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
+  IsBoolean,
   IsNumber,
   IsUrl,
   Max,
@@ -37,6 +38,15 @@ export class CrawlWebsitesByBotDTO {
   @Min(1)
   @Max(DOCUMENT_LIMIT)
   limit: number;
+
+  @ApiProperty({
+    description: 'Flag to crawl job ',
+    required: true,
+    example: false,
+    type: Boolean,
+  })
+  @IsBoolean()
+  only: boolean;
 }
 
 export class CrawlWebsitesByBotResponseDTO {

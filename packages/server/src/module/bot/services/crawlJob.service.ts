@@ -11,6 +11,7 @@ export class CrawlJobService {
     botId: string;
     limit: number;
     initUrls: string[];
+    only: boolean;
   }): Promise<CrawlJobData> {
     const createdCrawlJob = await this.crawlJobRepository.create(data);
     return createdCrawlJob;

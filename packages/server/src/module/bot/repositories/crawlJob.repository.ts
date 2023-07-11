@@ -17,6 +17,7 @@ export class CrawlJobRepository {
     botId: string;
     limit: number;
     initUrls: string[];
+    only: boolean;
   }): Promise<CrawlJobData> {
     const botId = new Types.ObjectId(crawlJobData.botId);
     const crawlJob = new this.crawlJobModel({ ...crawlJobData, bot: botId });

@@ -33,6 +33,7 @@ export default class CrawlWebsitesByBotUseCase {
     botId: string,
     urls: string[],
     limit: number,
+    only: boolean,
   ): Promise<Response> {
     try {
       this.logger.log(`Start crawling websites by bot`);
@@ -68,7 +69,12 @@ export default class CrawlWebsitesByBotUseCase {
       this.logger.log(`Removed all documents of bot ${botId}`);
 
       this.logger.log(`Create crawl job`);
-      const result = await this.createCrawlJobUseCase.exec(botId, urls, limit);
+      const result = await this.createCrawlJobUseCase.exec(
+        botId,
+        urls,
+        limit,
+        only,
+      );
 
       if (result.isLeft()) {
         return left(result.value);

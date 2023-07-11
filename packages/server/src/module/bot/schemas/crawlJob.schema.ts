@@ -39,6 +39,13 @@ export class CrawlJob extends Document {
   @Prop({ type: Array, default: [], minlength: 1, maxlength: 10 })
   initUrls: string[];
 
+  @Prop({
+    type: Boolean,
+    default: false,
+    required: true,
+  })
+  only: boolean;
+
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 
