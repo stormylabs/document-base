@@ -36,6 +36,7 @@ export default class CrawlWebsiteUseCase {
     jobId: string,
     botId: string,
     documentId: string,
+    only: boolean,
   ): Promise<Response> {
     try {
       this.logger.log(`Start crawling website`);
@@ -129,6 +130,11 @@ export default class CrawlWebsiteUseCase {
 
       if (urlsToSend.length <= 0) {
         this.logger.log('no new urls to crawl');
+        return right(Result.ok());
+      }
+
+      // * if flag only is true then don't continue crawl for new urls found in the website
+      if (only) {
         return right(Result.ok());
       }
 

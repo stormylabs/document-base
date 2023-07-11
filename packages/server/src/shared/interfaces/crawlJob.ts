@@ -16,4 +16,5 @@ export interface CrawlJobMessage {
   botId: string;
   jobId: string;
   documentId: string;
+  only?: boolean;
 }

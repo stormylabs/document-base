@@ -107,7 +107,7 @@ export default class CreateCrawlJobUseCase {
         }
       }
 
-      payloads.push({ botId, jobId, documentId });
+      payloads.push({ botId, jobId, documentId, only });
     }
     return payloads;
   }
