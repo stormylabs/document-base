@@ -35,6 +35,8 @@ import { CrawlJobRepository } from './repositories/crawlJob.repository';
 import { DocIndexJobRepository } from './repositories/docIndexJob.repository';
 import SaveDocsAndTrainBotUseCase from './useCases/bot/SaveDocsAndTrainBot';
 import CrawlWebsitesByBotUseCase from './useCases/bot/CrawlWebsitesByBotUseCase';
+import { FilesModule } from '../files/files.module';
+import CreateBotFileUseCase from './useCases/bot/CreateBotFile';
 
 @Module({
   imports: [
@@ -61,6 +63,7 @@ import CrawlWebsitesByBotUseCase from './useCases/bot/CrawlWebsitesByBotUseCase'
     LangChainModule,
     SqsProducerModule,
     SqsConsumerModule,
+    FilesModule,
   ],
   controllers: [BotController, DataController],
   providers: [
@@ -89,6 +92,7 @@ import CrawlWebsitesByBotUseCase from './useCases/bot/CrawlWebsitesByBotUseCase'
     GetDocIndexJobStatusUseCase,
     MarkJobsAsFinishedUseCase,
     CrawlWebsitesByBotUseCase,
+    CreateBotFileUseCase,
   ],
   exports: [BotService, CrawlWebsiteUseCase, IndexDocumentUseCase],
 })

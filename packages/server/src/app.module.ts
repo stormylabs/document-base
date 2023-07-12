@@ -8,6 +8,7 @@ import { SqsConsumerModule } from './module/sqsConsumer/sqsConsumer.module';
 import { AppController } from './app.controller';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerAsyncModule } from './module/throttler/throttler.module';
+import { FilesModule } from './module/files/files.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { ThrottlerAsyncModule } from './module/throttler/throttler.module';
     PineconeModule,
     BotModule,
     SqsConsumerModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [Logger],

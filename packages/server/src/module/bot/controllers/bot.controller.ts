@@ -6,10 +6,13 @@ import {
   Param,
   Patch,
   Post,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiConflictResponse,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -43,6 +46,9 @@ import {
   CrawlWebsitesByBotResponseDTO,
 } from '../useCases/bot/CrawlWebsitesByBotUseCase/dto';
 import { GetBotInfoResponseDTO } from '../useCases/bot/GetBotInfo/dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import CreateBotFileDTO from '../useCases/bot/CreateBotFile/dto';
+import CreateBotFileUseCase from '../useCases/bot/CreateBotFile';
 
 @ApiTags('bot')
 @Controller('bot')
@@ -55,6 +61,7 @@ export class BotController {
     private messageBotUseCase: MessageBotUseCase,
     private getBotInfoUseCase: GetBotInfoUseCase,
     private crawlWebsitesByBotUseCase: CrawlWebsitesByBotUseCase,
+    private createBotFileUseCase: CreateBotFileUseCase,
   ) {}
 
   @Post()
@@ -230,6 +237,35 @@ export class BotController {
       const error = result.value;
       this.logger.error(
         `[POST] message bot error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Post('files')
+  @ApiBody({ type: CreateBotFileDTO })
+  @ApiOperation({
+    summary: 'Creates a bot, name is set to default if not provided.',
+  })
+  @ApiConsumes('multipart/form-data', 'application/json')
+  @UseInterceptors(FilesInterceptor('files'))
+  @ApiCreatedResponse({
+    description: 'Created bot info',
+    type: CreateBotResponseDTO,
+  })
+  async createBotWithFile(
+    @Body() body: CreateBotFileDTO,
+    @UploadedFiles() files: Array<Express.Multer.File>,
+  ) {
+    const { name } = body;
+    this.logger.log(`[POST] Start creating bot`);
+    const result = await this.createBotFileUseCase.exec(name, files);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] create bot error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
