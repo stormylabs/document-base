@@ -22,13 +22,12 @@ export class SqsConsumerService {
   @SqsMessageHandler(process.env.WEB_CRAWL_QUEUE_NAME)
   async handleWebCrawlMessage(message: AWS.SQS.Message) {
     const body: CrawlJobMessage = JSON.parse(message.Body);
-    const { jobId, botId, documentId, only = false } = body;
+    const { jobId, botId, documentId } = body;
     this.logger.log(`Received web crawl message from SQS`);
     const result = await this.crawlWebsiteUseCase.exec(
       jobId,
       botId,
       documentId,
-      only,
     );
     if (result.isLeft()) {
       const error = result.value;

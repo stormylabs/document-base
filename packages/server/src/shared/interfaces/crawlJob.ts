@@ -7,6 +7,7 @@ export interface CrawlJobData {
   documents: string[];
   status: JobStatus;
   initUrls: string[];
+  only: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;
@@ -16,5 +17,4 @@ export interface CrawlJobMessage {
   botId: string;
   jobId: string;
   documentId: string;
-  only?: boolean;
 }

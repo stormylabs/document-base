@@ -48,7 +48,7 @@ export default class CreateCrawlJobUseCase {
 
       const { _id: jobId, status } = crawlJob;
 
-      const payloads = await this.createPayloads(jobId, botId, urls, only);
+      const payloads = await this.createPayloads(jobId, botId, urls);
 
       const batchSize = 100;
 
@@ -82,12 +82,7 @@ export default class CreateCrawlJobUseCase {
     );
   }
 
-  async createPayloads(
-    jobId: string,
-    botId: string,
-    urls: string[],
-    only?: boolean,
-  ) {
+  async createPayloads(jobId: string, botId: string, urls: string[]) {
     const payloads: CrawlJobMessage[] = [];
     for (const url of urls) {
       const document = await this.documentService.findBySourceName(url);
@@ -107,7 +102,7 @@ export default class CreateCrawlJobUseCase {
         }
       }
 
-      payloads.push({ botId, jobId, documentId, only });
+      payloads.push({ botId, jobId, documentId });
     }
     return payloads;
   }
