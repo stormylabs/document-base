@@ -7,6 +7,7 @@ import { BotModule } from './module/bot/bot.module';
 import { SqsConsumerModule } from './module/sqsConsumer/sqsConsumer.module';
 import { AppController } from './app.controller';
 import { ScheduleModule } from '@nestjs/schedule';
+import { FilesModule } from './module/files/files.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     PineconeModule,
     BotModule,
     SqsConsumerModule,
+    FilesModule,
   ],
   controllers: [AppController],
   providers: [Logger],
