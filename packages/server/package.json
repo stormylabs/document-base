@@ -28,6 +28,7 @@
     "@nestjs/platform-express": "^9.0.0",
     "@nestjs/schedule": "^3.0.1",
     "@nestjs/swagger": "^7.0.4",
+    "@nestjs/throttler": "^4.2.1",
     "@pinecone-database/pinecone": "^0.1.6",
     "@ssut/nestjs-sqs": "^2.0.0",
     "aws-sdk": "^2.1404.0",
