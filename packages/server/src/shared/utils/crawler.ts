@@ -15,11 +15,13 @@ class Crawler {
   url: string;
   spider: Spider | null = {};
   textLengthMinimum = 200;
+  only: boolean;
   private readonly logger = new Logger(Crawler.name);
 
-  constructor(url: string, textLengthMinimum = 200) {
+  constructor(url: string, textLengthMinimum = 200, only = false) {
     this.url = encodeURI(url);
     this.textLengthMinimum = textLengthMinimum;
+    this.only = only;
 
     this.text = '';
     this.spider = {};
@@ -58,6 +60,11 @@ class Crawler {
     this.logger.log('Crawled website successfully');
     if (text.length > this.textLengthMinimum) {
       this.text = text;
+    }
+
+    if (this.only) {
+      this.logger.log('only if flag is true, skip identifying more urls');
+      return;
     }
 
     this.logger.log('Identifying urls');

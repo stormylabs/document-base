@@ -74,7 +74,7 @@ export default class CrawlWebsiteUseCase {
       const url = document.sourceName;
       const limit = crawlJob.limit;
       const crawlJobDocIds = crawlJob.documents;
-      const crawler = new Crawler(url);
+      const crawler = new Crawler(url, 200, crawlJob.only);
 
       let data: {
         text: string;
