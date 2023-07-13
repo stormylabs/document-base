@@ -33,7 +33,6 @@ export class ValueObjectCreationError extends Result<UseCaseError> {
 }
 
 export class InvalidInputError extends Result<UseCaseError> {
-  private readonly logger = new Logger(InvalidInputError.name);
   public constructor(message: string) {
     super(false, { message } as UseCaseError);
     Logger.log(message, InvalidInputError.name);
