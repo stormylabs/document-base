@@ -46,19 +46,11 @@ import {
   CrawlWebsitesByBotResponseDTO,
 } from '../useCases/bot/CrawlWebsitesByBotUseCase/dto';
 import { GetBotInfoResponseDTO } from '../useCases/bot/GetBotInfo/dto';
-import {
-  AnyFilesInterceptor,
-  FilesInterceptor,
-} from '@nestjs/platform-express';
-import CreateBotFileDTO from '../useCases/bot/CrawlFilesByBotUseCase/dto';
-import CreateBotFileUseCase from '../useCases/bot/CrawlFilesByBotUseCase';
-import { Validator } from 'class-validator';
-
-const MIME_TYPES_ALLOWED = [
-  'application/msword',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-  'application/pdf',
-];
+import { FilesInterceptor } from '@nestjs/platform-express';
+import CrawlFilesByBotFileDTO, {
+  CrawlFilesByBotResponseDTO,
+} from '../useCases/bot/CrawlFilesByBotUseCase/dto';
+import CrawlFilesByBotUseCase from '../useCases/bot/CrawlFilesByBotUseCase';
 
 @ApiTags('bot')
 @Controller('bot')
@@ -71,7 +63,7 @@ export class BotController {
     private messageBotUseCase: MessageBotUseCase,
     private getBotInfoUseCase: GetBotInfoUseCase,
     private crawlWebsitesByBotUseCase: CrawlWebsitesByBotUseCase,
-    private createBotFileUseCase: CreateBotFileUseCase,
+    private crawlFileByBotUseCase: CrawlFilesByBotUseCase,
   ) {}
 
   @Post()
@@ -253,43 +245,42 @@ export class BotController {
     return result.value.getValue();
   }
 
-  @Post('files/:id')
-  @ApiBody({ type: CreateBotFileDTO })
+  @Post('/files/:id')
+  @ApiBody({ type: CrawlFilesByBotFileDTO })
   @ApiOperation({
-    summary:
-      'Upload files and create bot, name is set to default if not provided.',
+    summary: 'Crawl files by bot.',
   })
   @ApiConsumes('multipart/form-data', 'application/json')
   @UseInterceptors(FilesInterceptor('files'))
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     description: 'Created bot info',
-    type: CreateBotResponseDTO,
+    type: CrawlFilesByBotResponseDTO,
   })
-  // @UseInterceptors(
-  //   AnyFilesInterceptor({
-  //     dest: './upload',
-  //     fileFilter(req, file, callback) {
-  //       if (!MIME_TYPES_ALLOWED.includes(file.mimetype)) {
-  //         return callback(new Error('Invalid file mimetype'), false);
-  //       }
-
-  //       return callback(null, true);
-  //     },
-  //   }),
-  // )
-  async createBotWithFile(
+  @ApiNotFoundResponse({
+    description: 'Bot not found',
+  })
+  @ApiConflictResponse({
+    description:
+      'If there are unfinished web crawl jobs or train jobs, this error will be returned.',
+  })
+  async crawlFilesByBot(
     @Param() { id }: IdParams,
-    @Body() body: CreateBotFileDTO,
+    @Body() body: CrawlFilesByBotFileDTO,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
+    // TODO: add validation file mimeType
+    this.logger.log(`[POST] Start uploading and crawling files`);
     const { limit } = body;
-    this.logger.log(`[POST] Start creating bot`);
-    const result = await this.createBotFileUseCase.exec(id, files, limit);
+    const result = await this.crawlFileByBotUseCase.exec(
+      id,
+      files,
+      Number(limit),
+    );
 
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] create bot error ${error.errorValue().message}`,
+        `[POST] crawl files error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

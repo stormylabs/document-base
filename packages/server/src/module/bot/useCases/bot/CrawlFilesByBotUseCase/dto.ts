@@ -1,7 +1,7 @@
 import { DOCUMENT_LIMIT } from '@/shared/constants';
 import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, Max, Min } from 'class-validator';
+import { IsNumber, IsNumberString, Max, Min } from 'class-validator';
 
 export default class CrawlFilesByBotFileDTO {
   @ApiProperty({
@@ -11,7 +11,7 @@ export default class CrawlFilesByBotFileDTO {
     required: true,
     type: Number,
   })
-  @IsNumber()
+  @IsNumberString()
   @Min(1)
   @Max(DOCUMENT_LIMIT)
   limit: number;
