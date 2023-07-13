@@ -46,9 +46,19 @@ import {
   CrawlWebsitesByBotResponseDTO,
 } from '../useCases/bot/CrawlWebsitesByBotUseCase/dto';
 import { GetBotInfoResponseDTO } from '../useCases/bot/GetBotInfo/dto';
-import { FilesInterceptor } from '@nestjs/platform-express';
-import CreateBotFileDTO from '../useCases/bot/CreateBotFile/dto';
-import CreateBotFileUseCase from '../useCases/bot/CreateBotFile';
+import {
+  AnyFilesInterceptor,
+  FilesInterceptor,
+} from '@nestjs/platform-express';
+import CreateBotFileDTO from '../useCases/bot/CrawlFilesByBotUseCase/dto';
+import CreateBotFileUseCase from '../useCases/bot/CrawlFilesByBotUseCase';
+import { Validator } from 'class-validator';
+
+const MIME_TYPES_ALLOWED = [
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'application/pdf',
+];
 
 @ApiTags('bot')
 @Controller('bot')
@@ -243,10 +253,11 @@ export class BotController {
     return result.value.getValue();
   }
 
-  @Post('files')
+  @Post('files/:id')
   @ApiBody({ type: CreateBotFileDTO })
   @ApiOperation({
-    summary: 'Creates a bot, name is set to default if not provided.',
+    summary:
+      'Upload files and create bot, name is set to default if not provided.',
   })
   @ApiConsumes('multipart/form-data', 'application/json')
   @UseInterceptors(FilesInterceptor('files'))
@@ -254,13 +265,26 @@ export class BotController {
     description: 'Created bot info',
     type: CreateBotResponseDTO,
   })
+  // @UseInterceptors(
+  //   AnyFilesInterceptor({
+  //     dest: './upload',
+  //     fileFilter(req, file, callback) {
+  //       if (!MIME_TYPES_ALLOWED.includes(file.mimetype)) {
+  //         return callback(new Error('Invalid file mimetype'), false);
+  //       }
+
+  //       return callback(null, true);
+  //     },
+  //   }),
+  // )
   async createBotWithFile(
+    @Param() { id }: IdParams,
     @Body() body: CreateBotFileDTO,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
-    const { name } = body;
+    const { limit } = body;
     this.logger.log(`[POST] Start creating bot`);
-    const result = await this.createBotFileUseCase.exec(name, files);
+    const result = await this.createBotFileUseCase.exec(id, files, limit);
 
     if (result.isLeft()) {
       const error = result.value;
