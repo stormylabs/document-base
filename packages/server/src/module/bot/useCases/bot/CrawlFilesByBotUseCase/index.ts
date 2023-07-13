@@ -11,7 +11,6 @@ import UnexpectedError, {
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '../../../services/bot.service';
 import CreateCrawlJobUseCase from '../../jobs/CreateCrawlJob';
-import CreateBotUseCase from '../CreateBot';
 import { CrawlFilesByBotResponseDTO } from './dto';
 
 type Response = Either<UnexpectedError, Result<CrawlFilesByBotResponseDTO>>;
@@ -24,7 +23,6 @@ export default class CrawlFilesByBotUseCase {
     private readonly fileService: FilesService,
     private readonly crawlJobService: CrawlJobService,
     private readonly docIndexJobService: DocIndexJobService,
-    private readonly createBotUseCase: CreateBotUseCase,
     private readonly createCrawlJobUseCase: CreateCrawlJobUseCase,
   ) {}
   public async exec(
@@ -39,7 +37,6 @@ export default class CrawlFilesByBotUseCase {
         return left(new InvalidInputError('files is required'));
       }
 
-      this.logger.log(`Start uploading files into s3 buckets`);
       const uploadFileResults = await Promise.all([
         ...files.map(async (file) => {
           return this.fileService.uploadFile(file.buffer, file.filename);

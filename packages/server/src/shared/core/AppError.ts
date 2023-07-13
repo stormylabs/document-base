@@ -126,3 +126,11 @@ export class SQSSendMessageError extends Result<UseCaseError> {
     Logger.log(message, SQSSendMessageError.name);
   }
 }
+
+export class FileNotFoundError extends Result<UseCaseError> {
+  public constructor() {
+    const message = 'File not found';
+    super(false, { message } as UseCaseError);
+    Logger.log(message, FileNotFoundError.name);
+  }
+}

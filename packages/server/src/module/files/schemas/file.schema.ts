@@ -14,13 +14,7 @@ export class File extends Document {
   name: string;
 
   @Prop({ type: String, default: 'default', required: true })
-  key: string;
-
-  @Prop({ type: String, default: 'default', required: true })
   url: string;
-
-  @Prop({ type: String, default: 'default', required: true })
-  type: string;
 
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
