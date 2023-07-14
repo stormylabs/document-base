@@ -3,6 +3,7 @@ import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { DocumentDocument } from './document.schema';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
+import { DEFAULT_FALLBACK_MSG } from '@/shared/constants';
 
 export type BotDocument = HydratedDocument<Bot>;
 
@@ -16,6 +17,9 @@ export class Bot extends Document {
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Document' }] })
   documents: DocumentDocument[];
+
+  @Prop({ type: String, default: DEFAULT_FALLBACK_MSG })
+  fallbackMessage: string;
 
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
