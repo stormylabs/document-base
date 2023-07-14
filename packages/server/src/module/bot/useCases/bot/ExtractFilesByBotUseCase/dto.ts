@@ -1,9 +1,9 @@
 import { DOCUMENT_LIMIT } from '@/shared/constants';
 import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsNumberString, Max, Min } from 'class-validator';
+import { IsNumberString, Max, Min } from 'class-validator';
 
-export default class CrawlFilesByBotFileDTO {
+export default class ExtractFilesByByBotDTO {
   @ApiProperty({
     description: 'Max number of URLs to crawl',
     minimum: 1,
@@ -28,7 +28,7 @@ export default class CrawlFilesByBotFileDTO {
   files: Array<Express.Multer.File>;
 }
 
-export class CrawlFilesByBotResponseDTO {
+export class ExtractFilesByBotResponseDTO {
   @ApiProperty({
     description: 'Crawl Files Job ID',
     type: String,
