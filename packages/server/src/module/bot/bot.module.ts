@@ -36,7 +36,7 @@ import { DocIndexJobRepository } from './repositories/docIndexJob.repository';
 import SaveDocsAndTrainBotUseCase from './useCases/bot/SaveDocsAndTrainBot';
 import CrawlWebsitesByBotUseCase from './useCases/bot/CrawlWebsitesByBotUseCase';
 import { FilesModule } from '../files/files.module';
-import CrawlFilesByBot from './useCases/bot/CrawlFilesByBotUseCase';
+import ExtractFilesByBotUseCase from './useCases/bot/ExtractFilesByBotUseCase';
 
 @Module({
   imports: [
@@ -92,7 +92,7 @@ import CrawlFilesByBot from './useCases/bot/CrawlFilesByBotUseCase';
     GetDocIndexJobStatusUseCase,
     MarkJobsAsFinishedUseCase,
     CrawlWebsitesByBotUseCase,
-    CrawlFilesByBot,
+    ExtractFilesByBotUseCase,
   ],
   exports: [BotService, CrawlWebsiteUseCase, IndexDocumentUseCase],
 })

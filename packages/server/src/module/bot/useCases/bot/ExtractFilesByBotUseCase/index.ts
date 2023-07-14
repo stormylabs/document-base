@@ -11,13 +11,13 @@ import UnexpectedError, {
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '../../../services/bot.service';
 import CreateCrawlJobUseCase from '../../jobs/CreateCrawlJob';
-import { CrawlFilesByBotResponseDTO } from './dto';
+import { ExtractFilesByBotResponseDTO } from './dto';
 
-type Response = Either<UnexpectedError, Result<CrawlFilesByBotResponseDTO>>;
+type Response = Either<UnexpectedError, Result<ExtractFilesByBotResponseDTO>>;
 
 @Injectable()
-export default class CrawlFilesByBotUseCase {
-  private readonly logger = new Logger(CrawlFilesByBotUseCase.name);
+export default class ExtractFilesByBotUseCase {
+  private readonly logger = new Logger(ExtractFilesByBotUseCase.name);
   constructor(
     private readonly botService: BotService,
     private readonly fileService: FilesService,

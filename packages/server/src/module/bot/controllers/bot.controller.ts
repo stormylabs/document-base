@@ -47,10 +47,10 @@ import {
 } from '../useCases/bot/CrawlWebsitesByBotUseCase/dto';
 import { GetBotInfoResponseDTO } from '../useCases/bot/GetBotInfo/dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import CrawlFilesByBotFileDTO, {
-  CrawlFilesByBotResponseDTO,
-} from '../useCases/bot/CrawlFilesByBotUseCase/dto';
-import CrawlFilesByBotUseCase from '../useCases/bot/CrawlFilesByBotUseCase';
+import ExtractFilesByByBotDTO, {
+  ExtractFilesByBotResponseDTO,
+} from '../useCases/bot/ExtractFilesByBotUseCase/dto';
+import ExtractFilesByBotUseCase from '../useCases/bot/ExtractFilesByBotUseCase';
 
 @ApiTags('bot')
 @Controller('bot')
@@ -63,7 +63,7 @@ export class BotController {
     private messageBotUseCase: MessageBotUseCase,
     private getBotInfoUseCase: GetBotInfoUseCase,
     private crawlWebsitesByBotUseCase: CrawlWebsitesByBotUseCase,
-    private crawlFileByBotUseCase: CrawlFilesByBotUseCase,
+    private extractFilesByBotUseCase: ExtractFilesByBotUseCase,
   ) {}
 
   @Post()
@@ -246,7 +246,7 @@ export class BotController {
   }
 
   @Post('/files/:id')
-  @ApiBody({ type: CrawlFilesByBotFileDTO })
+  @ApiBody({ type: ExtractFilesByByBotDTO })
   @ApiOperation({
     summary: 'Crawl files by bot.',
   })
@@ -254,7 +254,7 @@ export class BotController {
   @UseInterceptors(FilesInterceptor('files'))
   @ApiOkResponse({
     description: 'Created bot info',
-    type: CrawlFilesByBotResponseDTO,
+    type: ExtractFilesByBotResponseDTO,
   })
   @ApiNotFoundResponse({
     description: 'Bot not found',
@@ -265,13 +265,13 @@ export class BotController {
   })
   async crawlFilesByBot(
     @Param() { id }: IdParams,
-    @Body() body: CrawlFilesByBotFileDTO,
+    @Body() body: ExtractFilesByByBotDTO,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     // TODO: add validation file mimeType
     this.logger.log(`[POST] Start uploading and crawling files`);
     const { limit } = body;
-    const result = await this.crawlFileByBotUseCase.exec(
+    const result = await this.extractFilesByBotUseCase.exec(
       id,
       files,
       Number(limit),
