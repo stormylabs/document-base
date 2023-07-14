@@ -21,6 +21,12 @@ export class BotResponse {
   documents?: DocumentResponse[];
 
   @ApiProperty({
+    description: 'Fallback Message',
+    type: String,
+  })
+  fallbackMessage?: string;
+
+  @ApiProperty({
     description: 'Bot Created Date',
     type: Date,
   })

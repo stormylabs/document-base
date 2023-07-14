@@ -21,11 +21,14 @@ export class BotService {
 
   async updateInfo(
     botId: string,
-    { name }: { name: string },
+    { name, fallbackMessage }: { name: string; fallbackMessage?: string },
   ): Promise<BotData> {
     const exists = await this.exists([botId]);
     if (!exists) throw new Error('Bot does not exist.');
-    const updatedBot = await this.botRepository.update(botId, { name });
+    const updatedBot = await this.botRepository.update(botId, {
+      name,
+      fallbackMessage,
+    });
     return updatedBot;
   }
 
