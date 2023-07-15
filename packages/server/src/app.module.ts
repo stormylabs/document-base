@@ -25,6 +25,8 @@ import { FilesModule } from './module/files/files.module';
         DOC_INDEX_QUEUE_URL: Joi.string().required(),
         WEB_CRAWL_QUEUE_NAME: Joi.string().required(),
         WEB_CRAWL_QUEUE_URL: Joi.string().required(),
+        FILE_EXTRACT_QUEUE_NAME: Joi.string().required(),
+        FILE_EXTRACT_QUEUE_URL: Joi.string().required(),
         SQS_REGION: Joi.string().required(),
         THROTTLE_TTL: Joi.string().required(),
         THROTTLE_LIMIT: Joi.string().required(),

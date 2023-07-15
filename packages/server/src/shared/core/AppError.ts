@@ -134,3 +134,10 @@ export class FileNotFoundError extends Result<UseCaseError> {
     Logger.log(message, FileNotFoundError.name);
   }
 }
+
+export class ExtractFileError extends Result<UseCaseError> {
+  public constructor(message: string) {
+    super(false, { message } as UseCaseError);
+    Logger.log(message, ExtractFileError.name);
+  }
+}

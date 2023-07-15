@@ -3,7 +3,7 @@ export enum Languages {
   'en' = 'en',
 }
 
-export type JobType = 'web-crawl' | 'doc-index';
+export type JobType = 'web-crawl' | 'doc-index' | 'file-extract';
 
 export enum JobStatus {
   Pending = 'pending',
