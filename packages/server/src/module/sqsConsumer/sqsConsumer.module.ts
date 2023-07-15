@@ -24,6 +24,11 @@ import { BotModule } from '../bot/bot.module';
               queueUrl: config.get<string>('DOC_INDEX_QUEUE_URL'),
               region: config.get<string>('SQS_REGION'),
             },
+            {
+              name: config.get<string>('FILE_EXTRACT_QUEUE_NAME'),
+              queueUrl: config.get<string>('FILE_EXTRACT_QUEUE_URL'),
+              region: config.get<string>('SQS_REGION'),
+            },
           ],
         };
       },

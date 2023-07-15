@@ -25,6 +25,11 @@ export class SqsMessageService {
     if (job === 'web-crawl') {
       return this.config.get<string>('WEB_CRAWL_QUEUE_NAME');
     }
+
+    if (job === 'file-extract') {
+      return this.config.get<string>('FILE_EXTRACT_QUEUE_NAME');
+    }
+
     return this.config.get<string>('DOC_INDEX_QUEUE_NAME');
   }
 }

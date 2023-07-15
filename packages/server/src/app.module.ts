@@ -24,6 +24,8 @@ import { FilesModule } from './module/files/files.module';
         DOC_INDEX_QUEUE_URL: Joi.string().required(),
         WEB_CRAWL_QUEUE_NAME: Joi.string().required(),
         WEB_CRAWL_QUEUE_URL: Joi.string().required(),
+        FILE_EXTRACT_QUEUE_NAME: Joi.string().required(),
+        FILE_EXTRACT_QUEUE_URL: Joi.string().required(),
         SQS_REGION: Joi.string().required(),
         AWS_ACCESS_KEY_ID: Joi.string().required(),
         AWS_SECRET_ACCESS_KEY: Joi.string().required(),

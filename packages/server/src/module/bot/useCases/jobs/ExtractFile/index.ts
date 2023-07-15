@@ -1,0 +1,128 @@
+import { Injectable, Logger } from '@nestjs/common';
+import UnexpectedError, {
+  BotNotFoundError,
+  CrawlJobNotFoundError,
+  DocumentNotFoundError,
+  ExtractFileError,
+} from 'src/shared/core/AppError';
+import { Either, Result, left, right } from 'src/shared/core/Result';
+import { ExtractFileJobService } from '../../../services/extractFileJob.service';
+import { BotService } from '@/module/bot/services/bot.service';
+import { DocumentService } from '@/module/bot/services/document.service';
+import { ExtractPDF } from '@/shared/utils/extractPdf';
+import { DocumentType } from '@/shared/interfaces/document';
+import { JobStatus } from '@/shared/interfaces';
+
+type Response = Either<
+  | CrawlJobNotFoundError
+  | DocumentNotFoundError
+  | BotNotFoundError
+  | UnexpectedError
+  | ExtractFileError,
+  Result<void>
+>;
+
+@Injectable()
+export default class ExtractFileUseCase {
+  private readonly logger = new Logger(ExtractFileUseCase.name);
+  constructor(
+    private readonly botService: BotService,
+    private readonly extractFileJobService: ExtractFileJobService,
+    private readonly documentService: DocumentService,
+  ) {}
+  public async exec(
+    jobId: string,
+    botId: string,
+    documentId: string,
+  ): Promise<Response> {
+    try {
+      this.logger.log(`Start extract file`);
+
+      const bot = await this.botService.findById(botId);
+      if (!bot) {
+        return left(new BotNotFoundError());
+      }
+      const extractFileJob = await this.extractFileJobService.findById(jobId);
+      if (!extractFileJob) {
+        return left(new CrawlJobNotFoundError());
+      }
+
+      const document = await this.documentService.findById(documentId);
+      if (!document) {
+        return left(new DocumentNotFoundError());
+      }
+
+      if (extractFileJob.status === JobStatus.Finished) {
+        this.logger.log('extract file job finished');
+        return right(Result.ok());
+      }
+
+      if (
+        extractFileJob.limit ===
+        bot.documents.filter((doc) => doc.type === DocumentType.Pdf).length
+      ) {
+        await this.extractFileJobService.updateStatus(
+          jobId,
+          JobStatus.Finished,
+        );
+        return right(Result.ok());
+      }
+
+      if (extractFileJob.status === JobStatus.Pending) {
+        await this.extractFileJobService.updateStatus(jobId, JobStatus.Running);
+      }
+
+      const url = document.sourceName;
+      const limit = extractFileJob.limit;
+
+      // * extract file
+      const extract = new ExtractPDF(url);
+
+      let data: {
+        text: string;
+      };
+      try {
+        data = (await extract.start()) as {
+          text: string;
+        };
+      } catch (e) {
+        await this.extractFileJobService.removeDocument(jobId, documentId);
+        await this.documentService.delete(documentId);
+        this.logger.log(
+          'Delete document and remove from extract file job as extraction error',
+        );
+        return left(new ExtractFileError(e));
+      }
+
+      this.logger.log('data extracted');
+
+      if (!data.text) {
+        await this.extractFileJobService.removeDocument(jobId, documentId);
+        await this.documentService.delete(documentId);
+        this.logger.log(
+          'Delete document and remove from extract file job as no text is found',
+        );
+        return right(Result.ok());
+      }
+
+      await this.documentService.updateContent(documentId, data.text);
+      this.logger.log('document content updated');
+      const upsertBot = await this.botService.upsertDocument(botId, documentId);
+      this.logger.log('document upsert to bot');
+
+      if (upsertBot.documents.length === limit) {
+        this.logger.log('extract file job finished');
+        await this.extractFileJobService.updateStatus(
+          jobId,
+          JobStatus.Finished,
+        );
+        return right(Result.ok());
+      }
+
+      this.logger.log(`File extract successfully`);
+      return right(Result.ok());
+    } catch (err) {
+      return left(new UnexpectedError(err));
+    }
+  }
+}
