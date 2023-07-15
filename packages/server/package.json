@@ -45,6 +45,7 @@
     "mongoose": "^6.8.4",
     "node-spider": "^1.4.1",
     "openai": "^3.1.0",
+    "pdf-parse": "^1.1.1",
     "psl": "^1.9.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.2.0",
