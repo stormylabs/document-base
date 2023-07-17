@@ -9,7 +9,6 @@ export class ExtractFileJobService {
 
   async create(data: {
     botId: string;
-    limit: number;
     initUrls: string[];
   }): Promise<ExtractFileJobData> {
     const createdExtractFileJob = await this.extractFileJobRepository.create(

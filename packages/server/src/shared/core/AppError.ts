@@ -141,3 +141,11 @@ export class ExtractFileError extends Result<UseCaseError> {
     Logger.log(message, ExtractFileError.name);
   }
 }
+
+export class ExtractFileJobNotFoundError extends Result<UseCaseError> {
+  public constructor() {
+    const message = 'Extract File Job not found';
+    super(false, { message } as UseCaseError);
+    Logger.log(message, ExtractFileJobNotFoundError.name);
+  }
+}

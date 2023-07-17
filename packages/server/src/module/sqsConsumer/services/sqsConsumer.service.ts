@@ -61,7 +61,7 @@ export class SqsConsumerService {
     }
   }
 
-  @SqsMessageHandler(process.env.WEB_CRAWL_QUEUE_NAME)
+  @SqsMessageHandler(process.env.FILE_EXTRACT_QUEUE_NAME)
   async handleExtractFileMessage(message: AWS.SQS.Message) {
     const body: ExtractFileJobMessage = JSON.parse(message.Body);
     const { jobId, botId, documentId } = body;
@@ -77,8 +77,8 @@ export class SqsConsumerService {
   }
 
   @SqsConsumerEventHandler(process.env.WEB_CRAWL_QUEUE_NAME, 'error')
-  @SqsConsumerEventHandler(process.env.FILE_EXTRACT_QUEUE_NAME, 'error')
   @SqsConsumerEventHandler(process.env.DOC_INDEX_QUEUE_NAME, 'error')
+  @SqsConsumerEventHandler(process.env.FILE_EXTRACT_QUEUE_NAME, 'error')
   async handleError(error: Error) {
     this.logger.error(error);
   }

@@ -15,7 +15,6 @@ export class ExtractFileJobRepository {
 
   async create(extractFileJobData: {
     botId: string;
-    limit: number;
     initUrls: string[];
   }): Promise<ExtractFileJobData> {
     const botId = new Types.ObjectId(extractFileJobData.botId);

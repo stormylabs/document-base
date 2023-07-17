@@ -1,16 +1,12 @@
 import { Logger } from '@nestjs/common';
-import request from 'request';
-import pdf from 'pdf-parse';
+import * as pdf from 'pdf-parse';
 
 export class ExtractPDF {
   url: string;
-  dataBuffer: Buffer;
-  text: string;
   textLengthMinimum = 200;
-
   private readonly logger = new Logger(ExtractPDF.name);
 
-  constructor(url: string, textLengthMinimum) {
+  constructor(url: string, textLengthMinimum = 200) {
     this.url = url;
     this.textLengthMinimum = textLengthMinimum;
   }
@@ -18,17 +14,24 @@ export class ExtractPDF {
   async start() {
     this.logger.log('Start extract data pdf');
 
-    this.dataBuffer = await request.get({ uri: this.url, encoding: null });
+    try {
+      const data = await pdf(this.url);
 
-    return pdf(this.dataBuffer)
-      .then((data) => {
-        this.logger.log('Extract file successfully');
-        if (data.text > this.textLengthMinimum) {
-          this.text = data.text;
-        }
-      })
-      .catch(function (error) {
-        this.logger.log(`[ExtractFile] Error: ${error} ${this.url}`);
-      });
+      console.log({ data });
+      this.logger.log('Extract file successfully');
+      if (data?.text?.length > this.textLengthMinimum) {
+        return {
+          text: data?.text,
+        };
+      }
+
+      return {
+        text: '',
+      };
+    } catch (error) {
+      this.logger.log(`[ExtractFile] Error: ${error} ${this.url}`);
+
+      throw error;
+    }
   }
 }

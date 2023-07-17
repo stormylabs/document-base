@@ -37,6 +37,14 @@ import SaveDocsAndTrainBotUseCase from './useCases/bot/SaveDocsAndTrainBot';
 import CrawlWebsitesByBotUseCase from './useCases/bot/CrawlWebsitesByBotUseCase';
 import { FilesModule } from '../files/files.module';
 import ExtractFilesByBotUseCase from './useCases/bot/ExtractFilesByBotUseCase';
+import ExtractFileUseCase from './useCases/jobs/ExtractFile';
+import { ExtractFileJobService } from './services/extractFileJob.service';
+import { ExtractFileJobRepository } from './repositories/extractFileJob.repository';
+import {
+  ExtractFileJob,
+  ExtractFileJobSchema,
+} from './schemas/extractFileJob.schema';
+import CreateExtractFileJobUseCase from './useCases/jobs/CreateExtractFileJob';
 
 @Module({
   imports: [
@@ -56,6 +64,10 @@ import ExtractFilesByBotUseCase from './useCases/bot/ExtractFilesByBotUseCase';
       {
         name: DocIndexJob.name,
         schema: DocIndexJobSchema,
+      },
+      {
+        name: ExtractFileJob.name,
+        schema: ExtractFileJobSchema,
       },
     ]),
     PineconeModule.register(),
@@ -77,7 +89,6 @@ import ExtractFilesByBotUseCase from './useCases/bot/ExtractFilesByBotUseCase';
     CrawlWebsiteUseCase,
     MessageBotUseCase,
     PineconeClientService,
-    CrawlWebsiteUseCase,
     CreateCrawlJobUseCase,
     GetCrawlJobStatusUseCase,
     CrawlJobService,
@@ -92,8 +103,17 @@ import ExtractFilesByBotUseCase from './useCases/bot/ExtractFilesByBotUseCase';
     GetDocIndexJobStatusUseCase,
     MarkJobsAsFinishedUseCase,
     CrawlWebsitesByBotUseCase,
+    ExtractFileUseCase,
     ExtractFilesByBotUseCase,
+    ExtractFileJobService,
+    ExtractFileJobRepository,
+    CreateExtractFileJobUseCase,
   ],
-  exports: [BotService, CrawlWebsiteUseCase, IndexDocumentUseCase],
+  exports: [
+    BotService,
+    CrawlWebsiteUseCase,
+    ExtractFileUseCase,
+    IndexDocumentUseCase,
+  ],
 })
 export class BotModule {}

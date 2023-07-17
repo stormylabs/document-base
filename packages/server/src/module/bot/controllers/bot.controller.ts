@@ -248,7 +248,7 @@ export class BotController {
   @Post('/files/:id')
   @ApiBody({ type: ExtractFilesByByBotDTO })
   @ApiOperation({
-    summary: 'Crawl files by bot.',
+    summary: 'Extract files by bot.',
   })
   @ApiConsumes('multipart/form-data', 'application/json')
   @UseInterceptors(FilesInterceptor('files'))
@@ -261,21 +261,15 @@ export class BotController {
   })
   @ApiConflictResponse({
     description:
-      'If there are unfinished web crawl jobs or train jobs, this error will be returned.',
+      'If there are unfinished extract file jobs or train jobs, this error will be returned.',
   })
-  async crawlFilesByBot(
+  async extractFilesByBot(
     @Param() { id }: IdParams,
-    @Body() body: ExtractFilesByByBotDTO,
     @UploadedFiles() files: Array<Express.Multer.File>,
   ) {
     // TODO: add validation file mimeType
     this.logger.log(`[POST] Start uploading and crawling files`);
-    const { limit } = body;
-    const result = await this.extractFilesByBotUseCase.exec(
-      id,
-      files,
-      Number(limit),
-    );
+    const result = await this.extractFilesByBotUseCase.exec(id, files);
 
     if (result.isLeft()) {
       const error = result.value;
