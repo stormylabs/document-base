@@ -1,21 +1,7 @@
-import { DOCUMENT_LIMIT } from '@/shared/constants';
 import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumberString, Max, Min } from 'class-validator';
 
 export default class ExtractFilesByByBotDTO {
-  @ApiProperty({
-    description: 'Max number of URLs to crawl',
-    minimum: 1,
-    maximum: DOCUMENT_LIMIT,
-    required: true,
-    type: Number,
-  })
-  @IsNumberString()
-  @Min(1)
-  @Max(DOCUMENT_LIMIT)
-  limit: number;
-
   @ApiProperty({
     type: 'array', // 👈  array of files
     items: {
@@ -30,13 +16,13 @@ export default class ExtractFilesByByBotDTO {
 
 export class ExtractFilesByBotResponseDTO {
   @ApiProperty({
-    description: 'Crawl Files Job ID',
+    description: 'Extract files job id',
     type: String,
   })
   jobId: string;
 
   @ApiProperty({
-    description: 'Crawl Files Job Status',
+    description: 'Extract files job status',
     enum: JobStatus,
   })
   status: JobStatus;

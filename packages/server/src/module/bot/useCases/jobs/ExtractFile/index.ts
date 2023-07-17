@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
   BotNotFoundError,
-  CrawlJobNotFoundError,
+  ExtractFileJobNotFoundError,
   DocumentNotFoundError,
   ExtractFileError,
 } from 'src/shared/core/AppError';
@@ -14,7 +14,7 @@ import { DocumentType } from '@/shared/interfaces/document';
 import { JobStatus } from '@/shared/interfaces';
 
 type Response = Either<
-  | CrawlJobNotFoundError
+  | ExtractFileJobNotFoundError
   | DocumentNotFoundError
   | BotNotFoundError
   | UnexpectedError
@@ -44,7 +44,7 @@ export default class ExtractFileUseCase {
       }
       const extractFileJob = await this.extractFileJobService.findById(jobId);
       if (!extractFileJob) {
-        return left(new CrawlJobNotFoundError());
+        return left(new ExtractFileJobNotFoundError());
       }
 
       const document = await this.documentService.findById(documentId);
@@ -57,8 +57,9 @@ export default class ExtractFileUseCase {
         return right(Result.ok());
       }
 
+      // TODO: need to confirm
       if (
-        extractFileJob.limit ===
+        extractFileJob.initUrls.length ===
         bot.documents.filter((doc) => doc.type === DocumentType.Pdf).length
       ) {
         await this.extractFileJobService.updateStatus(
@@ -73,7 +74,6 @@ export default class ExtractFileUseCase {
       }
 
       const url = document.sourceName;
-      const limit = extractFileJob.limit;
 
       // * extract file
       const extract = new ExtractPDF(url);
@@ -110,7 +110,7 @@ export default class ExtractFileUseCase {
       const upsertBot = await this.botService.upsertDocument(botId, documentId);
       this.logger.log('document upsert to bot');
 
-      if (upsertBot.documents.length === limit) {
+      if (upsertBot.documents.length === extractFileJob.initUrls.length) {
         this.logger.log('extract file job finished');
         await this.extractFileJobService.updateStatus(
           jobId,

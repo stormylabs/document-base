@@ -27,11 +27,7 @@ export default class CreateExtractFileJobUseCase {
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
   ) {}
-  public async exec(
-    botId: string,
-    urls: string[],
-    limit: number,
-  ): Promise<Response> {
+  public async exec(botId: string, urls: string[]): Promise<Response> {
     try {
       this.logger.log(`Start creating extract files job`);
 
@@ -40,7 +36,6 @@ export default class CreateExtractFileJobUseCase {
 
       const extractFileJob = await this.extractFileJobService.create({
         botId,
-        limit,
         initUrls: urls,
       });
 
