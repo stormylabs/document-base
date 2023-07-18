@@ -96,14 +96,7 @@ export default class ExtractFileUseCase {
 
       this.logger.log('data extracted');
 
-      if (!data.text) {
-        await this.extractFileJobService.removeDocument(jobId, documentId);
-        await this.documentService.delete(documentId);
-        this.logger.log(
-          'Delete document and remove from extract file job as no text is found',
-        );
-        return right(Result.ok());
-      }
+      // does not soft delete document, show to the user that the file is empty/uncrawlable
 
       await this.documentService.updateContent(documentId, data.text);
       this.logger.log('document content updated');

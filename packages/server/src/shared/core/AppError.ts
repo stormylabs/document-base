@@ -127,14 +127,6 @@ export class SQSSendMessageError extends Result<UseCaseError> {
   }
 }
 
-export class FileNotFoundError extends Result<UseCaseError> {
-  public constructor() {
-    const message = 'File not found';
-    super(false, { message } as UseCaseError);
-    Logger.log(message, FileNotFoundError.name);
-  }
-}
-
 export class ExtractFileError extends Result<UseCaseError> {
   public constructor(message: string) {
     super(false, { message } as UseCaseError);
@@ -147,5 +139,13 @@ export class ExtractFileJobNotFoundError extends Result<UseCaseError> {
     const message = 'Extract File Job not found';
     super(false, { message } as UseCaseError);
     Logger.log(message, ExtractFileJobNotFoundError.name);
+  }
+}
+
+export class S3UploadError extends Result<UseCaseError> {
+  public constructor(filenames: string[]) {
+    const message = `S3 upload failed: ${filenames.join(', ')}}`;
+    super(false, { message } as UseCaseError);
+    Logger.log(message, S3UploadError.name);
   }
 }

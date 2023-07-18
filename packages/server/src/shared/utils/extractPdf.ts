@@ -17,7 +17,6 @@ export class ExtractPDF {
     try {
       const data = await pdf(this.url);
 
-      console.log({ data });
       this.logger.log('Extract file successfully');
       if (data?.text?.length > this.textLengthMinimum) {
         return {

@@ -253,7 +253,7 @@ export class BotController {
   @ApiConsumes('multipart/form-data', 'application/json')
   @UseInterceptors(FilesInterceptor('files'))
   @ApiOkResponse({
-    description: 'Created bot info',
+    description: 'Extract Files By Bot',
     type: ExtractFilesByBotResponseDTO,
   })
   @ApiNotFoundResponse({
@@ -269,6 +269,7 @@ export class BotController {
   ) {
     // TODO: add validation file mimeType
     this.logger.log(`[POST] Start uploading and crawling files`);
+    console.log({ files });
     const result = await this.extractFilesByBotUseCase.exec(id, files);
 
     if (result.isLeft()) {

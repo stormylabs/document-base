@@ -35,7 +35,7 @@ import { CrawlJobRepository } from './repositories/crawlJob.repository';
 import { DocIndexJobRepository } from './repositories/docIndexJob.repository';
 import SaveDocsAndTrainBotUseCase from './useCases/bot/SaveDocsAndTrainBot';
 import CrawlWebsitesByBotUseCase from './useCases/bot/CrawlWebsitesByBotUseCase';
-import { FilesModule } from '../files/files.module';
+import { S3Module } from '../s3/s3.module';
 import ExtractFilesByBotUseCase from './useCases/bot/ExtractFilesByBotUseCase';
 import ExtractFileUseCase from './useCases/jobs/ExtractFile';
 import { ExtractFileJobService } from './services/extractFileJob.service';
@@ -75,7 +75,7 @@ import CreateExtractFileJobUseCase from './useCases/jobs/CreateExtractFileJob';
     LangChainModule,
     SqsProducerModule,
     SqsConsumerModule,
-    FilesModule,
+    S3Module,
   ],
   controllers: [BotController, DataController],
   providers: [
