@@ -261,7 +261,7 @@ export class BotController {
   })
   @ApiConflictResponse({
     description:
-      'If there are unfinished extract file jobs or train jobs, this error will be returned.',
+      'If there are unfinished train jobs, this error will be returned.',
   })
   async extractFilesByBot(
     @Param() { id }: IdParams,
@@ -269,7 +269,7 @@ export class BotController {
   ) {
     // TODO: add validation file mimeType
     this.logger.log(`[POST] Start uploading and crawling files`);
-    console.log({ files });
+
     const result = await this.extractFilesByBotUseCase.exec(id, files);
 
     if (result.isLeft()) {
