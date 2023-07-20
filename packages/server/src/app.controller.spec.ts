@@ -11,8 +11,8 @@ describe('AppController', () => {
     }).compile();
   });
 
-  describe('getData', () => {
-    it('should return "Hello API"', () => {
+  describe('getHealthCheck', () => {
+    it('should return status OK', () => {
       const appController = app.get<AppController>(AppController);
       expect(appController.getHealthCheck()).toEqual({
         status: 200,
