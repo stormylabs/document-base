@@ -28,22 +28,20 @@ export const sliceIntoChunks = (arr: Vector[], chunkSize: number) => {
 
 export function chunkSubstr(text: string) {
   const chunks = [];
-  const maxChunkLength = Math.floor(TOKEN_LIMIT / encode(' ').length);
-
-  let index = 0;
-
-  while (index < text.length) {
-    let chunkLength = maxChunkLength;
-    console.log({ chunkLength });
-    while (
-      encode(text.slice(index, index + chunkLength)).length > TOKEN_LIMIT
-    ) {
-      chunkLength--;
+  let i = 0;
+  let subtext = text;
+  while (i < text.length) {
+    let chunkLength = subtext.length;
+    let tokens = encode(subtext).length;
+    while (tokens > TOKEN_LIMIT && chunkLength > 1) {
+      chunkLength = Math.floor(chunkLength / 2);
+      subtext = text.slice(i, i + chunkLength);
+      tokens = encode(subtext).length;
     }
-
-    const subtext = text.slice(index, index + chunkLength);
-    chunks.push(subtext);
-    index += chunkLength;
+    const chunk = subtext.slice(0, chunkLength);
+    chunks.push(chunk);
+    i += chunkLength;
+    subtext = text.slice(i);
   }
 
   return chunks;

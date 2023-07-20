@@ -135,7 +135,13 @@ export default class MessageBotUseCase {
 
       const chatChain = this.langChainService.createChatInquiryChain(
         templates.qaTemplate,
-        ['summaries', 'question', 'conversationHistory', 'urls'],
+        [
+          'summaries',
+          'question',
+          'conversationHistory',
+          'urls',
+          'fallbackMessage',
+        ],
       );
 
       const combinedFullText = matchedFullText.join('\n');
@@ -158,6 +164,7 @@ export default class MessageBotUseCase {
           question: inquiry,
           conversationHistory,
           urls: sourceNames,
+          fallbackMessage: bot.fallbackMessage,
         });
       } catch (e) {
         return left(new LangChainCallError(e.message));

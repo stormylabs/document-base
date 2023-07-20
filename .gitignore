@@ -3,7 +3,10 @@
 **/node_modules/
 **/.next
 
-
-**.env.*
+.env
+.env.development
+.env.staging
+.env.test
+.env.production
 
 yarn.lock
