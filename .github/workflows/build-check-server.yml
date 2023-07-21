@@ -2,9 +2,6 @@ name: Build Check
 
 on:
   pull_request:
-    # types: [opened, reopened]
-    # paths:
-    #   - 'packages/server/**'
 
 env:
   IMAGE_TAG: document-base
@@ -25,10 +22,6 @@ jobs:
           echo "BASE: ${{ env.NX_BASE }}"
           echo "HEAD: ${{ env.NX_HEAD }}"
 
-      # - uses: actions/setup-node@v3
-      #   with:
-      #     node-version: 18
-      #     cache: 'npm'
       - name: Install Dependencies
         run: npm install
 
