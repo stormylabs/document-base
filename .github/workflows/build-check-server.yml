@@ -3,7 +3,7 @@ name: Server - Build Check
 on:
   pull_request:
     paths:
-      - "packages/server/**"
+      - 'packages/server/**'
 
 env:
   IMAGE_TAG: document-base
@@ -15,6 +15,23 @@ jobs:
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v3
 
-      - name: Build docker image
-        run: docker build -t $IMAGE_TAG --target=build ./packages/server
+      - run: |
+          echo "BASE: ${{ env.NX_BASE }}"
+          echo "HEAD: ${{ env.NX_HEAD }}"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Linter
+        run: npx nx run server:lint
+
+      - name: Run Test
+        run: npx nx run server:test
+
+      - name: Build Docker Image
+        run: npx nx run server:docker-build -- -t $IMAGE_TAG
