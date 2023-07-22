@@ -46,19 +46,6 @@ class Crawler {
     this.logger.log(`Start crawling ${this.url}`);
 
     const $ = cheerio.load(this.decodeBody(doc.res));
-    $('script').remove();
-    $('#hub-sidebar').remove();
-    $('header').remove();
-    $('nav').remove();
-    $('img').remove();
-    // const title = $('title').text() || $('.article-title').text();
-    const html = $('body').html();
-
-    const text = turndownService.turndown(html);
-    this.logger.log('Crawled website successfully');
-    if (text.length > this.textLengthMinimum) {
-      this.text = text;
-    }
 
     this.logger.log('Identifying urls');
     doc.$('a').each((i: number, elem: any) => {
@@ -77,6 +64,28 @@ class Crawler {
       }
       this.urls.push(targetUrl);
     });
+
+    $('script').remove();
+    $('style').remove();
+    $('noscript').remove();
+    $('iframe').remove();
+    $('#hub-sidebar').remove();
+    $('header').remove();
+    $('nav').remove();
+    $('img').remove();
+    $('footer').remove();
+    $('*[class*=footer]').remove();
+    $('*[id*=footer]').remove();
+    // const title = $('title').text() || $('.article-title').text();
+    const html = $('body').html();
+
+    console.log(html);
+
+    const text = turndownService.turndown(html);
+    this.logger.log('Crawled website successfully');
+    if (text.length > this.textLengthMinimum) {
+      this.text = text;
+    }
   };
 
   start = async () => {
