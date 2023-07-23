@@ -20,6 +20,9 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.374.0",
+    "@aws-sdk/client-sqs": "^3.370.0",
+    "@aws-sdk/lib-storage": "^3.374.0",
     "@nestjs/axios": "^3.0.0",
     "@nestjs/common": "^9.0.0",
     "@nestjs/config": "^2.2.0",
@@ -31,7 +34,6 @@
     "@nestjs/throttler": "^4.2.1",
     "@pinecone-database/pinecone": "^0.1.6",
     "@ssut/nestjs-sqs": "^2.0.0",
-    "aws-sdk": "^2.1404.0",
     "bottleneck": "^2.19.5",
     "cheerio": "^1.0.0-rc.12",
     "class-transformer": "^0.5.1",
@@ -55,6 +57,7 @@
     "uuidv4": "^6.2.13"
   },
   "devDependencies": {
+    "@aws-sdk/types": "^3.370.0",
     "@nestjs/cli": "9.0.0",
     "@nestjs/schematics": "^9.0.0",
     "@nestjs/testing": "^9.0.0",
@@ -62,6 +65,7 @@
     "@types/jest": "29.2.4",
     "@types/multer": "^1.4.7",
     "@types/node": "18.11.18",
+    "@types/pdf-parse": "^1.1.1",
     "@types/supertest": "^2.0.11",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",

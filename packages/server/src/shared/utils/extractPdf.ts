@@ -2,11 +2,11 @@ import { Logger } from '@nestjs/common';
 import * as pdf from 'pdf-parse';
 
 export class ExtractPDF {
-  url: string;
+  url: Buffer | string;
   textLengthMinimum = 200;
   private readonly logger = new Logger(ExtractPDF.name);
 
-  constructor(url: string, textLengthMinimum = 200) {
+  constructor(url: Buffer | string, textLengthMinimum = 200) {
     this.url = url;
     this.textLengthMinimum = textLengthMinimum;
   }
@@ -15,7 +15,7 @@ export class ExtractPDF {
     this.logger.log('Start extract data pdf');
 
     try {
-      const data = await pdf(this.url);
+      const data = await pdf(this.url as Buffer);
 
       this.logger.log('Extract file successfully');
       if (data?.text?.length > this.textLengthMinimum) {

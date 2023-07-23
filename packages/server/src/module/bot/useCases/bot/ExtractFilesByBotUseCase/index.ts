@@ -57,7 +57,7 @@ export default class ExtractFilesByBotUseCase {
 
     try {
       urls = await Promise.all([
-        ...files.map(async (file) => {
+        ...files.map((file) => {
           return this.s3Service.uploadFile(
             `${bot._id}/${file.originalname}`,
             this.configService.get('AWS_PUBLIC_BUCKET_NAME'),

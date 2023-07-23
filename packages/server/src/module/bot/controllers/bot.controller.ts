@@ -274,6 +274,7 @@ export class BotController {
 
     if (result.isLeft()) {
       const error = result.value;
+
       this.logger.error(
         `[POST] crawl files error ${error.errorValue().message}`,
       );

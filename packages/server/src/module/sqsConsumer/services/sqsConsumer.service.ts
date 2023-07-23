@@ -8,6 +8,7 @@ import { DocIndexJobMessage } from '@/shared/interfaces/docIndexJob';
 import IndexDocumentUseCase from '@/module/bot/useCases/jobs/IndexDocuments';
 import { errorHandler } from '@/shared/http';
 import ExtractFileUseCase from '@/module/bot/useCases/jobs/ExtractFile';
+import * as AWS from '@aws-sdk/client-sqs/dist-cjs';
 dotenv.config();
 
 @Injectable()

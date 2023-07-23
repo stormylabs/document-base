@@ -3,7 +3,7 @@ import { SqsService } from '@ssut/nestjs-sqs';
 import { Message } from '@ssut/nestjs-sqs/dist/sqs.types';
 import { ConfigService } from '@nestjs/config';
 import { uuid } from 'uuidv4';
-import { JobType } from 'aws-sdk/clients/importexport';
+import { JobType } from '@aws-sdk/client-sqs/dist-cjs';
 
 @Injectable()
 export class SqsMessageService {
