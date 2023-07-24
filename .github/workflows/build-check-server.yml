@@ -10,11 +10,11 @@ env:
 
 jobs:
   check:
-    name: Server - Build check
+    name: Run build check
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
         uses: actions/checkout@v3
 
-      - name: Server - Build docker image
+      - name: Build docker image
         run: docker build -t $IMAGE_TAG --target=build ./packages/server
