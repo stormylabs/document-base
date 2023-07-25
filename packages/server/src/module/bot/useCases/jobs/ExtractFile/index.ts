@@ -12,6 +12,7 @@ import { DocumentService } from '@/module/bot/services/document.service';
 import { ExtractPDF } from '@/shared/utils/extractPdf';
 import { DocumentType } from '@/shared/interfaces/document';
 import { JobStatus } from '@/shared/interfaces';
+import { ExtractWord } from '@/shared/utils/extractWord';
 
 type Response = Either<
   | ExtractFileJobNotFoundError
@@ -57,7 +58,6 @@ export default class ExtractFileUseCase {
         return right(Result.ok());
       }
 
-      // TODO: need to confirm
       if (
         extractFileJob.initUrls.length ===
         bot.documents.filter((doc) => doc.type === DocumentType.Pdf).length
@@ -75,16 +75,25 @@ export default class ExtractFileUseCase {
 
       const url = document.sourceName;
 
-      // * extract file
-      const extract = new ExtractPDF(url);
-
       let data: {
         text: string;
       };
+
+      // * extract file
+
       try {
-        data = (await extract.start()) as {
-          text: string;
-        };
+        if (document.type === DocumentType.Pdf) {
+          const extractPdf = new ExtractPDF(url);
+          data = (await extractPdf.start()) as {
+            text: string;
+          };
+        } else if (document.type === DocumentType.Word) {
+          const extractWord = new ExtractWord(url);
+
+          data = (await extractWord.start()) as {
+            text: string;
+          };
+        }
       } catch (e) {
         await this.extractFileJobService.removeDocument(jobId, documentId);
         await this.documentService.delete(documentId);

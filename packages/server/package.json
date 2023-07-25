@@ -34,6 +34,7 @@
     "@nestjs/throttler": "^4.2.1",
     "@pinecone-database/pinecone": "^0.1.6",
     "@ssut/nestjs-sqs": "^2.0.0",
+    "axios": "^1.4.0",
     "bottleneck": "^2.19.5",
     "cheerio": "^1.0.0-rc.12",
     "class-transformer": "^0.5.1",
@@ -54,7 +55,8 @@
     "rxjs": "^7.2.0",
     "turndown": "^7.1.2",
     "url-parse": "^1.5.10",
-    "uuidv4": "^6.2.13"
+    "uuidv4": "^6.2.13",
+    "word-extractor": "^1.0.4"
   },
   "devDependencies": {
     "@aws-sdk/types": "^3.370.0",
@@ -67,6 +69,7 @@
     "@types/node": "18.11.18",
     "@types/pdf-parse": "^1.1.1",
     "@types/supertest": "^2.0.11",
+    "@types/word-extractor": "^1.0.2",
     "@typescript-eslint/eslint-plugin": "^5.0.0",
     "@typescript-eslint/parser": "^5.0.0",
     "eslint": "^8.0.1",

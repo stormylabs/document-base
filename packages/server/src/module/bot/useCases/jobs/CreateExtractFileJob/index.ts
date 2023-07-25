@@ -10,8 +10,9 @@ import { ExtractFileJobMessage } from '@/shared/interfaces/extractFileJob';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
 import { JobStatus } from '@/shared/interfaces';
 import { DocumentService } from '@/module/bot/services/document.service';
-import { DocumentType } from '@/shared/interfaces/document';
+import { DocumentExtToType } from '@/shared/interfaces/document';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
+import { extractExtensionFromUrl } from '@/shared/utils/web-utils';
 
 type Response = Either<
   UnexpectedError | SQSSendMessageError | BotNotFoundError,
@@ -79,9 +80,10 @@ export default class CreateExtractFileJobUseCase {
       let documentId = '';
 
       if (!document) {
+        const fileExt = extractExtensionFromUrl(url);
         const { _id } = await this.documentService.create({
           sourceName: url,
-          type: DocumentType.Pdf,
+          type: DocumentExtToType[fileExt],
         });
         documentId = _id;
       } else {
