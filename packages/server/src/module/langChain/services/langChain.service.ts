@@ -1,22 +1,23 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { LLMChain, OpenAI, PromptTemplate } from 'langchain';
-import { ChatOpenAI } from 'langchain/chat_models';
+import { ChatOpenAI } from 'langchain/chat_models/openai';
 import { TokenTextSplitter } from 'langchain/text_splitter';
 import { Document as LCDocument } from 'langchain/document';
 import { Vector } from '@pinecone-database/pinecone';
 import { templates } from '@/shared/constants/template';
-import { encode } from 'gpt-3-encoder';
 import { chunkSubstr } from '@/shared/utils/web-utils';
+import { encode } from 'gpt-3-encoder';
+import { TOKEN_LIMIT } from '@/shared/constants';
 
 @Injectable()
 export class LangChainService {
   private tokenSplitter: TokenTextSplitter;
   private readonly logger = new Logger(LangChainService.name);
   constructor(
-    @Inject(ChatOpenAI) private readonly chat: ChatOpenAI,
-    @Inject(OpenAI) private readonly llm: OpenAI,
-    @Inject(OpenAIEmbeddings) private readonly embedder: OpenAIEmbeddings,
+    @Inject(ChatOpenAI) public readonly chat: ChatOpenAI,
+    @Inject(OpenAI) public readonly llm: OpenAI,
+    @Inject(OpenAIEmbeddings) public readonly embedder: OpenAIEmbeddings,
   ) {
     this.tokenSplitter = new TokenTextSplitter({
       encodingName: 'gpt2',
@@ -29,7 +30,7 @@ export class LangChainService {
     return this.embedder.embedQuery(query);
   }
 
-  public async getVector(
+  public async getVectors(
     id: string,
     doc: LCDocument,
     metadata: Vector['metadata'],
@@ -81,22 +82,38 @@ export class LangChainService {
   }
 
   async summarizeLongDocument(text: string, inquiry: string) {
-    const templateLength = encode(templates.summarizerTemplate).length;
-    this.logger.log(`Text and template length ${text.length + templateLength}`);
-    if (encode(text).length + templateLength <= 7000) {
+    const templateTokenLength = encode(templates.summarizerTemplate).length;
+    const textTokenLength = encode(text).length;
+    this.logger.log(
+      `Text length: ${textTokenLength}, template length: ${templateTokenLength}, total: ${
+        textTokenLength + templateTokenLength
+      }`,
+    );
+
+    if (textTokenLength + templateTokenLength <= TOKEN_LIMIT) {
+      this.logger.log(`Summarized text is short enough`);
       return text;
     }
-    const chunks = chunkSubstr(text, 7000 - templateLength - 1);
+    const chunks = chunkSubstr(text);
+
+    this.logger.log(
+      `Split text into ${chunks.length} chunks, approx tokens: ${
+        encode(chunks[0]).length
+      }`,
+    );
 
     const summaries = await Promise.all(
       chunks.map(async (chunk) => await this.summarize(chunk, inquiry)),
     );
 
     const result = summaries.join('\n');
-    this.logger.log(
-      `Summarized text and temaplte length ${result.length + templateLength}`,
-    );
-    if (encode(result).length + templateLength <= 8192) {
+
+    if (encode(result).length + templateTokenLength <= TOKEN_LIMIT) {
+      this.logger.log(
+        `Summarized result tokens: ${
+          encode(result + templates.summarizerTemplate).length
+        }`,
+      );
       return result;
     }
 

@@ -1,10 +1,11 @@
 import { Inject, Injectable, Logger, forwardRef } from '@nestjs/common';
 import { SqsConsumerEventHandler, SqsMessageHandler } from '@ssut/nestjs-sqs';
 import * as dotenv from 'dotenv';
-import CrawlWebsiteUseCase from '@/module/data/useCases/CrawlWebsite';
+import CrawlWebsiteUseCase from '@/module/bot/useCases/jobs/CrawlWebsite';
 import { CrawlJobMessage } from '@/shared/interfaces/crawlJob';
-import IndexDocumentUseCase from '@/module/data/useCases/IndexDocuments';
 import { DocIndexJobMessage } from '@/shared/interfaces/docIndexJob';
+import IndexDocumentUseCase from '@/module/bot/useCases/jobs/IndexDocuments';
+import { errorHandler } from '@/shared/http';
 dotenv.config();
 
 @Injectable()
@@ -21,24 +22,38 @@ export class SqsConsumerService {
   @SqsMessageHandler(process.env.WEB_CRAWL_QUEUE_NAME)
   async handleWebCrawlMessage(message: AWS.SQS.Message) {
     const body: CrawlJobMessage = JSON.parse(message.Body);
-    const { jobId, botId, url } = body;
-    this.logger.log(
-      `Received web crawl message from SQS: ${jobId} ${botId} ${url}`,
+    const { jobId, botId, documentId } = body;
+    this.logger.log(`Received web crawl message from SQS`);
+    const result = await this.crawlWebsiteUseCase.exec(
+      jobId,
+      botId,
+      documentId,
     );
-    await this.crawlWebsiteUseCase.exec(jobId, botId, url);
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[WebCrawl] web crawl error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
   }
 
   @SqsMessageHandler(process.env.DOC_INDEX_QUEUE_NAME)
   async handleDocIndexMessage(message: AWS.SQS.Message) {
     const body: DocIndexJobMessage = JSON.parse(message.Body);
-    const { jobId, botId, document } = body;
-    this.logger.log(
-      `Received doc index message from SQS: ${jobId} ${botId} ${document.sourceName}`,
+    const { jobId, botId, documentId } = body;
+    this.logger.log(`Received doc index message from SQS`);
+    const result = await this.indexDocumentUseCase.exec(
+      botId,
+      jobId,
+      documentId,
     );
-    try {
-      await this.indexDocumentUseCase.exec(botId, jobId, document);
-    } catch (error) {
-      this.logger.error(error);
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[DocIndex] doc index error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
     }
   }
 

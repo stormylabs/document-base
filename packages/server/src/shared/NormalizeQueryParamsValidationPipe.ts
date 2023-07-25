@@ -19,7 +19,8 @@ export class NormalizeQueryParamsValidationPipe implements PipeTransform {
     });
 
     if (errors.length > 0) {
-      throw new BadRequestException(`Validation pipe failed. Error: ${errors}`);
+      const key = Object.keys(errors[0].constraints)[0];
+      throw new BadRequestException(`${errors[0].constraints[key]}`);
     }
     return object;
   }

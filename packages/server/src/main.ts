@@ -28,7 +28,6 @@ async function bootstrap() {
       .setTitle('DocumentBase API')
       .setDescription('API documentations of Document Base')
       .setVersion('1.0')
-      .addBasicAuth()
       .build();
 
     const document = SwaggerModule.createDocument(app, options);

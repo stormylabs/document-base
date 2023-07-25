@@ -9,7 +9,7 @@ export interface DocumentData {
   _id: string;
   type: DocumentType;
   sourceName: string;
-  content: string;
+  content?: string;
   createdAt: Date;
-  deletedAt: Date;
+  deletedAt?: Date;
 }

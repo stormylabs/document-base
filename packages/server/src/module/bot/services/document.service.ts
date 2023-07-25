@@ -25,19 +25,6 @@ export class DocumentService {
     return document;
   }
 
-  async update(
-    documentId: string,
-    data: Partial<Omit<DocumentData, '_id' | 'createdAt'>>,
-  ): Promise<DocumentData> {
-    const exists = await this.exists([documentId]);
-    if (!exists) throw new Error('Document does not exist.');
-    const updatedDocument = await this.documentRepository.update(
-      documentId,
-      data,
-    );
-    return updatedDocument;
-  }
-
   async delete(documentId: string): Promise<DocumentData> {
     const exists = await this.exists([documentId]);
     if (!exists) throw new Error('Document does not exist.');
@@ -49,5 +36,22 @@ export class DocumentService {
 
   async exists(documentIds: string[]): Promise<boolean> {
     return this.documentRepository.exists(documentIds);
+  }
+
+  async updateContent(
+    documentId: string,
+    content: string,
+  ): Promise<DocumentData> {
+    const updatedDocument = await this.documentRepository.update(documentId, {
+      content,
+    });
+    return updatedDocument;
+  }
+
+  async restore(documentId: string): Promise<DocumentData> {
+    const updatedDocument = await this.documentRepository.update(documentId, {
+      deletedAt: null,
+    });
+    return updatedDocument;
   }
 }

@@ -2,19 +2,17 @@ import { JobStatus } from '.';
 
 export interface DocIndexJobData {
   _id: string;
-  botId: string;
+  bot: string;
   status: JobStatus;
-  indexedCount: number;
+  indexed: number;
+  locked: boolean;
   createdAt: Date;
+  updatedAt: Date;
   deletedAt: Date;
 }
 
 export interface DocIndexJobMessage {
   botId: string;
   jobId: string;
-  document: {
-    _id: string;
-    sourceName: string;
-    content: string;
-  };
+  documentId: string;
 }

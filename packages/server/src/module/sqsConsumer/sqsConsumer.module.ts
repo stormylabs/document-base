@@ -3,12 +3,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SqsModule } from '@ssut/nestjs-sqs';
 import * as AWS from 'aws-sdk';
 import { SqsConsumerService } from './services/sqsConsumer.service';
-import { DataModule } from '../data/data.module';
+import { BotModule } from '../bot/bot.module';
 
 @Module({
   imports: [
     ConfigModule,
-    forwardRef(() => DataModule),
+    forwardRef(() => BotModule),
     SqsModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (config: ConfigService) => {
