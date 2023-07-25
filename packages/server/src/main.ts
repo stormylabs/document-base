@@ -23,16 +23,14 @@ async function bootstrap() {
 
   const NODE_ENV = config.get<string>('NODE_ENV');
 
-  if (NODE_ENV !== 'production') {
-    const options = new DocumentBuilder()
-      .setTitle('DocumentBase API')
-      .setDescription('API documentations of Document Base')
-      .setVersion('1.0')
-      .build();
+  const options = new DocumentBuilder()
+    .setTitle('DocumentBase API')
+    .setDescription('API documentations of Document Base')
+    .setVersion('1.0')
+    .build();
 
-    const document = SwaggerModule.createDocument(app, options);
-    SwaggerModule.setup('api/v1/docs', app, document);
-  }
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api/v1/docs', app, document);
 
   await app.listen(3000);
 }
