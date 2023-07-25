@@ -133,16 +133,16 @@ export default class MessageBotUseCase {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
         ).map(([_, text]) => text);
 
-      const chatChain = this.langChainService.createChatInquiryChain(
-        templates.qaTemplate,
-        [
-          'summaries',
-          'question',
-          'conversationHistory',
-          'urls',
-          'fallbackMessage',
-        ],
-      );
+      const template = `${bot.prompt}\n${templates.qaTemplate}`;
+      console.log({ botxxx: bot });
+
+      const chatChain = this.langChainService.createChatInquiryChain(template, [
+        'summaries',
+        'question',
+        'conversationHistory',
+        'urls',
+        'fallbackMessage',
+      ]);
 
       const combinedFullText = matchedFullText.join('\n');
 

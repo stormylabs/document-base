@@ -27,7 +27,7 @@ export default class GetBotInfoUseCase {
       const bot = await this.botService.findById(botId);
       if (!bot) return left(new BotNotFoundError());
 
-      const { documents, _id, name, createdAt } = bot;
+      const { documents, _id, name, createdAt, fallbackMessage, prompt } = bot;
 
       const resultedDocuments = documents.map((doc) => ({
         _id: doc._id,
@@ -54,6 +54,8 @@ export default class GetBotInfoUseCase {
         Result.ok({
           bot: {
             _id,
+            fallbackMessage,
+            prompt,
             name,
             documents: resultedDocuments,
             createdAt,

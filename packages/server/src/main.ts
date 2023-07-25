@@ -1,4 +1,3 @@
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -19,9 +18,6 @@ async function bootstrap() {
 
   app.use(cookieParser());
   app.enableCors();
-  const config = app.get(ConfigService);
-
-  const NODE_ENV = config.get<string>('NODE_ENV');
 
   const options = new DocumentBuilder()
     .setTitle('DocumentBase API')

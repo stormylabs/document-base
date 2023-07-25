@@ -27,6 +27,12 @@ export class BotResponse {
   fallbackMessage?: string;
 
   @ApiProperty({
+    description: 'Prompt',
+    type: String,
+  })
+  prompt?: string;
+
+  @ApiProperty({
     description: 'Bot Created Date',
     type: Date,
   })
