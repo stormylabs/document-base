@@ -2,8 +2,10 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Logger,
   Param,
+  ParseFilePipeBuilder,
   Patch,
   Post,
   UploadedFiles,
@@ -265,9 +267,18 @@ export class BotController {
   })
   async extractFilesByBot(
     @Param() { id }: IdParams,
-    @UploadedFiles() files: Array<Express.Multer.File>,
+    @UploadedFiles(
+      new ParseFilePipeBuilder()
+        .addFileTypeValidator({
+          fileType: /(doc|docx|pdf)$/,
+        })
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: true,
+        }),
+    )
+    files: Array<Express.Multer.File>,
   ) {
-    // TODO: add validation file mimeType
     this.logger.log(`[POST] Start uploading and crawling files`);
 
     const result = await this.extractFilesByBotUseCase.exec(id, files);
