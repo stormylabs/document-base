@@ -29,6 +29,13 @@ export default class UpdateBotInfoDTO {
   @IsOptional()
   fallbackMessage?: string;
 
+  @ApiProperty({
+    description: 'Prompt',
+    minLength: 1,
+    maxLength: 400,
+    required: false,
+    type: String,
+  })
   @IsString()
   @MaxLength(400)
   @MinLength(1)
