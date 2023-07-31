@@ -8,7 +8,7 @@ export default class ExtractFilesByByBotDTO {
       type: 'string',
       format: 'binary',
     },
-    required: false,
+    required: true,
     description: 'Files of the bot',
   })
   files: Array<Express.Multer.File>;

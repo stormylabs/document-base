@@ -54,6 +54,14 @@ import ExtractFilesByByBotDTO, {
 } from '../useCases/bot/ExtractFilesByBotUseCase/dto';
 import ExtractFilesByBotUseCase from '../useCases/bot/ExtractFilesByBotUseCase';
 
+import { CustomUploadFileMimeTypeValidator } from '@/shared/validators/file-mimetype.validator';
+import { ParseFilePipe } from '@nestjs/common';
+import { CustomFileCountValidationPipe } from '@/shared/validators/file-count.pipe';
+
+const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
+const MAX_FILE_COUNT = 10;
+const MIN_FILE_COUNT = 1;
+
 @ApiTags('bot')
 @Controller('bot')
 export class BotController {
@@ -268,14 +276,23 @@ export class BotController {
   async extractFilesByBot(
     @Param() { id }: IdParams,
     @UploadedFiles(
+      new CustomFileCountValidationPipe({
+        minCount: MIN_FILE_COUNT,
+        maxCount: MAX_FILE_COUNT,
+      }),
       new ParseFilePipeBuilder()
-        .addFileTypeValidator({
-          fileType: /(doc|docx|pdf)$/,
-        })
+        .addValidator(
+          new CustomUploadFileMimeTypeValidator({
+            fileExtensions: ALLOWED_UPLOADS_EXT_TYPES,
+          }),
+        )
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
           fileIsRequired: true,
         }),
+      new ParseFilePipe({
+        validators: [],
+      }),
     )
     files: Array<Express.Multer.File>,
   ) {
