@@ -26,10 +26,10 @@ export class CustomFileCountValidationPipe implements PipeTransform {
 
     if (
       Array.isArray(files) &&
-      !(files.length >= this.minCount && files.length < this.maxCount)
+      !(files.length >= this.minCount && files.length <= this.maxCount)
     ) {
       throw new BadRequestException(
-        `Validation failed. Files count must be more than ${this.minCount} and less then ${this.maxCount}.`,
+        `Validation failed. Files count must be more/eq than ${this.minCount} and less/eq then ${this.maxCount}.`,
       );
     }
 
