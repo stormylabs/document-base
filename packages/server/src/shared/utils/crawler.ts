@@ -79,8 +79,6 @@ class Crawler {
     // const title = $('title').text() || $('.article-title').text();
     const html = $('body').html();
 
-    console.log(html);
-
     const text = turndownService.turndown(html);
     this.logger.log('Crawled website successfully');
     if (text.length > this.textLengthMinimum) {
