@@ -96,7 +96,6 @@ export default class ExtractFileUseCase {
         }
       } catch (e) {
         await this.extractFileJobService.removeDocument(jobId, documentId);
-        await this.documentService.delete(documentId);
         this.logger.log(
           'Delete document and remove from extract file job as extraction error',
         );

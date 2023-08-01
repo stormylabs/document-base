@@ -56,6 +56,8 @@ export default class CrawlWebsiteUseCase {
 
       if (crawlJob.status === JobStatus.Finished) {
         this.logger.log('crawl job finished');
+        // delete uncrawled documents
+        await this.documentService.delete(documentId);
         return right(Result.ok());
       }
 
