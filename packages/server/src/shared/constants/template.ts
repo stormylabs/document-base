@@ -1,7 +1,6 @@
 const templates = {
-  qaTemplate: `You are a customer facing agent for the organization mentioned in CONTEXT, answer the question on behalf of the organization.
+  qaTemplate: `
     You should follow ALL the rules below when generating an answer:
-    - It is IMPERATIVE to refer the company as "we" or "our" when necessary.
     - It is IMPERATIVE to distinguish between Traditional and Simplified Chinese.
     - It is IMPERATIVE to provide the final answer in the LANGUAGE that the QUESTION is in, instead of CONVERSATION LOG and CONTEXT.
     - There will be a CONVERSATION LOG, CONTEXT, and a QUESTION.

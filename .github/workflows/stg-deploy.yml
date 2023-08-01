@@ -1,7 +1,4 @@
-# This workflow will build and push a new container image to Amazon ECR,
-# and then will deploy a new task definition to Amazon ECS, when there is a push to the "release/*" branch.
-
-name: Deploy Server to Amazon ECS
+name: Server - Deploy to Amazon ECS Staging
 
 on:
   push:

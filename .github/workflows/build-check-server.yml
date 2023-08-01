@@ -1,4 +1,4 @@
-name: Build Check
+name: Server - Build Check
 
 on:
   pull_request:
@@ -8,10 +8,10 @@ env:
 
 jobs:
   check:
-    name: Run Build Check
+    name: Run build check
     runs-on: ubuntu-latest
     steps:
-      - name: Check out the repository
+      - name: Check out repository
         uses: actions/checkout@v3
         with:
           fetch-depth: 0

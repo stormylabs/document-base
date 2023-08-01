@@ -36,11 +36,19 @@ class GetBotDocIndexJobResponse extends PartialType(
 }
 
 class GetBotResponse extends PartialType(
-  PickType(BotResponse, ['_id', 'name', 'createdAt'] as const),
+  PickType(BotResponse, [
+    '_id',
+    'name',
+    'createdAt',
+    'fallbackMessage',
+    'prompt',
+  ] as const),
 ) {
   _id: string;
   name: string;
   createdAt: Date;
+  fallbackMessage: string;
+  prompt: string;
 
   @ApiProperty({
     type: () => [GetBotDocResponse],
