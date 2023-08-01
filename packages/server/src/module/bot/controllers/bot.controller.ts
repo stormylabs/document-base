@@ -296,7 +296,7 @@ export class BotController {
     )
     files: Array<Express.Multer.File>,
   ) {
-    this.logger.log(`[POST] Start uploading and crawling files`);
+    this.logger.log(`[POST] Start uploading and extracting files`);
 
     const result = await this.extractFilesByBotUseCase.exec(id, files);
 
@@ -304,7 +304,7 @@ export class BotController {
       const error = result.value;
 
       this.logger.error(
-        `[POST] crawl files error ${error.errorValue().message}`,
+        `[POST] extract files error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
