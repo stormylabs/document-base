@@ -33,7 +33,6 @@ export class ValueObjectCreationError extends Result<UseCaseError> {
 }
 
 export class InvalidInputError extends Result<UseCaseError> {
-  private readonly logger = new Logger(InvalidInputError.name);
   public constructor(message: string) {
     super(false, { message } as UseCaseError);
     Logger.log(message, InvalidInputError.name);
@@ -125,5 +124,28 @@ export class SQSSendMessageError extends Result<UseCaseError> {
   public constructor(message: string) {
     super(false, { message } as UseCaseError);
     Logger.log(message, SQSSendMessageError.name);
+  }
+}
+
+export class ExtractFileError extends Result<UseCaseError> {
+  public constructor(message: string) {
+    super(false, { message } as UseCaseError);
+    Logger.log(message, ExtractFileError.name);
+  }
+}
+
+export class ExtractFileJobNotFoundError extends Result<UseCaseError> {
+  public constructor() {
+    const message = 'Extract File Job not found';
+    super(false, { message } as UseCaseError);
+    Logger.log(message, ExtractFileJobNotFoundError.name);
+  }
+}
+
+export class S3UploadError extends Result<UseCaseError> {
+  public constructor(filenames: string[]) {
+    const message = `S3 upload failed: ${filenames.join(', ')}}`;
+    super(false, { message } as UseCaseError);
+    Logger.log(message, S3UploadError.name);
   }
 }

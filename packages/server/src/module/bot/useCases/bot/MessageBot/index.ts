@@ -7,7 +7,7 @@ import { Either, Result, left, right } from 'src/shared/core/Result';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
 import { templates } from '@/shared/constants/template';
 import { LangChainService } from '@/module/langChain/services/langChain.service';
-import { Metadata } from 'aws-sdk/clients/appstream';
+import { Metadata } from '@aws-sdk/client-sqs/dist-cjs';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { MessageBotResponseDTO } from './dto';

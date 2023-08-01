@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { SqsModule } from '@ssut/nestjs-sqs';
-import * as AWS from 'aws-sdk';
 import { SqsMessageService } from './services/sqsMessage.service';
 
 @Module({
@@ -22,6 +21,11 @@ import { SqsMessageService } from './services/sqsMessage.service';
               queueUrl: config.get<string>('DOC_INDEX_QUEUE_URL'),
               region: config.get<string>('SQS_REGION'),
             },
+            {
+              name: config.get<string>('FILE_EXTRACT_QUEUE_NAME'),
+              queueUrl: config.get<string>('FILE_EXTRACT_QUEUE_URL'),
+              region: config.get<string>('SQS_REGION'),
+            },
           ],
         };
       },
@@ -32,14 +36,4 @@ import { SqsMessageService } from './services/sqsMessage.service';
   providers: [SqsMessageService],
   exports: [SqsMessageService],
 })
-export class SqsProducerModule {
-  constructor(private configService: ConfigService) {}
-  onModuleInit() {
-    const config = new AWS.Config();
-    config.update({
-      region: this.configService.get('AWS_REGION'),
-      accessKeyId: this.configService.get('AWS_ACCESS_KEY_ID'),
-      secretAccessKey: this.configService.get('AWS_SECRET_ACCESS_KEY'),
-    });
-  }
-}
+export class SqsProducerModule {}

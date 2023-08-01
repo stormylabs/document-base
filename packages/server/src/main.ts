@@ -5,9 +5,12 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { NormalizeQueryParamsValidationPipe } from './shared/NormalizeQueryParamsValidationPipe';
 import { ValidationPipe } from '@nestjs/common';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    rawBody: true,
+  });
   app.setGlobalPrefix('api/v1');
   app.useGlobalPipes(
     new NormalizeQueryParamsValidationPipe(),
@@ -15,6 +18,9 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  app.useBodyParser('urlencoded', {
+    extended: false,
+  });
 
   app.use(cookieParser());
   app.enableCors();

@@ -2,14 +2,19 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Logger,
   Param,
+  ParseFilePipeBuilder,
   Patch,
   Post,
+  UploadedFiles,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiConflictResponse,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -43,6 +48,19 @@ import {
   CrawlWebsitesByBotResponseDTO,
 } from '../useCases/bot/CrawlWebsitesByBotUseCase/dto';
 import { GetBotInfoResponseDTO } from '../useCases/bot/GetBotInfo/dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import ExtractFilesByByBotDTO, {
+  ExtractFilesByBotResponseDTO,
+} from '../useCases/bot/ExtractFilesByBotUseCase/dto';
+import ExtractFilesByBotUseCase from '../useCases/bot/ExtractFilesByBotUseCase';
+
+import { CustomUploadFileMimeTypeValidator } from '@/shared/validators/file-mimetype.validator';
+import { ParseFilePipe } from '@nestjs/common';
+import { CustomFileCountValidationPipe } from '@/shared/validators/file-count.pipe';
+
+const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
+const MAX_FILE_COUNT = 10;
+const MIN_FILE_COUNT = 1;
 
 @ApiTags('bot')
 @Controller('bot')
@@ -55,6 +73,7 @@ export class BotController {
     private messageBotUseCase: MessageBotUseCase,
     private getBotInfoUseCase: GetBotInfoUseCase,
     private crawlWebsitesByBotUseCase: CrawlWebsitesByBotUseCase,
+    private extractFilesByBotUseCase: ExtractFilesByBotUseCase,
   ) {}
 
   @Post()
@@ -230,6 +249,62 @@ export class BotController {
       const error = result.value;
       this.logger.error(
         `[POST] message bot error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Post('/files/:id')
+  @ApiBody({ type: ExtractFilesByByBotDTO })
+  @ApiOperation({
+    summary: 'Extract files by bot.',
+  })
+  @ApiConsumes('multipart/form-data', 'application/json')
+  @UseInterceptors(FilesInterceptor('files'))
+  @ApiOkResponse({
+    description: 'Extract Files By Bot',
+    type: ExtractFilesByBotResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Bot not found',
+  })
+  @ApiConflictResponse({
+    description:
+      'If there are unfinished train jobs, this error will be returned.',
+  })
+  async extractFilesByBot(
+    @Param() { id }: IdParams,
+    @UploadedFiles(
+      new CustomFileCountValidationPipe({
+        minCount: MIN_FILE_COUNT,
+        maxCount: MAX_FILE_COUNT,
+      }),
+      new ParseFilePipeBuilder()
+        .addValidator(
+          new CustomUploadFileMimeTypeValidator({
+            fileExtensions: ALLOWED_UPLOADS_EXT_TYPES,
+          }),
+        )
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: true,
+        }),
+      new ParseFilePipe({
+        validators: [],
+      }),
+    )
+    files: Array<Express.Multer.File>,
+  ) {
+    this.logger.log(`[POST] Start uploading and crawling files`);
+
+    const result = await this.extractFilesByBotUseCase.exec(id, files);
+
+    if (result.isLeft()) {
+      const error = result.value;
+
+      this.logger.error(
+        `[POST] crawl files error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

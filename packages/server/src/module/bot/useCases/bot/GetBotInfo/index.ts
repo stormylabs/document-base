@@ -29,12 +29,14 @@ export default class GetBotInfoUseCase {
 
       const { documents, _id, name, createdAt, fallbackMessage, prompt } = bot;
 
-      const resultedDocuments = documents.map((doc) => ({
-        _id: doc._id,
-        sourceName: doc.sourceName,
-        type: doc.type,
-        tokens: encode(doc.content).length,
-      }));
+      const resultedDocuments = documents.map((doc) => {
+        return {
+          _id: doc._id,
+          sourceName: doc.sourceName,
+          type: doc.type,
+          tokens: doc.content ? encode(doc.content).length : 0,
+        };
+      });
 
       const crawlJobs = await this.crawlJobService.findAllByBotId(botId);
       const docIndexJobs = await this.docIndexJobService.findAllByBotId(botId);
@@ -65,6 +67,7 @@ export default class GetBotInfoUseCase {
         }),
       );
     } catch (err) {
+      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

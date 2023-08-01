@@ -5,6 +5,15 @@ export enum DocumentType {
   Image = 'image',
 }
 
+export const DocumentExtToType = {
+  '.pdf': 'pdf',
+  '.doc': 'word',
+  '.docx': 'word',
+  '.jpeg': 'image',
+  '.png': 'image',
+  '.jpg': 'image',
+} as const;
+
 export interface DocumentData {
   _id: string;
   type: DocumentType;

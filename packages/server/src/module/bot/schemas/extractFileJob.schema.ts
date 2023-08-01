@@ -5,13 +5,22 @@ import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { DocumentDocument } from '@/module/bot/schemas/document.schema';
 import { BotDocument } from '@/module/bot/schemas/bot.schema';
+import { DOCUMENT_LIMIT } from '@/shared/constants';
 
-export type CrawlJobDocument = HydratedDocument<CrawlJob>;
+export type ExtractFileJobDocument = HydratedDocument<ExtractFileJob>;
 
-@Schema({ collection: 'CrawlJob' })
-export class CrawlJob extends Document {
+@Schema({ collection: 'ExtractFileJob' })
+export class ExtractFileJob extends Document {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
+
+  @Prop({
+    type: Number,
+    default: 1,
+    min: 1,
+    max: DOCUMENT_LIMIT,
+  })
+  limit: number;
 
   @Prop({
     type: String,
@@ -40,5 +49,6 @@ export class CrawlJob extends Document {
   deletedAt: Date;
 }
 
-export const CrawlJobSchema = SchemaFactory.createForClass(CrawlJob);
-CrawlJobSchema.set('toJSON', toJSONOverride);
+export const ExtractFileJobSchema =
+  SchemaFactory.createForClass(ExtractFileJob);
+ExtractFileJobSchema.set('toJSON', toJSONOverride);
