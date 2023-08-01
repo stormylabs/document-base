@@ -45,6 +45,7 @@ import {
   ExtractFileJobSchema,
 } from './schemas/extractFileJob.schema';
 import CreateExtractFileJobUseCase from './useCases/jobs/CreateExtractFileJob';
+import GetExtractFileJobStatusUseCase from './useCases/jobs/GetExtractFileJobStatus';
 
 @Module({
   imports: [
@@ -108,6 +109,7 @@ import CreateExtractFileJobUseCase from './useCases/jobs/CreateExtractFileJob';
     ExtractFileJobService,
     ExtractFileJobRepository,
     CreateExtractFileJobUseCase,
+    GetExtractFileJobStatusUseCase,
   ],
   exports: [
     BotService,

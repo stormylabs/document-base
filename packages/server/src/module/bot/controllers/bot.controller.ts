@@ -22,7 +22,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { errorHandler } from 'src/shared/http';
+import { errorHandler } from '@/shared/http';
 import CreateBotUseCase from '../useCases/bot/CreateBot';
 import CreateBotDTO, {
   CreateBotResponseDTO,
