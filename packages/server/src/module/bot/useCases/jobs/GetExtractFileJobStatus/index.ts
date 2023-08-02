@@ -32,9 +32,9 @@ export default class GetExtractFileJobStatusUseCase {
       const {
         status,
         bot: botId,
-        limit,
         createdAt,
         updatedAt,
+        initUrls,
       } = extractFileJob;
 
       const bot = await this.botService.findById(botId);
@@ -51,8 +51,7 @@ export default class GetExtractFileJobStatusUseCase {
           status,
           createdAt,
           updatedAt,
-          limit,
-          progress: Math.floor((documents.length / limit) * 100),
+          progress: Math.floor((documents.length / initUrls.length) * 100),
         }),
       );
     } catch (err) {

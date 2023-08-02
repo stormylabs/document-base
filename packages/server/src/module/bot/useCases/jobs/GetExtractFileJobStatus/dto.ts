@@ -18,7 +18,6 @@ export class GetExtractFileJobStatusResponseDTO extends PartialType(
     'status',
     'createdAt',
     'updatedAt',
-    'limit',
   ] as const),
 ) {
   @ApiProperty({
@@ -42,5 +41,4 @@ export class GetExtractFileJobStatusResponseDTO extends PartialType(
   status: JobStatus;
   createdAt: Date;
   updatedAt: Date;
-  limit: number;
 }
