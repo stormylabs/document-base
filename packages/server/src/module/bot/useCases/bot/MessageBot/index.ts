@@ -74,7 +74,7 @@ export default class MessageBotUseCase {
 
       const template = `${bot.prompt}\n ${templates.qaTemplate}`;
 
-      const k = 3;
+      const k = 2;
 
       const result = await vectorStore.similaritySearchWithScore(message, k);
 
