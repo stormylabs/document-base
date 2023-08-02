@@ -74,6 +74,22 @@ export class LockedDocIndexJobError extends Result<UseCaseError> {
   }
 }
 
+export class LockedCrawlJobError extends Result<UseCaseError> {
+  public constructor(jobId: string) {
+    const message = `Crawl job is locked: ${jobId}`;
+    super(false, { message } as UseCaseError);
+    Logger.log(message, LockedCrawlJobError.name);
+  }
+}
+
+export class LockedExtractFileJobError extends Result<UseCaseError> {
+  public constructor(jobId: string) {
+    const message = `Extract File job is locked: ${jobId}`;
+    super(false, { message } as UseCaseError);
+    Logger.log(message, LockedExtractFileJobError.name);
+  }
+}
+
 export class NotFoundError extends Result<UseCaseError> {
   public constructor(message: string) {
     super(false, { message } as UseCaseError);

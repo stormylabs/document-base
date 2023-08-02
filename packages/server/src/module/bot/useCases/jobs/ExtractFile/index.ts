@@ -4,6 +4,7 @@ import UnexpectedError, {
   ExtractFileJobNotFoundError,
   DocumentNotFoundError,
   ExtractFileError,
+  LockedExtractFileJobError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { ExtractFileJobService } from '../../../services/extractFileJob.service';
@@ -19,6 +20,7 @@ type Response = Either<
   | DocumentNotFoundError
   | BotNotFoundError
   | UnexpectedError
+  | LockedExtractFileJobError
   | ExtractFileError,
   Result<void>
 >;
@@ -37,7 +39,13 @@ export default class ExtractFileUseCase {
     documentId: string,
   ): Promise<Response> {
     try {
-      this.logger.log(`Start extract file`);
+      this.logger.log(`Start extract file, locking job: ${jobId}`);
+
+      const lockAcquired = await this.extractFileJobService.acquireLock(jobId);
+
+      if (!lockAcquired) {
+        return left(new LockedExtractFileJobError(jobId));
+      }
 
       const bot = await this.botService.findById(botId);
       if (!bot) {
@@ -60,7 +68,7 @@ export default class ExtractFileUseCase {
       }
 
       // check is all file extracted
-      if (extractFileJob.initUrls.length === bot.documents.length) {
+      if (extractFileJob.initUrls.length === extractFileJob.documents.length) {
         await this.extractFileJobService.updateStatus(
           jobId,
           JobStatus.Finished,
@@ -106,10 +114,17 @@ export default class ExtractFileUseCase {
       // upsert document with extracted file result/content
       await this.documentService.updateContent(documentId, data.text);
       this.logger.log('document content updated');
-      const upsertBot = await this.botService.upsertDocument(botId, documentId);
-      this.logger.log('document upsert to bot');
 
-      if (upsertBot.documents.length === extractFileJob.initUrls.length) {
+      await this.botService.upsertDocument(botId, documentId);
+      const upsertedExtractFileJob =
+        await this.extractFileJobService.upsertDocuments(jobId, [documentId]);
+
+      this.logger.log('document upsert to bot and extract file job');
+
+      if (
+        upsertedExtractFileJob.documents.length ===
+        upsertedExtractFileJob.initUrls.length
+      ) {
         this.logger.log('extract file job finished');
         await this.extractFileJobService.updateStatus(
           jobId,
@@ -122,6 +137,9 @@ export default class ExtractFileUseCase {
       return right(Result.ok());
     } catch (err) {
       return left(new UnexpectedError(err));
+    } finally {
+      this.logger.log(`Release lock: ${jobId}`);
+      await this.extractFileJobService.releaseLock(jobId);
     }
   }
 }

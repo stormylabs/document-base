@@ -77,10 +77,16 @@ export class ExtractFileJobService {
     return this.extractFileJobRepository.exists(extractFileJobIds);
   }
 
-  async incrementLimit(extractFileJobId: string) {
-    const exists = await this.exists([extractFileJobId]);
-    if (!exists) throw new Error('ExtractFile job does not exist.');
-    return this.extractFileJobRepository.incrementLimit(extractFileJobId);
+  async acquireLock(extractFileJobId: string): Promise<boolean> {
+    const exist = await this.exists([extractFileJobId]);
+    if (!exist) throw new Error('Crawl job does not exist.');
+    return this.extractFileJobRepository.acquireLock(extractFileJobId);
+  }
+
+  async releaseLock(extractFileJobId: string): Promise<boolean> {
+    const exist = await this.exists([extractFileJobId]);
+    if (!exist) throw new Error('Crawl job does not exist.');
+    return this.extractFileJobRepository.releaseLock(extractFileJobId);
   }
 
   async upsertDocuments(extractFileJobId: string, documentIds: string[]) {

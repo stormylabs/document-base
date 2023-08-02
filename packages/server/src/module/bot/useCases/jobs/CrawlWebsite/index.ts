@@ -4,6 +4,7 @@ import UnexpectedError, {
   CrawlJobNotFoundError,
   CrawlerError,
   DocumentNotFoundError,
+  LockedCrawlJobError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { CrawlJobService } from '../../../services/crawlJob.service';
@@ -19,6 +20,7 @@ type Response = Either<
   | DocumentNotFoundError
   | BotNotFoundError
   | UnexpectedError
+  | LockedCrawlJobError
   | CrawlerError,
   Result<void>
 >;
@@ -38,8 +40,12 @@ export default class CrawlWebsiteUseCase {
     documentId: string,
   ): Promise<Response> {
     try {
-      this.logger.log(`Start crawling website`);
+      this.logger.log(`Start crawling website, locking job: ${jobId}`);
+      const lockAcquired = await this.crawlJobService.acquireLock(jobId);
 
+      if (!lockAcquired) {
+        return left(new LockedCrawlJobError(jobId));
+      }
       const bot = await this.botService.findById(botId);
       if (!bot) {
         return left(new BotNotFoundError());
@@ -61,10 +67,7 @@ export default class CrawlWebsiteUseCase {
         return right(Result.ok());
       }
 
-      if (
-        crawlJob.limit ===
-        bot.documents.filter((doc) => doc.type === DocumentType.Url).length
-      ) {
+      if (crawlJob.limit === crawlJob.documents.length) {
         await this.crawlJobService.updateStatus(jobId, JobStatus.Finished);
         return right(Result.ok());
       }
@@ -75,7 +78,6 @@ export default class CrawlWebsiteUseCase {
 
       const url = document.sourceName;
       const limit = crawlJob.limit;
-      const crawlJobDocIds = crawlJob.documents;
       const crawler = new Crawler(url);
 
       let data: {
@@ -112,9 +114,13 @@ export default class CrawlWebsiteUseCase {
         botId,
         documentId,
       );
-      this.logger.log('document upserted to bot');
+      const upsertedCrawlJob = await this.crawlJobService.upsertDocuments(
+        jobId,
+        [documentId],
+      );
+      this.logger.log('document upserted to bot and crawl job');
 
-      if (upsertedBot.documents.length === limit) {
+      if (upsertedCrawlJob.documents.length === limit) {
         this.logger.log('crawl job finished');
         await this.crawlJobService.updateStatus(jobId, JobStatus.Finished);
         return right(Result.ok());
@@ -126,7 +132,9 @@ export default class CrawlWebsiteUseCase {
 
       //   filters out current bot documents.urls to only send new urls
       const urls = data.urls.filter((url) => !botDocumentUrls.includes(url));
-      const numToSend = Math.ceil((limit - crawlJobDocIds.length) * 1.3);
+      const numToSend = Math.ceil(
+        (limit - upsertedCrawlJob.documents.length) * 1.3,
+      );
       const urlsToSend = urls.slice(0, numToSend);
 
       if (urlsToSend.length <= 0) {
@@ -139,10 +147,6 @@ export default class CrawlWebsiteUseCase {
         botId,
         urlsToSend,
       );
-      // to keep track of the number of documents sent to the queue
-      const documentIds = payloads.map((payload) => payload.documentId);
-
-      await this.crawlJobService.upsertDocuments(jobId, documentIds);
 
       await this.createCrawlJobUseCase.sendMessages(jobId, payloads);
       this.logger.log(`Sent ${payloads.length} messages to the queue`);
@@ -154,6 +158,9 @@ export default class CrawlWebsiteUseCase {
     } catch (err) {
       console.log(err);
       return left(new UnexpectedError(err));
+    } finally {
+      this.logger.log(`Release lock: ${jobId}`);
+      await this.crawlJobService.releaseLock(jobId);
     }
   }
 }

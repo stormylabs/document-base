@@ -35,8 +35,17 @@ export default class CreateCrawlJobUseCase {
     try {
       this.logger.log(`Start creating crawl job`);
 
-      const botExists = await this.botService.exists([botId]);
-      if (!botExists) return left(new BotNotFoundError());
+      const bot = await this.botService.findById(botId);
+      if (!bot) return left(new BotNotFoundError());
+
+      const urlDocs = bot.documents.filter(
+        (doc) => doc.type === DocumentType.Url,
+      );
+
+      await this.botService.removeDocuments(
+        botId,
+        urlDocs.map((doc) => doc._id),
+      );
 
       const crawlJob = await this.crawlJobService.create({
         botId,
@@ -59,11 +68,6 @@ export default class CreateCrawlJobUseCase {
       }
 
       this.logger.log(`Sent ${payloads.length} messages to the queue`);
-
-      // to keep track of the number of documents sent to the queue
-      const documentIds = payloads.map((payload) => payload.documentId);
-      await this.crawlJobService.upsertDocuments(jobId, documentIds);
-      this.logger.log('documents upserted to crawl job');
 
       this.logger.log(`Crawl job is created successfully`);
       return right(Result.ok({ jobId, status }));

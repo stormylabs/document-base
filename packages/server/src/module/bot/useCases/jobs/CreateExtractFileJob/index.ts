@@ -52,11 +52,6 @@ export default class CreateExtractFileJobUseCase {
 
       this.logger.log(`Sent ${payloads.length} messages to the queue`);
 
-      // to keep track of the number of documents sent to the queue
-      const documentIds = payloads.map((payload) => payload.documentId);
-      await this.extractFileJobService.upsertDocuments(jobId, documentIds);
-      this.logger.log('documents upsert to extract file job');
-
       this.logger.log(`Extract file job is created successfully`);
       return right(Result.ok({ jobId, status }));
     } catch (err) {

@@ -35,13 +35,8 @@ export default class GetExtractFileJobStatusUseCase {
         createdAt,
         updatedAt,
         initUrls,
+        documents,
       } = extractFileJob;
-
-      const bot = await this.botService.findById(botId);
-
-      if (!bot) return left(new BotNotFoundError());
-
-      const { documents } = bot;
 
       this.logger.log(`Get extract file job successfully`);
       return right(
