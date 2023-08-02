@@ -15,12 +15,6 @@ export class ExtractFileJobResponse {
   bot?: string;
 
   @ApiProperty({
-    description: 'Extract File Job Limit',
-    type: Number,
-  })
-  limit?: number;
-
-  @ApiProperty({
     description: 'Document IDs',
     type: [String],
   })

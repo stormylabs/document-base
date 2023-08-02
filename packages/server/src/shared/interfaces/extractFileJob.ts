@@ -3,7 +3,6 @@ import { JobStatus } from '@/shared/interfaces';
 export interface ExtractFileJobData {
   _id: string;
   bot: string;
-  limit: number;
   documents: string[];
   status: JobStatus;
   initUrls: string[];
