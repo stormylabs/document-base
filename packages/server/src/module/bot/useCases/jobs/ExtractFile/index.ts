@@ -43,6 +43,7 @@ export default class ExtractFileUseCase {
       if (!bot) {
         return left(new BotNotFoundError());
       }
+
       const extractFileJob = await this.extractFileJobService.findById(jobId);
       if (!extractFileJob) {
         return left(new ExtractFileJobNotFoundError());
@@ -58,10 +59,8 @@ export default class ExtractFileUseCase {
         return right(Result.ok());
       }
 
-      if (
-        extractFileJob.initUrls.length ===
-        bot.documents.filter((doc) => doc.type === DocumentType.Pdf).length
-      ) {
+      // check is all file extracted
+      if (extractFileJob.initUrls.length === bot.documents.length) {
         await this.extractFileJobService.updateStatus(
           jobId,
           JobStatus.Finished,
@@ -79,8 +78,7 @@ export default class ExtractFileUseCase {
         text: string;
       };
 
-      // * extract file
-
+      // extract file start
       try {
         if (document.type === DocumentType.Pdf) {
           const extractPdf = new ExtractPDF(url);
@@ -95,6 +93,7 @@ export default class ExtractFileUseCase {
           };
         }
       } catch (e) {
+        // does not soft delete document, show to the user that the file is empty/cant extracted
         await this.extractFileJobService.removeDocument(jobId, documentId);
         this.logger.log(
           'Delete document and remove from extract file job as extraction error',
@@ -104,8 +103,7 @@ export default class ExtractFileUseCase {
 
       this.logger.log('data extracted');
 
-      // does not soft delete document, show to the user that the file is empty/uncrawlable
-
+      // upsert document with extracted file result/content
       await this.documentService.updateContent(documentId, data.text);
       this.logger.log('document content updated');
       const upsertBot = await this.botService.upsertDocument(botId, documentId);

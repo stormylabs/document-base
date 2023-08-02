@@ -87,6 +87,7 @@ export default class CreateExtractFileJobUseCase {
         });
         documentId = _id;
       } else {
+        // replace with a document that was extracted before (same URL)
         documentId = document._id;
         if (document.deletedAt) {
           await this.documentService.restore(document._id);
