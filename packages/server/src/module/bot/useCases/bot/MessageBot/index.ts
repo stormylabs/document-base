@@ -72,19 +72,13 @@ export default class MessageBotUseCase {
 
       const model = this.langChainService.llm;
 
-      const template = `${bot.prompt}\n ${templates.qaTemplate}`;
+      const template = `${bot.prompt}\n If you don't have the information, reply with ${bot.fallbackMessage}, do not make stuff up. ${templates.qaTemplate}`;
 
       const k = 3;
 
-      const result = await vectorStore.similaritySearchWithScore(message, k);
-
-      if (result.length === 0 || result[0][1] < 0.75) {
-        return right(Result.ok({ message: bot.fallbackMessage }));
-      }
-
       const prompt = new PromptTemplate({
         template,
-        inputVariables: ['question'],
+        inputVariables: ['question', 'context'],
       });
 
       const ch = new ChatMessageHistory(
@@ -100,6 +94,7 @@ export default class MessageBotUseCase {
           botId: bot._id,
         }),
         {
+          verbose: true,
           questionGeneratorChainOptions: {
             template: templates.inquiryTemplate,
           },

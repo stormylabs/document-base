@@ -7,9 +7,7 @@ import UnexpectedError, {
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { Document as LCDocument } from 'langchain/document';
-import { sliceIntoChunks } from '@/shared/utils/web-utils';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
-import { Vector } from '@pinecone-database/pinecone';
 import { JobStatus } from '@/shared/interfaces';
 import { BotService } from '@/module/bot/services/bot.service';
 import { LangChainService } from '@/module/langChain/services/langChain.service';
@@ -20,6 +18,7 @@ import {
 } from '@/shared/core/LangChainError';
 import { PineconeUpsertError } from '@/shared/core/PineconeError';
 import { DocumentService } from '@/module/bot/services/document.service';
+import { PineconeStore } from 'langchain/vectorstores/pinecone';
 
 type Response = Either<
   | DocIndexJobNotFoundError
@@ -102,41 +101,9 @@ export default class IndexDocumentUseCase {
 
       this.logger.log(`Split document successfully: ${docs.length} chunks`);
 
-      let vectors: Vector[];
-      try {
-        vectors = await Promise.all(
-          docs.flat().map((doc) =>
-            this.langChainService.getVectors(document._id, doc, {
-              botId: doc.metadata.botId,
-              sourceName: doc.metadata.sourceName,
-            }),
-          ),
-        );
-      } catch (e) {
-        return left(new LangChainGetVectorsError(e));
-      }
-
-      this.logger.log(`Get embeddings successfully: ${vectors.length} vectors`);
-
-      const chunks = sliceIntoChunks(vectors, 10);
-      const index = this.pineconeService.index;
-
-      this.logger.log(`Start indexing ${chunks.length} chunks`);
-
-      try {
-        await Promise.all(
-          chunks.map((chunk) =>
-            index.upsert({
-              upsertRequest: {
-                vectors: chunk as Vector[],
-                namespace: '',
-              },
-            }),
-          ),
-        );
-      } catch (e) {
-        return left(new PineconeUpsertError(e));
-      }
+      await PineconeStore.fromDocuments(docs, this.langChainService.embedder, {
+        pineconeIndex: this.pineconeService.index,
+      });
 
       this.logger.log(`Indexing is done`);
 
