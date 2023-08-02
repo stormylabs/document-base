@@ -13,6 +13,7 @@ import GetDocIndexJobStatusUseCase from '../useCases/jobs/GetDocIndexJobStatus';
 import { GetCrawlJobStatusResponseDTO } from '../useCases/jobs/GetCrawlJobStatus/dto';
 import { GetDocIndexJobStatusResponseDTO } from '../useCases/jobs/GetDocIndexJobStatus/dto';
 import GetExtractFileJobStatusUseCase from '../useCases/jobs/GetExtractFileJobStatus';
+import { GetExtractFileJobStatusResponseDTO } from '../useCases/jobs/GetExtractFileJobStatus/dto';
 
 @ApiTags('data')
 @Controller('data')
@@ -82,7 +83,7 @@ export class DataController {
   })
   @ApiOkResponse({
     description: 'Extract file job status',
-    type: GetCrawlJobStatusResponseDTO,
+    type: GetExtractFileJobStatusResponseDTO,
   })
   @ApiNotFoundResponse({
     description: 'Bot or extract file job not found',
