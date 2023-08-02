@@ -20,7 +20,7 @@ import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { ConversationalRetrievalQAChain } from 'langchain/chains';
 import { BufferMemory, ChatMessageHistory } from 'langchain/memory';
 import { PromptTemplate } from 'langchain';
-import { AIMessage, HumanMessage } from 'langchain/schema';
+import { AIChatMessage, HumanChatMessage } from 'langchain/schema';
 
 type Response = Either<
   | UnexpectedError
@@ -89,8 +89,8 @@ export default class MessageBotUseCase {
 
       const ch = new ChatMessageHistory(
         conversationHistory.map((x) => {
-          if (x.slice(0, 4) === 'user') return new HumanMessage(x.slice(5));
-          return new AIMessage(x.slice(10));
+          if (x.slice(0, 4) === 'user') return new HumanChatMessage(x.slice(5));
+          return new AIChatMessage(x.slice(10));
         }),
       );
 
