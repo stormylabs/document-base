@@ -29,13 +29,14 @@ export default class GetCrawlJobStatusUseCase {
 
       if (!crawlJob) return left(new CrawlJobNotFoundError());
 
-      const { status, bot: botId, limit, createdAt, updatedAt } = crawlJob;
-
-      const bot = await this.botService.findById(botId);
-
-      if (!bot) return left(new BotNotFoundError());
-
-      const { documents } = bot;
+      const {
+        status,
+        bot: botId,
+        limit,
+        createdAt,
+        updatedAt,
+        documents,
+      } = crawlJob;
 
       this.logger.log(`Get crawl job successfully`);
       return right(

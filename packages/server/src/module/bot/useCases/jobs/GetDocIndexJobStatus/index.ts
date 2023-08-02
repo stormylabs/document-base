@@ -28,18 +28,22 @@ export default class GetDocIndexJobStatusUseCase {
 
       if (!docIndexJob) return left(new DocIndexJobNotFoundError());
 
-      const { status, bot: botId, indexed, createdAt, updatedAt } = docIndexJob;
+      const {
+        status,
+        bot: botId,
+        documents: jobDocs,
+        createdAt,
+        updatedAt,
+      } = docIndexJob;
 
       const bot = await this.botService.findById(botId);
 
       if (!bot) return left(new BotNotFoundError());
 
-      const { documents } = bot;
-
       const progress =
-        documents.length === 0
+        jobDocs.length === 0
           ? 0
-          : Math.floor((indexed / documents.length) * 100);
+          : Math.floor((jobDocs.length / bot.documents.length) * 100);
 
       this.logger.log(`Get DocIndex job successfully`);
       return right(
@@ -49,7 +53,7 @@ export default class GetDocIndexJobStatusUseCase {
           status,
           createdAt,
           updatedAt,
-          trained: indexed,
+          trained: jobDocs.length,
           progress,
         }),
       );

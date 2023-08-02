@@ -96,14 +96,26 @@ export class CrawlJobRepository {
     return crawlJob.toJSON() as CrawlJobData;
   }
 
-  async incrementLimit(crawlJobId: string) {
+  async acquireLock(crawlJobId: string) {
     const id = new Types.ObjectId(crawlJobId);
-    const crawlJob = await this.crawlJobModel.findByIdAndUpdate(
-      id,
-      { $inc: { count: 1 } },
+    const crawlJob = await this.crawlJobModel.findOneAndUpdate(
+      { _id: id, locked: false },
+      { $set: { locked: true } },
       { new: true },
     );
-    return crawlJob.toJSON() as CrawlJobData;
+    if (!crawlJob) return false;
+    return true;
+  }
+
+  async releaseLock(crawlJobId: string) {
+    const id = new Types.ObjectId(crawlJobId);
+    const crawlJob = await this.crawlJobModel.findOneAndUpdate(
+      { _id: id, locked: true },
+      { $set: { locked: false } },
+      { new: true },
+    );
+    if (!crawlJob) return false;
+    return true;
   }
 
   async upsertDocuments(crawlJobId: string, documentIds: string[]) {

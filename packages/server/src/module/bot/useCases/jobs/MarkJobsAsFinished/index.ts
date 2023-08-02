@@ -5,6 +5,7 @@ import { JobStatus } from '@/shared/interfaces';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
+import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 
 type Response = Either<UnexpectedError, Result<void>>;
 
@@ -14,6 +15,7 @@ export default class MarkJobsAsFinishedUseCase {
   constructor(
     private readonly crawlJobService: CrawlJobService,
     private readonly docIndexJobService: DocIndexJobService,
+    private readonly extractFileJobService: ExtractFileJobService,
   ) {}
 
   @Cron(CronExpression.EVERY_10_MINUTES)
@@ -37,11 +39,19 @@ export default class MarkJobsAsFinishedUseCase {
         JobStatus.Pending,
       );
 
+      const runningFileExtractJobs =
+        await this.extractFileJobService.findTimeoutJobs(JobStatus.Running);
+
+      const pendingFileExtractJobs =
+        await this.extractFileJobService.findTimeoutJobs(JobStatus.Pending);
+
       const totalLength =
         runningCrawlJobs.length +
         pendingCrawlJobs.length +
         runningDocIndexJobs.length +
-        pendingDocIndexJobs.length;
+        pendingDocIndexJobs.length +
+        runningFileExtractJobs.length +
+        pendingFileExtractJobs.length;
 
       if (totalLength === 0) {
         this.logger.log(`No timeout jobs found`);
@@ -60,9 +70,24 @@ export default class MarkJobsAsFinishedUseCase {
         await this.docIndexJobService.updateStatus(job._id, JobStatus.Finished);
       }
 
+      const extractFileJobs = [
+        ...runningFileExtractJobs,
+        ...pendingFileExtractJobs,
+      ];
+
+      for (const job of extractFileJobs) {
+        await this.extractFileJobService.updateStatus(
+          job._id,
+          JobStatus.Finished,
+        );
+      }
+
       this.logger.log(`Marked crawl jobs ${crawlJobs.length} jobs as finished`);
       this.logger.log(
         `Marked doc index jobs ${docIndexJobs.length} jobs as finished`,
+      );
+      this.logger.log(
+        `Marked extract file jobs ${extractFileJobs.length} jobs as finished`,
       );
       return right(Result.ok());
     } catch (err) {

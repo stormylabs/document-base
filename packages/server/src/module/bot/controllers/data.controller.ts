@@ -12,6 +12,8 @@ import GetCrawlJobStatusUseCase from '../useCases/jobs/GetCrawlJobStatus';
 import GetDocIndexJobStatusUseCase from '../useCases/jobs/GetDocIndexJobStatus';
 import { GetCrawlJobStatusResponseDTO } from '../useCases/jobs/GetCrawlJobStatus/dto';
 import { GetDocIndexJobStatusResponseDTO } from '../useCases/jobs/GetDocIndexJobStatus/dto';
+import GetExtractFileJobStatusUseCase from '../useCases/jobs/GetExtractFileJobStatus';
+import { GetExtractFileJobStatusResponseDTO } from '../useCases/jobs/GetExtractFileJobStatus/dto';
 
 @ApiTags('data')
 @Controller('data')
@@ -20,6 +22,7 @@ export class DataController {
   constructor(
     private getCrawlJobStatusUseCase: GetCrawlJobStatusUseCase,
     private getDocIndexJobStatusUseCase: GetDocIndexJobStatusUseCase,
+    private getExtractFileJobStatusUseCase: GetExtractFileJobStatusUseCase,
   ) {}
 
   @Get('/crawl/:id')
@@ -67,6 +70,32 @@ export class DataController {
       const error = result.value;
       this.logger.error(
         `[GET] get DocIndex job status error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+
+    return result.value.getValue();
+  }
+
+  @Get('/extract/:id')
+  @ApiOperation({
+    summary: 'Get extract file job status by job ID.',
+  })
+  @ApiOkResponse({
+    description: 'Extract file job status',
+    type: GetExtractFileJobStatusResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Bot or extract file job not found',
+  })
+  async getFileExtractJobStatus(@Param() { id }: IdParams) {
+    this.logger.log(`[GET] Start getting extract file job status`);
+    const result = await this.getExtractFileJobStatusUseCase.exec(id);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[GET] Get extract file job status error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

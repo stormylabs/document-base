@@ -112,14 +112,26 @@ export class ExtractFileJobRepository {
     return extractFileJob.toJSON() as ExtractFileJobData;
   }
 
-  async incrementLimit(extractFileJobId: string) {
+  async acquireLock(extractFileJobId: string) {
     const id = new Types.ObjectId(extractFileJobId);
-    const extractFileJob = await this.extractFileJobModel.findByIdAndUpdate(
-      id,
-      { $inc: { count: 1 } },
+    const extractFileJob = await this.extractFileJobModel.findOneAndUpdate(
+      { _id: id, locked: false },
+      { $set: { locked: true } },
       { new: true },
     );
-    return extractFileJob.toJSON() as ExtractFileJobData;
+    if (!extractFileJob) return false;
+    return true;
+  }
+
+  async releaseLock(extractFileJobId: string) {
+    const id = new Types.ObjectId(extractFileJobId);
+    const extractFileJob = await this.extractFileJobModel.findOneAndUpdate(
+      { _id: id, locked: true },
+      { $set: { locked: false } },
+      { new: true },
+    );
+    if (!extractFileJob) return false;
+    return true;
   }
 
   async upsertDocuments(extractFileJobId: string, documentIds: string[]) {

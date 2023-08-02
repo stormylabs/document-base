@@ -36,8 +36,8 @@ export class CrawlJobService {
   }
 
   async findAllByBotId(botId: string): Promise<CrawlJobData[]> {
-    const docIndexJob = await this.crawlJobRepository.findAllByBotId(botId);
-    return docIndexJob;
+    const crawlJob = await this.crawlJobRepository.findAllByBotId(botId);
+    return crawlJob;
   }
 
   async updateStatus(
@@ -65,10 +65,16 @@ export class CrawlJobService {
     return this.crawlJobRepository.exists(crawlJobIds);
   }
 
-  async incrementLimit(crawlJobId: string) {
-    const exists = await this.exists([crawlJobId]);
-    if (!exists) throw new Error('Crawl job does not exist.');
-    return this.crawlJobRepository.incrementLimit(crawlJobId);
+  async acquireLock(crawlJobId: string): Promise<boolean> {
+    const exist = await this.exists([crawlJobId]);
+    if (!exist) throw new Error('Crawl job does not exist.');
+    return this.crawlJobRepository.acquireLock(crawlJobId);
+  }
+
+  async releaseLock(crawlJobId: string): Promise<boolean> {
+    const exist = await this.exists([crawlJobId]);
+    if (!exist) throw new Error('Crawl job does not exist.');
+    return this.crawlJobRepository.releaseLock(crawlJobId);
   }
 
   async upsertDocuments(crawlJobId: string, documentIds: string[]) {

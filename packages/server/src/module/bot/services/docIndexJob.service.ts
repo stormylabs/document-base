@@ -82,9 +82,18 @@ export class DocIndexJobService {
     return this.docIndexJobRepository.releaseLock(docIndexJobId);
   }
 
-  async incrementIndexed(docIndexJobId: string) {
+  async upsertDocuments(docIndexJobId: string, documentIds: string[]) {
     const exists = await this.exists([docIndexJobId]);
     if (!exists) throw new Error('DocIndex job does not exist.');
-    return this.docIndexJobRepository.incrementIndexed(docIndexJobId);
+    return this.docIndexJobRepository.upsertDocuments(
+      docIndexJobId,
+      documentIds,
+    );
+  }
+
+  async removeDocument(docIndexJobId: string, documentId: string) {
+    const exists = await this.exists([docIndexJobId]);
+    if (!exists) throw new Error('DocIndex job does not exist.');
+    return this.docIndexJobRepository.removeDocument(docIndexJobId, documentId);
   }
 }

@@ -22,7 +22,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { errorHandler } from 'src/shared/http';
+import { errorHandler } from '@/shared/http';
 import CreateBotUseCase from '../useCases/bot/CreateBot';
 import CreateBotDTO, {
   CreateBotResponseDTO,
@@ -255,7 +255,7 @@ export class BotController {
     return result.value.getValue();
   }
 
-  @Post('/files/:id')
+  @Post('/extract/:id')
   @ApiBody({ type: ExtractFilesByByBotDTO })
   @ApiOperation({
     summary: 'Extract files by bot.',

@@ -35,10 +35,6 @@ export class S3Service {
       leavePartsOnError: false, // optional manually handle dropped parts
     });
 
-    parallelUploads3.on('httpUploadProgress', (progress) => {
-      this.logger.log(`[S3ServiceUploadFile] ${progress}`);
-    });
-
     const uploadResult = await parallelUploads3.done();
 
     return (uploadResult as any).Location;

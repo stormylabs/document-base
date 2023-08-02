@@ -139,9 +139,12 @@ export default class IndexDocumentUseCase {
       }
 
       this.logger.log(`Indexing is done`);
-      const updatedJob = await this.docIndexJobService.incrementIndexed(jobId);
 
-      if (updatedJob.indexed === bot.documents.length) {
+      const updatedJob = await this.docIndexJobService.upsertDocuments(jobId, [
+        documentId,
+      ]);
+
+      if (updatedJob.documents.length === bot.documents.length) {
         await this.docIndexJobService.updateStatus(jobId, JobStatus.Finished);
         return right(Result.ok());
       }

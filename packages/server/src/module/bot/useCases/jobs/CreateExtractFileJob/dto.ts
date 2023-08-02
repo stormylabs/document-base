@@ -1,14 +1,10 @@
-import { DOCUMENT_LIMIT } from '@/shared/constants';
 import { ApiProperty } from '@nestjs/swagger';
 import {
   ArrayMaxSize,
   ArrayMinSize,
   IsArray,
-  IsNumber,
   IsString,
   IsUrl,
-  Max,
-  Min,
 } from 'class-validator';
 
 export default class CreateExtractFileJobDTO {
@@ -33,16 +29,4 @@ export default class CreateExtractFileJobDTO {
   @ArrayMinSize(1)
   @ArrayMaxSize(10)
   urls: string[];
-
-  @ApiProperty({
-    description: 'Max number of URLs file to extract',
-    minimum: 1,
-    maximum: DOCUMENT_LIMIT,
-    required: true,
-    type: Number,
-  })
-  @IsNumber()
-  @Min(1)
-  @Max(DOCUMENT_LIMIT)
-  limit: number;
 }
