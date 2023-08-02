@@ -255,7 +255,7 @@ export class BotController {
     return result.value.getValue();
   }
 
-  @Post('/files/:id')
+  @Post('/extract/:id')
   @ApiBody({ type: ExtractFilesByByBotDTO })
   @ApiOperation({
     summary: 'Extract files by bot.',
