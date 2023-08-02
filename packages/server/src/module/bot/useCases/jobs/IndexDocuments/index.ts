@@ -7,10 +7,7 @@ import UnexpectedError, {
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { Document as LCDocument } from 'langchain/document';
-import {
-  sliceIntoChunks,
-  truncateStringByBytes,
-} from '@/shared/utils/web-utils';
+import { sliceIntoChunks } from '@/shared/utils/web-utils';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
 import { Vector } from '@pinecone-database/pinecone';
 import { JobStatus } from '@/shared/interfaces';
@@ -96,7 +93,6 @@ export default class IndexDocumentUseCase {
             metadata: {
               botId,
               sourceName: document.sourceName,
-              text: truncateStringByBytes(document.content, 36000),
             },
           }),
         ]);
@@ -113,7 +109,6 @@ export default class IndexDocumentUseCase {
             this.langChainService.getVectors(document._id, doc, {
               botId: doc.metadata.botId,
               sourceName: doc.metadata.sourceName,
-              text: doc.metadata.text,
             }),
           ),
         );

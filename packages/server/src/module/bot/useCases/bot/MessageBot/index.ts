@@ -7,18 +7,20 @@ import { Either, Result, left, right } from 'src/shared/core/Result';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
 import { templates } from '@/shared/constants/template';
 import { LangChainService } from '@/module/langChain/services/langChain.service';
-import { Metadata } from '@aws-sdk/client-sqs/dist-cjs';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { MessageBotResponseDTO } from './dto';
-import { ChainValues } from 'langchain/schema';
 import {
   LangChainCallError,
   LangChainGetEmbeddingError,
   LangChainSummarizeError,
 } from '@/shared/core/LangChainError';
 import { PineconeGetMatchesError } from '@/shared/core/PineconeError';
-import { QueryResponse } from '@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch';
+import { PineconeStore } from 'langchain/vectorstores/pinecone';
+import { ConversationalRetrievalQAChain } from 'langchain/chains';
+import { BufferMemory, ChatMessageHistory } from 'langchain/memory';
+import { PromptTemplate } from 'langchain';
+import { AIMessage, HumanMessage } from 'langchain/schema';
 
 type Response = Either<
   | UnexpectedError
@@ -63,113 +65,74 @@ export default class MessageBotUseCase {
         );
       }
 
-      this.logger.log(`User's message: ${message}`);
-
-      const inquiryChain = this.langChainService.createInquiryChain(
-        templates.inquiryTemplate,
-        ['userPrompt', 'conversationHistory'],
+      const vectorStore = await PineconeStore.fromExistingIndex(
+        this.langChainService.embedder,
+        { pineconeIndex: this.pineconeService.index },
       );
 
-      let inquiryChainResult: ChainValues;
+      const model = this.langChainService.llm;
 
-      try {
-        inquiryChainResult = await inquiryChain.call({
-          userPrompt: message,
-          conversationHistory,
-        });
-      } catch (e) {
-        return left(new LangChainCallError(e.message));
+      const template = `${bot.prompt}\n ${templates.qaTemplate}`;
+
+      const k = 3;
+
+      const result = await vectorStore.similaritySearchWithScore(message, k);
+
+      if (result.length === 0 || result[0][1] < 0.75) {
+        return right(Result.ok({ message: bot.fallbackMessage }));
       }
 
-      const inquiry = inquiryChainResult.text;
+      const prompt = new PromptTemplate({
+        template,
+        inputVariables: ['question'],
+      });
 
-      this.logger.log(
-        `Summarized inquiry with conversation history: ${inquiry}`,
+      const ch = new ChatMessageHistory(
+        conversationHistory.map((x) => {
+          if (x.slice(0, 4) === 'user') return new HumanMessage(x.slice(5));
+          return new AIMessage(x.slice(10));
+        }),
       );
 
-      let embeddings: number[];
-      try {
-        embeddings = await this.langChainService.embedQuery(inquiry);
-      } catch (e) {
-        return left(new LangChainGetEmbeddingError(e.message));
-      }
+      const chain = ConversationalRetrievalQAChain.fromLLM(
+        model,
+        vectorStore.asRetriever(k, {
+          botId: bot._id,
+        }),
+        {
+          questionGeneratorChainOptions: {
+            template: templates.inquiryTemplate,
+          },
+          qaChainOptions: {
+            type: 'stuff',
+            prompt,
+          },
+          memory: new BufferMemory({
+            memoryKey: 'chat_history',
+            inputKey: 'question', // The key for the input to the chain
+            outputKey: 'text', // The key for the final conversational output of the chain
+            returnMessages: true, // If using with a chat model (e.g. gpt-3.5 or gpt-4)
+            chatHistory: ch,
+          }),
+          returnSourceDocuments: true,
+        },
+      );
 
-      this.logger.log('Created embeddings from inquiry');
+      const response = await chain.call({
+        chat_history: ch,
+        question: message,
+      });
 
-      let matches: Array<QueryResponse & { metadata: Metadata }>;
-      try {
-        matches = await this.pineconeService.getMatches(embeddings, {
-          botId,
-        });
-      } catch (e) {
-        return left(new PineconeGetMatchesError(e.message));
-      }
+      const urls = response.sourceDocuments.map(
+        (doc) => doc.metadata.sourceName,
+      );
 
-      this.logger.log(`Matched embeddings from inquiry: ${matches.length}`);
+      const responseWithSource =
+        response.text +
+        '\n\nSource: ' +
+        urls.map((url) => `[${url}](${url})`).join('\n\n');
 
-      const sourceNames =
-        matches &&
-        Array.from(
-          new Set(
-            matches.map((match) => {
-              const metadata = match.metadata as Metadata;
-              const { sourceName } = metadata;
-              return sourceName;
-            }),
-          ),
-        );
-
-      const matchedFullText =
-        matches &&
-        Array.from(
-          matches.reduce((map, match) => {
-            const metadata = match.metadata as Metadata;
-            const { text, sourceName } = metadata;
-            if (!map.has(sourceName)) {
-              map.set(sourceName, text);
-            }
-            return map;
-          }, new Map()),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ).map(([_, text]) => text);
-
-      const template = `${bot.prompt}\n${templates.qaTemplate}`;
-      console.log({ botxxx: bot });
-
-      const chatChain = this.langChainService.createChatInquiryChain(template, [
-        'summaries',
-        'question',
-        'conversationHistory',
-        'urls',
-        'fallbackMessage',
-      ]);
-
-      const combinedFullText = matchedFullText.join('\n');
-
-      let summary: string;
-      try {
-        summary = await this.langChainService.summarizeLongDocument(
-          combinedFullText,
-          inquiry,
-        );
-      } catch (e) {
-        return left(new LangChainSummarizeError(e.message));
-      }
-
-      let results: ChainValues;
-
-      try {
-        results = await chatChain.call({
-          summaries: summary,
-          question: inquiry,
-          conversationHistory,
-          urls: sourceNames,
-          fallbackMessage: bot.fallbackMessage,
-        });
-      } catch (e) {
-        return left(new LangChainCallError(e.message));
-      }
-      return right(Result.ok({ message: results.text }));
+      return right(Result.ok({ message: responseWithSource }));
     } catch (err) {
       return left(new UnexpectedError(err));
     }
