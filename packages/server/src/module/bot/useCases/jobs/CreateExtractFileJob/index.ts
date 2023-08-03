@@ -10,9 +10,8 @@ import { ExtractFileJobMessage } from '@/shared/interfaces/extractFileJob';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
 import { JobStatus } from '@/shared/interfaces';
 import { DocumentService } from '@/module/bot/services/document.service';
-import { DocumentExtToType } from '@/shared/interfaces/document';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
-import { extractExtensionFromUrl } from '@/shared/utils/web-utils';
+import { UrlFile } from './dto';
 
 type Response = Either<
   UnexpectedError | SQSSendMessageError | BotNotFoundError,
@@ -28,7 +27,7 @@ export default class CreateExtractFileJobUseCase {
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
   ) {}
-  public async exec(botId: string, urls: string[]): Promise<Response> {
+  public async exec(botId: string, urls: UrlFile[]): Promise<Response> {
     try {
       this.logger.log(`Start creating extract files job`);
 
@@ -37,7 +36,7 @@ export default class CreateExtractFileJobUseCase {
 
       const extractFileJob = await this.extractFileJobService.create({
         botId,
-        initUrls: urls,
+        initUrls: urls.map((item) => item.url),
       });
 
       const { _id: jobId, status } = extractFileJob;
@@ -67,18 +66,17 @@ export default class CreateExtractFileJobUseCase {
     );
   }
 
-  async createPayloads(jobId: string, botId: string, urls: string[]) {
+  async createPayloads(jobId: string, botId: string, urls: UrlFile[]) {
     const payloads: ExtractFileJobMessage[] = [];
     for (const url of urls) {
-      const document = await this.documentService.findBySourceName(url);
+      const document = await this.documentService.findBySourceName(url.url);
 
       let documentId = '';
 
       if (!document) {
-        const fileExt = extractExtensionFromUrl(url);
         const { _id } = await this.documentService.create({
-          sourceName: url,
-          type: DocumentExtToType[fileExt],
+          sourceName: url.url,
+          type: url.type,
         });
         documentId = _id;
       } else {

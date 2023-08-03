@@ -12,6 +12,8 @@ import { BotService } from '../../../services/bot.service';
 import CreateExtractFileJobUseCase from '../../jobs/CreateExtractFileJob';
 import { ExtractFilesByBotResponseDTO } from './dto';
 import { ConfigService } from '@nestjs/config';
+import { MimeTypeToDocType } from '@/shared/interfaces/document';
+import { UrlFile } from '../../jobs/CreateExtractFileJob/dto';
 
 type Response = Either<UnexpectedError, Result<ExtractFilesByBotResponseDTO>>;
 
@@ -51,18 +53,24 @@ export default class ExtractFilesByBotUseCase {
       );
     }
 
-    let urls: string[] = [];
+    let urls: UrlFile[] = [];
 
     const filenames = files.map((file) => file.originalname);
 
     try {
       urls = await Promise.all([
         ...files.map((file) => {
-          return this.s3Service.uploadFile(
-            `${bot._id}/${file.originalname}`,
-            this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
-            file.buffer,
-          );
+          return this.s3Service
+            .uploadFile(
+              `${bot._id}/${file.originalname}`,
+              this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
+              file.buffer,
+            )
+            .then((url) => ({
+              url,
+              type: MimeTypeToDocType[file.mimetype],
+              mimetype: file.mimetype,
+            }));
         }),
       ]);
     } catch (e) {

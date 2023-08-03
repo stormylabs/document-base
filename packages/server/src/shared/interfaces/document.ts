@@ -14,6 +14,13 @@ export const DocumentExtToType = {
   '.jpg': 'image',
 } as const;
 
+export const MimeTypeToDocType = {
+  'application/msword': 'word',
+  'application/pdf': 'pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+    'word',
+} as const;
+
 export interface DocumentData {
   _id: string;
   type: DocumentType;
