@@ -12,6 +12,7 @@ import CreateDocIndexJobUseCase from '../../jobs/CreateDocIndexJob';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { SaveDocsAndTrainBotResponseDTO } from './dto';
+import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 
 type Response = Either<
   | UnexpectedError
@@ -30,6 +31,7 @@ export default class SaveDocsAndTrainBotUseCase {
     private readonly documentService: DocumentService,
     private readonly createDocIndexJobUseCase: CreateDocIndexJobUseCase,
     private readonly crawlJobService: CrawlJobService,
+    private readonly extractFileJobService: ExtractFileJobService,
     private readonly docIndexJobService: DocIndexJobService,
   ) {}
   public async exec(botId: string, documentIds: string[]): Promise<Response> {
@@ -42,9 +44,6 @@ export default class SaveDocsAndTrainBotUseCase {
       const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
         botId,
       );
-      const unfinishedDocIndexJobs =
-        await this.docIndexJobService.findUnfinishedJobs(botId);
-
       if (unfinishedCrawlJobs.length > 0) {
         return left(
           new UnfinishedCrawlJobsError(
@@ -53,6 +52,19 @@ export default class SaveDocsAndTrainBotUseCase {
         );
       }
 
+      // do we need flag on bot schema for identify is this bot run for crawl or extract jobs
+      const unfinishedExtractFileJobs =
+        await this.extractFileJobService.findUnfinishedJobs(botId);
+      if (unfinishedExtractFileJobs.length > 0) {
+        return left(
+          new UnfinishedCrawlJobsError(
+            unfinishedCrawlJobs.map((job) => job._id),
+          ),
+        );
+      }
+
+      const unfinishedDocIndexJobs =
+        await this.docIndexJobService.findUnfinishedJobs(botId);
       if (unfinishedDocIndexJobs.length > 0) {
         return left(
           new UnfinishedDocIndexJobsError(

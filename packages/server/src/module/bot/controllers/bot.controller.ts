@@ -53,12 +53,10 @@ import ExtractFilesByByBotDTO, {
   ExtractFilesByBotResponseDTO,
 } from '../useCases/bot/ExtractFilesByBotUseCase/dto';
 import ExtractFilesByBotUseCase from '../useCases/bot/ExtractFilesByBotUseCase';
-import SaveExtractFileDocsAndTrainBotUseCase from '../useCases/bot/SaveExtractFileDocsAndTrainBot';
 
 import { CustomUploadFileMimeTypeValidator } from '@/shared/validators/file-mimetype.validator';
 import { ParseFilePipe } from '@nestjs/common';
 import { CustomFileCountValidationPipe } from '@/shared/validators/file-count.pipe';
-import SaveExtractFileDocsAndTrainBotDTO from '../useCases/bot/SaveExtractFileDocsAndTrainBot/dto';
 
 const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
 const MAX_FILE_COUNT = 10;
@@ -76,7 +74,6 @@ export class BotController {
     private getBotInfoUseCase: GetBotInfoUseCase,
     private crawlWebsitesByBotUseCase: CrawlWebsitesByBotUseCase,
     private extractFilesByBotUseCase: ExtractFilesByBotUseCase,
-    private saveExtractFileAndTrainBotUseCase: SaveExtractFileDocsAndTrainBotUseCase,
   ) {}
 
   @Post()
@@ -309,46 +306,6 @@ export class BotController {
       this.logger.error(
         `[POST] extract files error ${error.errorValue().message}`,
       );
-      return errorHandler(error);
-    }
-    return result.value.getValue();
-  }
-
-  @Post('/extract-train/:id')
-  @ApiBody({ type: SaveDocsAndTrainBotDTO })
-  @ApiOperation({
-    summary: 'Saves documents to bot and train bot.',
-  })
-  @ApiOkResponse({
-    description: 'Train Job id and status',
-    type: SaveDocsAndTrainBotResponseDTO,
-  })
-  @ApiNotFoundResponse({
-    description: 'Bot or document not found',
-  })
-  @ApiConflictResponse({
-    description:
-      'If there are unfinished extract file jobs or train jobs, this error will be returned.',
-  })
-  async saveExtractFileAndTrainBot(
-    @Param() { id }: IdParams,
-    @Body() body: SaveExtractFileDocsAndTrainBotDTO,
-  ) {
-    this.logger.log(`[POST] Start indexing extract file documents`);
-    const { documentIds } = body;
-    const result = await this.saveExtractFileAndTrainBotUseCase.exec(
-      id,
-      documentIds,
-    );
-
-    if (result.isLeft()) {
-      const error = result.value;
-      this.logger.error(
-        `[POST] index extract file documents error ${
-          error.errorValue().message
-        }`,
-      );
-
       return errorHandler(error);
     }
     return result.value.getValue();
