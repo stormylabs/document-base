@@ -62,7 +62,6 @@ export class UpdateBotResponse extends PartialType(
 
   @ApiProperty({
     type: () => [String],
-    isArray: true,
   })
   documents: string[];
 }

@@ -16,7 +16,6 @@ export default class MessageBotDTO {
     required: true,
     minItems: 0,
     maxItems: 15,
-    isArray: true,
     type: [String],
     example: [
       'assistant: 很抱歉，目前未能從上下文中找到具體關於如何在Bowtie官方網站獲取戰癌保300報價的步驟。\n\n...',
