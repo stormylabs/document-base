@@ -6,6 +6,7 @@ import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { GetBotInfoResponseDTO } from './dto';
+import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 
 type Response = Either<
   UnexpectedError | BotNotFoundError,
@@ -19,6 +20,7 @@ export default class GetBotInfoUseCase {
     private readonly botService: BotService,
     private readonly crawlJobService: CrawlJobService,
     private readonly docIndexJobService: DocIndexJobService,
+    private readonly extractFileJobService: ExtractFileJobService,
   ) {}
   public async exec(botId: string): Promise<Response> {
     try {
@@ -40,12 +42,20 @@ export default class GetBotInfoUseCase {
 
       const crawlJobs = await this.crawlJobService.findAllByBotId(botId);
       const docIndexJobs = await this.docIndexJobService.findAllByBotId(botId);
+      const extractFileJobs = await this.extractFileJobService.findAllByBotId(
+        botId,
+      );
       const resultedDocIndexJobs = docIndexJobs.map((job) => ({
         _id: job._id,
         status: job.status,
         createdAt: job.createdAt,
       }));
       const resultedCrawlJobs = crawlJobs.map((job) => ({
+        _id: job._id,
+        status: job.status,
+        createdAt: job.createdAt,
+      }));
+      const resultedExtractFileJobs = extractFileJobs.map((job) => ({
         _id: job._id,
         status: job.status,
         createdAt: job.createdAt,
@@ -63,6 +73,7 @@ export default class GetBotInfoUseCase {
             createdAt,
             trainJobs: resultedDocIndexJobs,
             crawlJobs: resultedCrawlJobs,
+            extractFileJobs: resultedExtractFileJobs,
           },
         }),
       );

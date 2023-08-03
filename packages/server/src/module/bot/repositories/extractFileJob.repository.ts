@@ -68,6 +68,7 @@ export class ExtractFileJobRepository {
         updatedAt: {
           $lt: new Date(timeout),
         },
+        locked: false,
       })
       .exec();
     return extractFileJobs.map(
@@ -81,6 +82,7 @@ export class ExtractFileJobRepository {
       .find({
         bot: id,
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
+        locked: false,
       })
       .exec();
     return extractFileJobs.map(
