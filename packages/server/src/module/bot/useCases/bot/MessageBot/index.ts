@@ -122,12 +122,7 @@ export default class MessageBotUseCase {
         (doc) => doc.metadata.sourceName,
       );
 
-      const responseWithSource =
-        response.text +
-        '\n\nSource: ' +
-        urls.map((url) => `[${url}](${url})`).join('\n\n');
-
-      return right(Result.ok({ message: responseWithSource }));
+      return right(Result.ok({ message: response.text, sources: urls }));
     } catch (err) {
       return left(new UnexpectedError(err));
     }

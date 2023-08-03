@@ -37,4 +37,10 @@ export class MessageBotResponseDTO {
     type: String,
   })
   message: string;
+
+  @ApiProperty({
+    description: 'Document sources',
+    type: [String],
+  })
+  sources: string[];
 }

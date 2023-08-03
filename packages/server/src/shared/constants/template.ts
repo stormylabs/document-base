@@ -3,9 +3,8 @@ const templates = {
     You should follow ALL the rules below when generating an answer:
     - The final answer must always be styled using markdown.
     - Use bullet points, lists, paragraphs and text styling to present the answer in markdown.
-    - ALWAYS prefer the result with the highest "score" value.
-    - Ignore any content that is stored in html tables.
     - Answer the question based on the CONTEXT provided.
+    - Do not repeat the QUESTION in the answer.
 
     QUESTION: {question}
     CONTEXT: {context}
