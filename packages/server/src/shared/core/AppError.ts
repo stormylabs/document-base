@@ -160,7 +160,7 @@ export class ExtractFileJobNotFoundError extends Result<UseCaseError> {
 
 export class S3UploadError extends Result<UseCaseError> {
   public constructor(filenames: string[]) {
-    const message = `S3 upload failed: ${filenames.join(', ')}}`;
+    const message = `S3 upload failed: ${filenames.join(', ')}`;
     super(false, { message } as UseCaseError);
     Logger.log(message, S3UploadError.name);
   }

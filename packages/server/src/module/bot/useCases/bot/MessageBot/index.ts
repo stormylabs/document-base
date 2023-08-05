@@ -70,7 +70,7 @@ export default class MessageBotUseCase {
         { pineconeIndex: this.pineconeService.index },
       );
 
-      const model = this.langChainService.llm;
+      const model = this.langChainService.chat;
 
       const template = `${bot.prompt}\n If you don't have the information, reply with ${bot.fallbackMessage}, do not make stuff up. ${templates.qaTemplate}`;
 
@@ -96,6 +96,7 @@ export default class MessageBotUseCase {
         {
           verbose: true,
           questionGeneratorChainOptions: {
+            llm: model,
             template: templates.inquiryTemplate,
           },
           qaChainOptions: {
@@ -116,6 +117,8 @@ export default class MessageBotUseCase {
       const response = await chain.call({
         chat_history: ch,
         question: message,
+        search: false,
+        returnSourceDocuments: true,
       });
 
       const urls = response.sourceDocuments.map(
