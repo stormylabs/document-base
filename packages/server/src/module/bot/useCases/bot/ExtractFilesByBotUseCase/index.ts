@@ -69,7 +69,6 @@ export default class ExtractFilesByBotUseCase {
             .then((url) => ({
               url,
               type: MimeTypeToDocType[file.mimetype],
-              mimetype: file.mimetype,
             }));
         }),
       ]);
