@@ -6,16 +6,17 @@ import UnexpectedError, {
   InvalidInputError,
   S3UploadError,
   UnfinishedDocIndexJobsError,
-  UnfinishedExtractFileJobsError,
 } from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
 import CreateExtractFileJobUseCase from '@/module/bot/useCases/jobs/CreateExtractFileJob';
 import { ExtractFilesByBotResponseDTO } from './dto';
 import { ConfigService } from '@nestjs/config';
-import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 
-type Response = Either<UnexpectedError, Result<ExtractFilesByBotResponseDTO>>;
+type Response = Either<
+  InvalidInputError | BotNotFoundError | S3UploadError | UnexpectedError,
+  Result<ExtractFilesByBotResponseDTO>
+>;
 
 @Injectable()
 export default class ExtractFilesByBotUseCase {
@@ -26,7 +27,6 @@ export default class ExtractFilesByBotUseCase {
     private readonly docIndexJobService: DocIndexJobService,
     private readonly extractFileJobUseCase: CreateExtractFileJobUseCase,
     private readonly configService: ConfigService,
-    private readonly extractFileJobService: ExtractFileJobService,
   ) {}
   public async exec(
     botId: string,
@@ -41,16 +41,6 @@ export default class ExtractFilesByBotUseCase {
     const bot = await this.botService.findById(botId);
     if (!bot) {
       return left(new BotNotFoundError());
-    }
-
-    const unfinishedExtractFileJobs =
-      await this.extractFileJobService.findUnfinishedJobs(botId);
-    if (unfinishedExtractFileJobs.length > 0) {
-      return left(
-        new UnfinishedExtractFileJobsError(
-          unfinishedExtractFileJobs.map((job) => job._id),
-        ),
-      );
     }
 
     const unfinishedDocIndexJobs =

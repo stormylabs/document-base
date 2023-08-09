@@ -4,6 +4,7 @@ import UnexpectedError, {
   DocumentNotFoundError,
   UnfinishedCrawlJobsError,
   UnfinishedDocIndexJobsError,
+  UnfinishedExtractFileJobsError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
@@ -19,6 +20,7 @@ type Response = Either<
   | BotNotFoundError
   | DocumentNotFoundError
   | UnfinishedDocIndexJobsError
+  | UnfinishedExtractFileJobsError
   | UnfinishedCrawlJobsError,
   Result<SaveDocsAndTrainBotResponseDTO>
 >;
@@ -57,7 +59,7 @@ export default class SaveDocsAndTrainBotUseCase {
         await this.extractFileJobService.findUnfinishedJobs(botId);
       if (unfinishedExtractFileJobs.length > 0) {
         return left(
-          new UnfinishedCrawlJobsError(
+          new UnfinishedExtractFileJobsError(
             unfinishedCrawlJobs.map((job) => job._id),
           ),
         );
