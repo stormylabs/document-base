@@ -4,11 +4,11 @@
 **/.next
 coverage
 
-
 **.env
-.env.local
+.env
 .env.development
 .env.staging
+.env.test
 .env.production
 
 yarn.lock
