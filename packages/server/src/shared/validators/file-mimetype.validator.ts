@@ -16,9 +16,13 @@ export class CustomUploadFileMimeTypeValidator extends FileValidator {
   }
 
   async isValid(file: Express.Multer.File): Promise<boolean> {
-    return this.fileExtensions
-      .map((ext) => extToMimeType[ext])
-      .includes(file.mimetype);
+    const { fileTypeFromBuffer } = await (eval(
+      'import("file-type")',
+    ) as Promise<typeof import('file-type')>);
+
+    const fileType = await fileTypeFromBuffer(file.buffer);
+
+    return this.fileExtensions.includes(fileType.ext);
   }
 
   public buildErrorMessage(): string {

@@ -59,7 +59,14 @@ export default class ExtractFilesByBotUseCase {
 
     try {
       urls = await Promise.all([
-        ...files.map((file) => {
+        ...files.map(async (file) => {
+          // check the exclusive mime type
+          const { fileTypeFromBuffer } = await (eval(
+            'import("file-type")',
+          ) as Promise<typeof import('file-type')>);
+
+          const fileType = await fileTypeFromBuffer(file.buffer);
+
           return this.s3Service
             .uploadFile(
               `${bot._id}/${file.originalname}`,
@@ -68,7 +75,7 @@ export default class ExtractFilesByBotUseCase {
             )
             .then((url) => ({
               url,
-              type: MimeTypeToDocType[file.mimetype],
+              type: MimeTypeToDocType[fileType.mime],
             }));
         }),
       ]);
