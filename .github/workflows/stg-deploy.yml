@@ -20,6 +20,9 @@ env:
     # containerDefinitions section of your task definition
 
 permissions:
+  actions: write
+  checks: write
+  deployments: write
   contents: read
 
 jobs:
