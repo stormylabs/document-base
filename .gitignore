@@ -10,5 +10,3 @@ coverage
 .env.staging
 .env.test
 .env.production
-
-yarn.lock
