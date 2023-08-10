@@ -117,8 +117,6 @@ export default class MessageBotUseCase {
       const response = await chain.call({
         chat_history: ch,
         question: message,
-        search: false,
-        returnSourceDocuments: true,
       });
 
       const urls = response.sourceDocuments.map(
