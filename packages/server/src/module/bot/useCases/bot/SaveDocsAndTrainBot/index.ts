@@ -4,6 +4,7 @@ import UnexpectedError, {
   DocumentNotFoundError,
   UnfinishedCrawlJobsError,
   UnfinishedDocIndexJobsError,
+  UnfinishedExtractFileJobsError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
@@ -12,12 +13,14 @@ import CreateDocIndexJobUseCase from '../../jobs/CreateDocIndexJob';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { SaveDocsAndTrainBotResponseDTO } from './dto';
+import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 
 type Response = Either<
   | UnexpectedError
   | BotNotFoundError
   | DocumentNotFoundError
   | UnfinishedDocIndexJobsError
+  | UnfinishedExtractFileJobsError
   | UnfinishedCrawlJobsError,
   Result<SaveDocsAndTrainBotResponseDTO>
 >;
@@ -30,6 +33,7 @@ export default class SaveDocsAndTrainBotUseCase {
     private readonly documentService: DocumentService,
     private readonly createDocIndexJobUseCase: CreateDocIndexJobUseCase,
     private readonly crawlJobService: CrawlJobService,
+    private readonly extractFileJobService: ExtractFileJobService,
     private readonly docIndexJobService: DocIndexJobService,
   ) {}
   public async exec(botId: string, documentIds: string[]): Promise<Response> {
@@ -52,7 +56,18 @@ export default class SaveDocsAndTrainBotUseCase {
         );
       }
 
-      // check unfinished index jobs
+      // do we need flag on bot schema for identify is this bot run for crawl or extract jobs
+      const unfinishedExtractFileJobs =
+        await this.extractFileJobService.findUnfinishedJobs(botId);
+      if (unfinishedExtractFileJobs.length > 0) {
+        return left(
+          new UnfinishedExtractFileJobsError(
+            unfinishedCrawlJobs.map((job) => job._id),
+          ),
+        );
+      }
+
+      // check unfinished doc index job
       const unfinishedDocIndexJobs =
         await this.docIndexJobService.findUnfinishedJobs(botId);
       if (unfinishedDocIndexJobs.length > 0) {

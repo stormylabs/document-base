@@ -66,6 +66,16 @@ export class UnfinishedDocIndexJobsError extends Result<UseCaseError> {
   }
 }
 
+export class UnfinishedExtractFileJobsError extends Result<UseCaseError> {
+  public constructor(jobIds: string[]) {
+    const message = `There are unfinished extract file jobs. Please wait until they are finished: ${jobIds.join(
+      ', ',
+    )}`;
+    super(false, { message } as UseCaseError);
+    Logger.log(message, UnfinishedExtractFileJobsError.name);
+  }
+}
+
 export class LockedDocIndexJobError extends Result<UseCaseError> {
   public constructor(jobId: string) {
     const message = `Doc Index job is locked: ${jobId}`;
@@ -160,7 +170,7 @@ export class ExtractFileJobNotFoundError extends Result<UseCaseError> {
 
 export class S3UploadError extends Result<UseCaseError> {
   public constructor(filenames: string[]) {
-    const message = `S3 upload failed: ${filenames.join(', ')}}`;
+    const message = `S3 upload failed: ${filenames.join(', ')}`;
     super(false, { message } as UseCaseError);
     Logger.log(message, S3UploadError.name);
   }

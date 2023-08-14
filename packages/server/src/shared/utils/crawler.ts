@@ -76,6 +76,8 @@ class Crawler {
     $('footer').remove();
     $('*[class*=footer]').remove();
     $('*[id*=footer]').remove();
+    $('*[class*=nav]').remove();
+    $('*[id*=nav]').remove();
     // const title = $('title').text() || $('.article-title').text();
     const html = $('body').html();
 

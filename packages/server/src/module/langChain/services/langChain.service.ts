@@ -17,7 +17,7 @@ export class LangChainService {
   ) {
     this.tokenSplitter = new TokenTextSplitter({
       encodingName: 'gpt2',
-      chunkSize: 800,
+      chunkSize: 500,
       chunkOverlap: 0,
     });
   }

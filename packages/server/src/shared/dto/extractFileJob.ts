@@ -29,7 +29,6 @@ export class ExtractFileJobResponse {
   @ApiProperty({
     description: 'Initial URLs',
     type: [String],
-    isArray: true,
   })
   initUrls?: string[];
 
