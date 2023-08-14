@@ -98,6 +98,35 @@ export class CrawlJobRepository {
     return crawlJob.toJSON() as CrawlJobData;
   }
 
+  async updateUnfinishedJobByBotId(
+    botId: string,
+    data: Partial<{ status: JobStatus; deletedAt: Date }>,
+  ): Promise<CrawlJobData[] | null> {
+    const id = new Types.ObjectId(botId);
+    const now = new Date();
+
+    await this.crawlJobModel
+      .updateMany(
+        {
+          bot: id,
+          status: { $in: [JobStatus.Pending, JobStatus.Running] },
+        },
+        { $set: { ...data, updatedAt: now } },
+        {
+          new: true,
+        },
+      )
+      .exec();
+
+    const updatedCrawlJob = await this.crawlJobModel
+      .find({
+        bot: id,
+      })
+      .exec();
+
+    return updatedCrawlJob.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
+  }
+
   async acquireLock(crawlJobId: string) {
     const id = new Types.ObjectId(crawlJobId);
     const crawlJob = await this.crawlJobModel.findOneAndUpdate(

@@ -52,6 +52,20 @@ export class CrawlJobService {
     return updatedBot;
   }
 
+  async updateUnfinishedJobByBotId(
+    botId: string,
+    status: JobStatus,
+  ): Promise<CrawlJobData[]> {
+    const exists = await this.findUnfinishedJobs(botId);
+    if (!exists) throw new Error('Crawl job does not exist.');
+    const updatedCrawlJobBot =
+      await this.crawlJobRepository.updateUnfinishedJobByBotId(botId, {
+        status,
+      });
+
+    return updatedCrawlJobBot;
+  }
+
   async delete(crawlJobId: string): Promise<CrawlJobData> {
     const exists = await this.exists([crawlJobId]);
     if (!exists) throw new Error('Crawl job does not exist.');

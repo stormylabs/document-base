@@ -114,6 +114,38 @@ export class ExtractFileJobRepository {
     return extractFileJob.toJSON() as ExtractFileJobData;
   }
 
+  async updateUnfinishedJobByBotId(
+    botId: string,
+    data: Partial<{ status: JobStatus; deletedAt: Date }>,
+  ): Promise<ExtractFileJobData[] | null> {
+    const id = new Types.ObjectId(botId);
+    const now = new Date();
+
+    await this.extractFileJobModel
+      .updateMany(
+        {
+          bot: id,
+          status: { $in: [JobStatus.Pending, JobStatus.Running] },
+          locked: false,
+        },
+        { $set: { ...data, updatedAt: now } },
+        {
+          new: true,
+        },
+      )
+      .exec();
+
+    const updatedExtractFileJob = await this.extractFileJobModel
+      .find({
+        bot: id,
+      })
+      .exec();
+
+    return updatedExtractFileJob.map(
+      (extractFile) => extractFile.toJSON() as ExtractFileJobData,
+    );
+  }
+
   async acquireLock(extractFileJobId: string) {
     const id = new Types.ObjectId(extractFileJobId);
     const extractFileJob = await this.extractFileJobModel.findOneAndUpdate(
