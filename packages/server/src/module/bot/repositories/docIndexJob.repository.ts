@@ -52,6 +52,7 @@ export class DocIndexJobRepository {
         updatedAt: {
           $lt: new Date(timeout),
         },
+        locked: false,
       })
       .exec();
     return docIndexJobs.map(
@@ -65,6 +66,7 @@ export class DocIndexJobRepository {
       .find({
         bot: id,
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
+        locked: false,
       })
       .exec();
     return docIndexJobs.map(

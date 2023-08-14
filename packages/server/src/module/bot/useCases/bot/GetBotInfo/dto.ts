@@ -5,6 +5,7 @@ import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { DocumentResponse } from '@/shared/dto/document';
 import { DocIndexJobResponse } from '@/shared/dto/docIndexJob';
 import { BotResponse } from '@/shared/dto/bot';
+import { ExtractFileJobResponse } from '@/shared/dto/extractFileJob';
 
 class GetBotDocResponse extends PartialType(
   PickType(DocumentResponse, ['_id', 'sourceName', 'type'] as const),
@@ -29,6 +30,14 @@ class GetBotCrawlJobResponse extends PartialType(
 
 class GetBotDocIndexJobResponse extends PartialType(
   PickType(DocIndexJobResponse, ['_id', 'status', 'createdAt'] as const),
+) {
+  _id: string;
+  status: JobStatus;
+  createdAt: Date;
+}
+
+class GetBotExtractFileJobResponse extends PartialType(
+  PickType(ExtractFileJobResponse, ['_id', 'status', 'createdAt'] as const),
 ) {
   _id: string;
   status: JobStatus;
@@ -67,6 +76,12 @@ class GetBotResponse extends PartialType(
     required: true,
   })
   crawlJobs: GetBotCrawlJobResponse[];
+
+  @ApiProperty({
+    type: () => [GetBotExtractFileJobResponse],
+    required: true,
+  })
+  extractFileJobs: GetBotExtractFileJobResponse[];
 }
 
 export class GetBotInfoResponseDTO {

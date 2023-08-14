@@ -35,7 +35,6 @@ export class CrawlJobResponse {
   @ApiProperty({
     description: 'Initial URLs',
     type: [String],
-    isArray: true,
   })
   initUrls?: string[];
 

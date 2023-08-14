@@ -6,16 +6,19 @@ import UnexpectedError, {
   InvalidInputError,
   S3UploadError,
   UnfinishedDocIndexJobsError,
-} from 'src/shared/core/AppError';
-import { Either, Result, left, right } from 'src/shared/core/Result';
-import { BotService } from '../../../services/bot.service';
-import CreateExtractFileJobUseCase from '../../jobs/CreateExtractFileJob';
+} from '@/shared/core/AppError';
+import { Either, Result, left, right } from '@/shared/core/Result';
+import { BotService } from '@/module/bot/services/bot.service';
+import CreateExtractFileJobUseCase from '@/module/bot/useCases/jobs/CreateExtractFileJob';
 import { ExtractFilesByBotResponseDTO } from './dto';
 import { ConfigService } from '@nestjs/config';
 import { MimeTypeToDocType } from '@/shared/interfaces/document';
 import { UrlFile } from '../../jobs/CreateExtractFileJob/dto';
 
-type Response = Either<UnexpectedError, Result<ExtractFilesByBotResponseDTO>>;
+type Response = Either<
+  InvalidInputError | BotNotFoundError | S3UploadError | UnexpectedError,
+  Result<ExtractFilesByBotResponseDTO>
+>;
 
 @Injectable()
 export default class ExtractFilesByBotUseCase {
@@ -44,7 +47,6 @@ export default class ExtractFilesByBotUseCase {
 
     const unfinishedDocIndexJobs =
       await this.docIndexJobService.findUnfinishedJobs(botId);
-
     if (unfinishedDocIndexJobs.length > 0) {
       return left(
         new UnfinishedDocIndexJobsError(

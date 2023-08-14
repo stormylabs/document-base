@@ -1,8 +1,14 @@
 # DocumentBase
 
-The monorepo AI chat bot project.
+The monorepo chat bot project powered by Chat GPT
 
-## Quick Start Notes
+> This project is still in analyzed, we will keep updating the documentation until we found the final Recep.
+
+## Intro
+
+This project is using [Nx](https://nx.dev) as extensible Dev Tools
+
+## How to Run
 
 Clone the project
 
@@ -16,29 +22,82 @@ Goto the project
 cd ./document-base
 ```
 
-1.  To start install
-2.  Run `yarn install` to install all the dependencies
-3.  Once installation is complete, `cd` into your packages's for example server package directory you can run `yarn dev:server` to start a local dev environment
-4.  Open another terminal and `cd` into your app's directory
-5.  Run `yarn deploy` or `npm run deploy` to deploy the example contract locally
-6.  Run `yarn dev` or `npm run dev` to start your FrontEnd dev environment
+Run `npm install` to install the dependencies
 
-> This project is still in analyzed, we will keep updating the documentation until we found the final Recep.
+### Run Server Project
 
-## Technologies
+Run `nx serve server`
 
-This project is built with the following open source libraries, frameworks and languages. User choice of framework used, available in plain js or typescript.
-| Tech | Description |
-| --------------------------------------------- | ------------------------------------------------------------------ |
-| ------ | ------ React Frontend Environment ------ |
-| [Next JS](https://nextjs.org/) | React Framework |
-| ------ | ------ CSS Framework ------ |
-| none | |
-| [Tailwind](https://tailwindcss.com/) | A utility-first CSS framework |
-| [Chakra](https://chakra-ui.com/) | A simple, modular and accessible component library that gives you the building blocks you need to build your React applications. |
-| ------ | ------ Ethereum Development Environment ------ |
-| [NestJs](https://nestjs.com/) | A progressive Node.js framework for building efficient, reliable and scalable server-side applications |
-| ------ | ------ Included Libraries ------ |
+Then you are ready to develop feature ob server api project.
+
+### Run Web UI Project
+
+Run `nx serve web`
+
+Then you are ready to develop feature on web ui project.
+
+## Adding capabilities to workspace
+
+Nx supports many plugins which add capabilities for developing different types of applications and different tools.
+
+These capabilities include generating applications, libraries, etc as well as the devtools to test, and build projects as well.
+
+Below are several core plugins:
+
+- [Next](https://nextjs.org/)
+  - `npm install --save-dev @nx/next`
+- [Nest](https://nestjs.com)
+  - `npm install --save-dev @nx/nest`
+
+There are also many [community plugins](https://nx.dev/community) you could add.
+
+## Generate an application
+
+Run `nx g @nx/nest:app my-app` to generate an application.
+
+> You can use any of the plugins above to generate applications as well.
+
+When using Nx, you can create multiple applications and libraries in the same workspace.
+
+## Generate a library
+
+Run `nx g @nx/nest:lib my-lib` to generate a library.
+
+> You can also use any of the plugins above to generate libraries as well.
+
+Libraries are shareable across libraries and applications. They can be imported from `@nx-example/mylib`.
+
+## Development server
+
+Run `nx serve my-app` for a dev server. Navigate to http://localhost:4200/. The app will automatically reload if you change any of the source files.
+
+## Code scaffolding
+
+Run `nx g @nx/react:component my-component --project=my-app` to generate a new component.
+
+## Build
+
+Run `nx build my-app` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+
+## Running unit tests
+
+Run `nx test my-app` to execute the unit tests via [Jest](https://jestjs.io).
+
+Run `nx affected:test` to execute the unit tests affected by a change.
+
+## Running end-to-end tests
+
+Run `nx e2e my-app` to execute the end-to-end tests via [Cypress](https://www.cypress.io).
+
+Run `nx affected:e2e` to execute the end-to-end tests affected by a change.
+
+## Understand your workspace
+
+Run `nx dep-graph` to see a diagram of the dependencies of your projects.
+
+## Further help
+
+Visit the [Nx Documentation](https://nx.dev) to learn more.
 
 ## Discussions
 

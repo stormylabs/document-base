@@ -61,13 +61,17 @@ export default class MarkJobsAsFinishedUseCase {
       const crawlJobs = [...runningCrawlJobs, ...pendingCrawlJobs];
 
       for (const job of crawlJobs) {
+        await this.crawlJobService.acquireLock(job._id);
         await this.crawlJobService.updateStatus(job._id, JobStatus.Finished);
+        await this.crawlJobService.releaseLock(job._id);
       }
 
       const docIndexJobs = [...runningDocIndexJobs, ...pendingDocIndexJobs];
 
       for (const job of docIndexJobs) {
+        await this.docIndexJobService.acquireLock(job._id);
         await this.docIndexJobService.updateStatus(job._id, JobStatus.Finished);
+        await this.docIndexJobService.releaseLock(job._id);
       }
 
       const extractFileJobs = [
@@ -76,10 +80,12 @@ export default class MarkJobsAsFinishedUseCase {
       ];
 
       for (const job of extractFileJobs) {
+        await this.extractFileJobService.acquireLock(job._id);
         await this.extractFileJobService.updateStatus(
           job._id,
           JobStatus.Finished,
         );
+        await this.extractFileJobService.releaseLock(job._id);
       }
 
       this.logger.log(`Marked crawl jobs ${crawlJobs.length} jobs as finished`);

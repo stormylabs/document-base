@@ -58,6 +58,7 @@ export class CrawlJobRepository {
         updatedAt: {
           $lt: new Date(timeout),
         },
+        locked: false,
       })
       .exec();
     return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
@@ -69,6 +70,7 @@ export class CrawlJobRepository {
       .find({
         bot: id,
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
+        locked: false,
       })
       .exec();
     return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
