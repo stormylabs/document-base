@@ -8,6 +8,7 @@ class DeleteBotResponse extends PartialType(
     'createdAt',
     'fallbackMessage',
     'prompt',
+    'deletedAt',
   ] as const),
 ) {
   _id: string;
@@ -15,6 +16,7 @@ class DeleteBotResponse extends PartialType(
   createdAt: Date;
   fallbackMessage: string;
   prompt: string;
+  deletedAt: Date;
 }
 
 export class DeleteBotResponseDTO {
