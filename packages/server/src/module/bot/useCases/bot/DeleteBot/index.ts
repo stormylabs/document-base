@@ -6,6 +6,7 @@ import { DeleteBotResponseDTO } from './dto';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 import { JobStatus } from '@/shared/interfaces';
+import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 
 type Response = Either<
   UnexpectedError | BotNotFoundError,
@@ -17,6 +18,7 @@ export default class DeleteBotUseCase {
   private readonly logger = new Logger(DeleteBotUseCase.name);
   constructor(
     private readonly botService: BotService,
+    private readonly docIndexJobService: DocIndexJobService,
     private readonly crawlJobService: CrawlJobService,
     private readonly extractFileJobService: ExtractFileJobService,
   ) {}
@@ -29,12 +31,25 @@ export default class DeleteBotUseCase {
         return left(new BotNotFoundError());
       }
 
+      // check unfinished doc index jobs
+      const unfinishedDocIndexJobs =
+        await this.docIndexJobService.findUnfinishedJobs(botId);
+      if (unfinishedDocIndexJobs.length > 0) {
+        const unfinishedDocIndexJobIds = unfinishedDocIndexJobs.map(
+          (job) => job._id,
+        );
+
+        await this.docIndexJobService.bulkUpdateStatusJobByIds(
+          unfinishedDocIndexJobIds,
+          JobStatus.Finished,
+        );
+      }
+
       // check unfinished crawl jobs
       const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
         botId,
       );
       if (unfinishedCrawlJobs.length > 0) {
-        // bulk update crawl job status fo finished
         const unfinishedCrawlJobIds = unfinishedCrawlJobs.map((job) => job._id);
 
         await this.crawlJobService.bulkUpdateStatusJobByIds(
@@ -48,7 +63,6 @@ export default class DeleteBotUseCase {
         await this.extractFileJobService.findUnfinishedJobs(botId);
 
       if (unfinishedExtractFileJobs.length > 0) {
-        // bulk update crawl job status fo finished
         const unfinishedExtractFileJobIds = unfinishedExtractFileJobs.map(
           (job) => job._id,
         );

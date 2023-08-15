@@ -54,6 +54,18 @@ export class DocIndexJobService {
     return updatedBot;
   }
 
+  async bulkUpdateStatusJobByIds(
+    jobsIds: string[],
+    status: JobStatus,
+  ): Promise<DocIndexJobData[]> {
+    const updatedDocIndexJobs =
+      await this.docIndexJobRepository.bulkUpdateByIds(jobsIds, {
+        status,
+      });
+
+    return updatedDocIndexJobs;
+  }
+
   async delete(docIndexJobId: string): Promise<DocIndexJobData> {
     const exists = await this.exists([docIndexJobId]);
     if (!exists) throw new Error('DocIndex job does not exist.');
