@@ -30,22 +30,31 @@ export default class DeleteBotUseCase {
       }
 
       // check unfinished crawl jobs
-      const findCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
+      const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
         botId,
       );
-      if (findCrawlJobs.length > 0) {
-        await this.crawlJobService.updateUnfinishedJobByBotId(
-          botId,
+      if (unfinishedCrawlJobs.length > 0) {
+        // bulk update crawl job status fo finished
+        const unfinishedCrawlJobIds = unfinishedCrawlJobs.map((job) => job._id);
+
+        await this.crawlJobService.bulkUpdateStatusJobByIds(
+          unfinishedCrawlJobIds,
           JobStatus.Finished,
         );
       }
 
       // check unfinished extract file jobs
-      const checkExtractFileJobs =
+      const unfinishedExtractFileJobs =
         await this.extractFileJobService.findUnfinishedJobs(botId);
-      if (checkExtractFileJobs.length > 0) {
-        await this.extractFileJobService.updateUnfinishedJobByBotId(
-          botId,
+
+      if (unfinishedExtractFileJobs.length > 0) {
+        // bulk update crawl job status fo finished
+        const unfinishedExtractFileJobIds = unfinishedExtractFileJobs.map(
+          (job) => job._id,
+        );
+
+        await this.extractFileJobService.bulkUpdateStatusJobByIds(
+          unfinishedExtractFileJobIds,
           JobStatus.Finished,
         );
       }

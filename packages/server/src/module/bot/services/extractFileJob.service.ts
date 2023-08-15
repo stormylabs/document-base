@@ -61,18 +61,16 @@ export class ExtractFileJobService {
     return updatedBot;
   }
 
-  async updateUnfinishedJobByBotId(
-    botId: string,
+  async bulkUpdateStatusJobByIds(
+    jobsIds: string[],
     status: JobStatus,
   ): Promise<ExtractFileJobData[]> {
-    const exists = await this.findUnfinishedJobs(botId);
-    if (!exists) throw new Error('Extract file job does not exist.');
-    const updatedExtractFileJobBot =
-      await this.extractFileJobRepository.updateUnfinishedJobByBotId(botId, {
+    const updatedExtractFileJobs =
+      await this.extractFileJobRepository.bulkUpdateByIds(jobsIds, {
         status,
       });
 
-    return updatedExtractFileJobBot;
+    return updatedExtractFileJobs;
   }
 
   async delete(extractFileJobId: string): Promise<ExtractFileJobData> {

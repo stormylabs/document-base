@@ -98,30 +98,28 @@ export class CrawlJobRepository {
     return crawlJob.toJSON() as CrawlJobData;
   }
 
-  async updateUnfinishedJobByBotId(
-    botId: string,
+  async bulkUpdateByIds(
+    jobIds: string[],
     data: Partial<{ status: JobStatus; deletedAt: Date }>,
   ): Promise<CrawlJobData[] | null> {
-    const id = new Types.ObjectId(botId);
+    const ids = jobIds.map((id) => new Types.ObjectId(id));
     const now = new Date();
 
-    await this.crawlJobModel
-      .updateMany(
-        {
-          bot: id,
-          status: { $in: [JobStatus.Pending, JobStatus.Running] },
+    const bulkUpdateJobs = ids.map((jobId) => ({
+      updateOne: {
+        filter: { _id: jobId },
+        update: {
+          ...data,
+          updatedAt: now,
         },
-        { $set: { ...data, updatedAt: now } },
-        {
-          new: true,
-        },
-      )
-      .exec();
+        upsert: false,
+      },
+    }));
+
+    await this.crawlJobModel.bulkWrite(bulkUpdateJobs);
 
     const updatedCrawlJob = await this.crawlJobModel
-      .find({
-        bot: id,
-      })
+      .find({ _id: { $in: ids } })
       .exec();
 
     return updatedCrawlJob.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
