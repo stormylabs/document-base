@@ -327,10 +327,6 @@ export class BotController {
   @ApiNotFoundResponse({
     description: 'Bot not found',
   })
-  @ApiConflictResponse({
-    description:
-      'If there are unfinished train jobs, this error will be returned.',
-  })
   async deleteBot(@Param() { id }: IdParams) {
     this.logger.log(`[DELETE] Start deleting bot`);
 
