@@ -315,13 +315,13 @@ export class BotController {
     return result.value.getValue();
   }
 
-  @Delete('/bots/:id')
+  @Delete('/:id')
   @ApiOperation({
-    summary: 'Delete bot.',
+    summary: 'Delete bot by bot ID',
   })
   @ApiConsumes('application/json')
   @ApiOkResponse({
-    description: 'Delete Bot',
+    description: 'Delete bot by bot ID',
     type: DeleteBotResponseDTO,
   })
   @ApiNotFoundResponse({
