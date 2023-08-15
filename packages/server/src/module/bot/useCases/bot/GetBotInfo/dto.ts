@@ -18,6 +18,11 @@ class GetBotDocResponse extends PartialType(
     required: true,
   })
   tokens: number;
+  @ApiProperty({
+    type: Number,
+    required: true,
+  })
+  characters: number;
 }
 
 class GetBotCrawlJobResponse extends PartialType(

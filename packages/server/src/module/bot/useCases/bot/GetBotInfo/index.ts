@@ -37,6 +37,7 @@ export default class GetBotInfoUseCase {
           sourceName: doc.sourceName,
           type: doc.type,
           tokens: doc.content ? encode(doc.content).length : 0,
+          characters: doc.content ? doc.content.length : 0,
         };
       });
 
