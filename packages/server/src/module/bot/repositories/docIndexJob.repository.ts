@@ -52,7 +52,6 @@ export class DocIndexJobRepository {
         updatedAt: {
           $lt: new Date(timeout),
         },
-        locked: false,
       })
       .exec();
     return docIndexJobs.map(
@@ -66,7 +65,6 @@ export class DocIndexJobRepository {
       .find({
         bot: id,
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
-        locked: false,
       })
       .exec();
     return docIndexJobs.map(
@@ -98,7 +96,7 @@ export class DocIndexJobRepository {
 
   async update(
     docIndexJobId: string,
-    data: Partial<{ status: JobStatus; deletedAt: Date }>,
+    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>,
   ): Promise<DocIndexJobData | null> {
     const id = new Types.ObjectId(docIndexJobId);
     const now = new Date();
@@ -112,9 +110,9 @@ export class DocIndexJobRepository {
     return docIndexJob.toJSON() as DocIndexJobData;
   }
 
-  async bulkUpdateByIds(
+  async bulkUpdate(
     jobIds: string[],
-    data: Partial<{ status: JobStatus; deletedAt: Date }>,
+    data: Partial<{ status: JobStatus; locked: boolean }>,
   ): Promise<DocIndexJobData[] | null> {
     const ids = jobIds.map((id) => new Types.ObjectId(id));
     const now = new Date();

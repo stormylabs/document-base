@@ -45,22 +45,26 @@ export class DocIndexJobService {
   async updateStatus(
     docIndexJobId: string,
     status: JobStatus,
+    locked?: boolean,
   ): Promise<DocIndexJobData> {
     const exists = await this.exists([docIndexJobId]);
     if (!exists) throw new Error('DocIndex job does not exist.');
     const updatedBot = await this.docIndexJobRepository.update(docIndexJobId, {
       status,
+      locked
     });
     return updatedBot;
   }
 
-  async bulkUpdateStatusJobByIds(
+  async bulkUpdateStatus(
     jobsIds: string[],
     status: JobStatus,
+    locked: boolean,
   ): Promise<DocIndexJobData[]> {
     const updatedDocIndexJobs =
-      await this.docIndexJobRepository.bulkUpdateByIds(jobsIds, {
+      await this.docIndexJobRepository.bulkUpdate(jobsIds, {
         status,
+        locked
       });
 
     return updatedDocIndexJobs;

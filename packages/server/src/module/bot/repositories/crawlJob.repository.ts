@@ -58,7 +58,6 @@ export class CrawlJobRepository {
         updatedAt: {
           $lt: new Date(timeout),
         },
-        locked: false,
       })
       .exec();
     return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
@@ -70,7 +69,6 @@ export class CrawlJobRepository {
       .find({
         bot: id,
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
-        locked: false,
       })
       .exec();
     return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
@@ -84,7 +82,7 @@ export class CrawlJobRepository {
 
   async update(
     crawlJobId: string,
-    data: Partial<{ status: JobStatus; deletedAt: Date }>,
+    data: Partial<{ status: JobStatus; locked: boolean, deletedAt: Date }>,
   ): Promise<CrawlJobData | null> {
     const id = new Types.ObjectId(crawlJobId);
     const now = new Date();
@@ -98,9 +96,9 @@ export class CrawlJobRepository {
     return crawlJob.toJSON() as CrawlJobData;
   }
 
-  async bulkUpdateByIds(
+  async bulkUpdate(
     jobIds: string[],
-    data: Partial<{ status: JobStatus; deletedAt: Date }>,
+    data: Partial<{ status: JobStatus; locked: boolean }>,
   ): Promise<CrawlJobData[] | null> {
     const ids = jobIds.map((id) => new Types.ObjectId(id));
     const now = new Date();

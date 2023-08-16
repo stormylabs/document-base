@@ -46,10 +46,7 @@ export default class CrawlWebsiteUseCase {
       if (!lockAcquired) {
         return left(new LockedCrawlJobError(jobId));
       }
-      const bot = await this.botService.findById(botId);
-      if (!bot) {
-        return left(new BotNotFoundError());
-      }
+
       const crawlJob = await this.crawlJobService.findById(jobId);
       if (!crawlJob) {
         return left(new CrawlJobNotFoundError());
@@ -74,6 +71,11 @@ export default class CrawlWebsiteUseCase {
 
       if (crawlJob.status === JobStatus.Pending) {
         await this.crawlJobService.updateStatus(jobId, JobStatus.Running);
+      }
+
+      const bot = await this.botService.findById(botId);
+      if (!bot) {
+        return left(new BotNotFoundError());
       }
 
       const url = document.sourceName;

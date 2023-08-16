@@ -34,14 +34,12 @@ export default class DeleteBotUseCase {
       // check unfinished doc index jobs
       const unfinishedDocIndexJobs =
         await this.docIndexJobService.findUnfinishedJobs(botId);
-      if (unfinishedDocIndexJobs.length > 0) {
-        const unfinishedDocIndexJobIds = unfinishedDocIndexJobs.map(
-          (job) => job._id,
-        );
 
-        await this.docIndexJobService.bulkUpdateStatusJobByIds(
-          unfinishedDocIndexJobIds,
+      if (unfinishedDocIndexJobs.length > 0) {
+        await this.docIndexJobService.bulkUpdateStatus(
+          unfinishedDocIndexJobs.map((job) => job._id),
           JobStatus.Finished,
+          false,
         );
       }
 
@@ -49,12 +47,12 @@ export default class DeleteBotUseCase {
       const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
         botId,
       );
-      if (unfinishedCrawlJobs.length > 0) {
-        const unfinishedCrawlJobIds = unfinishedCrawlJobs.map((job) => job._id);
 
-        await this.crawlJobService.bulkUpdateStatusJobByIds(
-          unfinishedCrawlJobIds,
+      if (unfinishedCrawlJobs.length > 0) {
+        await this.crawlJobService.bulkUpdateStatus(
+          unfinishedCrawlJobs.map((job) => job._id),
           JobStatus.Finished,
+          false,
         );
       }
 
@@ -63,13 +61,12 @@ export default class DeleteBotUseCase {
         await this.extractFileJobService.findUnfinishedJobs(botId);
 
       if (unfinishedExtractFileJobs.length > 0) {
-        const unfinishedExtractFileJobIds = unfinishedExtractFileJobs.map(
-          (job) => job._id,
-        );
-
-        await this.extractFileJobService.bulkUpdateStatusJobByIds(
-          unfinishedExtractFileJobIds,
+        await this.extractFileJobService.bulkUpdateStatus(
+          unfinishedExtractFileJobs.map(
+            (job) => job._id,
+          ),
           JobStatus.Finished,
+          false,
         );
       }
 
