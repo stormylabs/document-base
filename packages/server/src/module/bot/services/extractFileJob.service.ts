@@ -57,7 +57,7 @@ export class ExtractFileJobService {
       extractFileJobId,
       {
         status,
-        locked
+        locked,
       },
     );
     return updatedBot;

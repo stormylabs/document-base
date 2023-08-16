@@ -98,7 +98,7 @@ export class ExtractFileJobRepository {
 
   async update(
     extractFileJobId: string,
-    data: Partial<{ status: JobStatus; locked: boolean, deletedAt: Date }>,
+    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>,
   ): Promise<ExtractFileJobData | null> {
     const id = new Types.ObjectId(extractFileJobId);
     const now = new Date();

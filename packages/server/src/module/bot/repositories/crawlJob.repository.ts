@@ -82,7 +82,7 @@ export class CrawlJobRepository {
 
   async update(
     crawlJobId: string,
-    data: Partial<{ status: JobStatus; locked: boolean, deletedAt: Date }>,
+    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>,
   ): Promise<CrawlJobData | null> {
     const id = new Types.ObjectId(crawlJobId);
     const now = new Date();

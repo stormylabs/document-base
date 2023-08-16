@@ -62,9 +62,7 @@ export default class DeleteBotUseCase {
 
       if (unfinishedExtractFileJobs.length > 0) {
         await this.extractFileJobService.bulkUpdateStatus(
-          unfinishedExtractFileJobs.map(
-            (job) => job._id,
-          ),
+          unfinishedExtractFileJobs.map((job) => job._id),
           JobStatus.Finished,
           false,
         );

@@ -49,7 +49,7 @@ export class CrawlJobService {
     if (!exists) throw new Error('Crawl job does not exist.');
     const updatedBot = await this.crawlJobRepository.update(crawlJobId, {
       status,
-      locked
+      locked,
     });
     return updatedBot;
   }
@@ -59,13 +59,10 @@ export class CrawlJobService {
     status: JobStatus,
     locked: boolean,
   ): Promise<CrawlJobData[]> {
-    const updatedCrawlJobs = await this.crawlJobRepository.bulkUpdate(
-      jobsIds,
-      {
-        status,
-        locked,
-      },
-    );
+    const updatedCrawlJobs = await this.crawlJobRepository.bulkUpdate(jobsIds, {
+      status,
+      locked,
+    });
 
     return updatedCrawlJobs;
   }

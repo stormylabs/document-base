@@ -51,7 +51,7 @@ export class DocIndexJobService {
     if (!exists) throw new Error('DocIndex job does not exist.');
     const updatedBot = await this.docIndexJobRepository.update(docIndexJobId, {
       status,
-      locked
+      locked,
     });
     return updatedBot;
   }
@@ -61,11 +61,13 @@ export class DocIndexJobService {
     status: JobStatus,
     locked: boolean,
   ): Promise<DocIndexJobData[]> {
-    const updatedDocIndexJobs =
-      await this.docIndexJobRepository.bulkUpdate(jobsIds, {
+    const updatedDocIndexJobs = await this.docIndexJobRepository.bulkUpdate(
+      jobsIds,
+      {
         status,
-        locked
-      });
+        locked,
+      },
+    );
 
     return updatedDocIndexJobs;
   }
