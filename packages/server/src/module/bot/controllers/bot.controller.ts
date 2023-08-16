@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Logger,
@@ -57,6 +58,8 @@ import ExtractFilesByBotUseCase from '../useCases/bot/ExtractFilesByBotUseCase';
 import { CustomUploadFileMimeTypeValidator } from '@/shared/validators/file-mimetype.validator';
 import { ParseFilePipe } from '@nestjs/common';
 import { CustomFileCountValidationPipe } from '@/shared/validators/file-count.pipe';
+import { DeleteBotResponseDTO } from '../useCases/bot/DeleteBot/dto';
+import DeleteBotUseCase from '../useCases/bot/DeleteBot';
 
 const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
 const MAX_FILE_COUNT = 10;
@@ -74,6 +77,7 @@ export class BotController {
     private getBotInfoUseCase: GetBotInfoUseCase,
     private crawlWebsitesByBotUseCase: CrawlWebsitesByBotUseCase,
     private extractFilesByBotUseCase: ExtractFilesByBotUseCase,
+    private deleteBotUseCase: DeleteBotUseCase,
   ) {}
 
   @Post()
@@ -305,6 +309,34 @@ export class BotController {
 
       this.logger.error(
         `[POST] extract files error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Delete('/:id')
+  @ApiOperation({
+    summary: 'Delete bot by bot ID',
+  })
+  @ApiConsumes('application/json')
+  @ApiOkResponse({
+    description: 'Delete bot by bot ID',
+    type: DeleteBotResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Bot not found',
+  })
+  async deleteBot(@Param() { id }: IdParams) {
+    this.logger.log(`[DELETE] Start deleting bot`);
+
+    const result = await this.deleteBotUseCase.exec(id);
+
+    if (result.isLeft()) {
+      const error = result.value;
+
+      this.logger.error(
+        `[DELETE] Delete bot error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

@@ -49,6 +49,7 @@ export class ExtractFileJobService {
   async updateStatus(
     extractFileJobId: string,
     status: JobStatus,
+    locked?: boolean,
   ): Promise<ExtractFileJobData> {
     const exists = await this.exists([extractFileJobId]);
     if (!exists) throw new Error('ExtractFile job does not exist.');
@@ -56,9 +57,24 @@ export class ExtractFileJobService {
       extractFileJobId,
       {
         status,
+        locked,
       },
     );
     return updatedBot;
+  }
+
+  async bulkUpdateStatus(
+    jobsIds: string[],
+    status: JobStatus,
+    locked: boolean,
+  ): Promise<ExtractFileJobData[]> {
+    const updatedExtractFileJobs =
+      await this.extractFileJobRepository.bulkUpdate(jobsIds, {
+        status,
+        locked,
+      });
+
+    return updatedExtractFileJobs;
   }
 
   async delete(extractFileJobId: string): Promise<ExtractFileJobData> {

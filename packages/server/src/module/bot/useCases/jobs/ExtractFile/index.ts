@@ -47,11 +47,6 @@ export default class ExtractFileUseCase {
         return left(new LockedExtractFileJobError(jobId));
       }
 
-      const bot = await this.botService.findById(botId);
-      if (!bot) {
-        return left(new BotNotFoundError());
-      }
-
       const extractFileJob = await this.extractFileJobService.findById(jobId);
       if (!extractFileJob) {
         return left(new ExtractFileJobNotFoundError());
@@ -78,6 +73,11 @@ export default class ExtractFileUseCase {
 
       if (extractFileJob.status === JobStatus.Pending) {
         await this.extractFileJobService.updateStatus(jobId, JobStatus.Running);
+      }
+
+      const bot = await this.botService.findById(botId);
+      if (!bot) {
+        return left(new BotNotFoundError());
       }
 
       const url = document.sourceName;

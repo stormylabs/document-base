@@ -43,13 +43,28 @@ export class CrawlJobService {
   async updateStatus(
     crawlJobId: string,
     status: JobStatus,
+    locked?: boolean,
   ): Promise<CrawlJobData> {
     const exists = await this.exists([crawlJobId]);
     if (!exists) throw new Error('Crawl job does not exist.');
     const updatedBot = await this.crawlJobRepository.update(crawlJobId, {
       status,
+      locked,
     });
     return updatedBot;
+  }
+
+  async bulkUpdateStatus(
+    jobsIds: string[],
+    status: JobStatus,
+    locked: boolean,
+  ): Promise<CrawlJobData[]> {
+    const updatedCrawlJobs = await this.crawlJobRepository.bulkUpdate(jobsIds, {
+      status,
+      locked,
+    });
+
+    return updatedCrawlJobs;
   }
 
   async delete(crawlJobId: string): Promise<CrawlJobData> {

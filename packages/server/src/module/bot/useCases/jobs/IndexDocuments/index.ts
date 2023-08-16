@@ -60,11 +60,6 @@ export default class IndexDocumentUseCase {
         return left(new LockedDocIndexJobError(jobId));
       }
 
-      const bot = await this.botService.findById(botId);
-      if (!bot) {
-        return left(new BotNotFoundError());
-      }
-
       const document = await this.documentService.findById(documentId);
       if (!document) {
         return left(new DocumentNotFoundError());
@@ -80,6 +75,11 @@ export default class IndexDocumentUseCase {
 
       if (docIndexJob.status === JobStatus.Pending) {
         await this.docIndexJobService.updateStatus(jobId, JobStatus.Running);
+      }
+
+      const bot = await this.botService.findById(botId);
+      if (!bot) {
+        return left(new BotNotFoundError());
       }
 
       this.logger.log(`Start splitting document: ${document.sourceName}`);

@@ -43,10 +43,12 @@ export default class SaveDocsAndTrainBotUseCase {
       const bot = await this.botService.findById(botId);
       if (!bot) return left(new BotNotFoundError());
 
+      // check unfinished crawl job
       const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
         botId,
       );
       if (unfinishedCrawlJobs.length > 0) {
+        // early return
         return left(
           new UnfinishedCrawlJobsError(
             unfinishedCrawlJobs.map((job) => job._id),
@@ -65,6 +67,7 @@ export default class SaveDocsAndTrainBotUseCase {
         );
       }
 
+      // check unfinished doc index job
       const unfinishedDocIndexJobs =
         await this.docIndexJobService.findUnfinishedJobs(botId);
       if (unfinishedDocIndexJobs.length > 0) {
@@ -73,10 +76,6 @@ export default class SaveDocsAndTrainBotUseCase {
             unfinishedDocIndexJobs.map((job) => job._id),
           ),
         );
-      }
-
-      if (!(await this.documentService.exists(documentIds))) {
-        return left(new DocumentNotFoundError());
       }
 
       const documentIdsSet = new Set(documentIds);

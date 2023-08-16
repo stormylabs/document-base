@@ -18,7 +18,7 @@ export class BotRepository {
   async findById(botId: string): Promise<BotData | null> {
     const id = new Types.ObjectId(botId);
     const bot = await this.botModel.findById(id).populate('documents').exec();
-    if (!bot) return null;
+    if (!bot || bot.deletedAt) return null;
     return bot.toJSON() as BotData;
   }
 
@@ -29,7 +29,7 @@ export class BotRepository {
 
   async exists(botIds: string[]): Promise<boolean> {
     const count = await this.botModel
-      .countDocuments({ _id: { $in: botIds } })
+      .countDocuments({ _id: { $in: botIds }, deletedAt: null })
       .exec();
     return count === botIds.length;
   }

@@ -68,7 +68,6 @@ export class ExtractFileJobRepository {
         updatedAt: {
           $lt: new Date(timeout),
         },
-        locked: false,
       })
       .exec();
     return extractFileJobs.map(
@@ -82,7 +81,6 @@ export class ExtractFileJobRepository {
       .find({
         bot: id,
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
-        locked: false,
       })
       .exec();
     return extractFileJobs.map(
@@ -100,7 +98,7 @@ export class ExtractFileJobRepository {
 
   async update(
     extractFileJobId: string,
-    data: Partial<{ status: JobStatus; deletedAt: Date }>,
+    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>,
   ): Promise<ExtractFileJobData | null> {
     const id = new Types.ObjectId(extractFileJobId);
     const now = new Date();
@@ -112,6 +110,35 @@ export class ExtractFileJobRepository {
       },
     );
     return extractFileJob.toJSON() as ExtractFileJobData;
+  }
+
+  async bulkUpdate(
+    jobIds: string[],
+    data: Partial<{ status: JobStatus; locked: boolean }>,
+  ): Promise<ExtractFileJobData[] | null> {
+    const ids = jobIds.map((id) => new Types.ObjectId(id));
+    const now = new Date();
+
+    const bulkUpdateJobs = ids.map((jobId) => ({
+      updateOne: {
+        filter: { _id: jobId },
+        update: {
+          ...data,
+          updatedAt: now,
+        },
+        upsert: false,
+      },
+    }));
+
+    await this.extractFileJobModel.bulkWrite(bulkUpdateJobs);
+
+    const updatedExtractFileJob = await this.extractFileJobModel
+      .find({ _id: { $in: ids } })
+      .exec();
+
+    return updatedExtractFileJob.map(
+      (extractFile) => extractFile.toJSON() as ExtractFileJobData,
+    );
   }
 
   async acquireLock(extractFileJobId: string) {
