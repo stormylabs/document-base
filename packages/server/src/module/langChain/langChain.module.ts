@@ -17,8 +17,8 @@ import { OpenAI } from 'langchain';
           openAIApiKey: config.get('OPENAI_API_KEY'),
           streaming: true,
           verbose: true,
-          modelName: 'gpt-3.5-turbo',
-          temperature: 0,
+          modelName: 'gpt-4',
+          temperature: 0.5,
         };
         return new ChatOpenAI(configuration);
       },
@@ -39,9 +39,9 @@ import { OpenAI } from 'langchain';
       provide: OpenAI,
       useFactory: async (config: ConfigService) => {
         const configuration = {
-          modelName: 'gpt-3.5-turbo',
+          modelName: 'gpt-4',
           openAIApiKey: config.get('OPENAI_API_KEY'),
-          temperature: 0,
+          temperature: 0.5,
         };
         return new OpenAI(configuration);
       },
