@@ -10,7 +10,7 @@ export class User extends Document {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @Prop({ type: String, maxlength: 50, default: 'default', required: true })
+  @Prop({ type: String, maxlength: 64, default: 'default', required: true })
   email: string;
 
   @Prop({ default: Date.now, type: Date })
