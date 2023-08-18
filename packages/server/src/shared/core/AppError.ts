@@ -128,3 +128,11 @@ export class UserNotFoundError extends Result<UseCaseError> {
     Logger.log(message, UserNotFoundError.name);
   }
 }
+
+export class UserNotFoundError extends Result<UseCaseError> {
+  public constructor() {
+    const message = 'User not found';
+    super(false, { message } as UseCaseError);
+    Logger.log(message, UserNotFoundError.name);
+  }
+}
