@@ -120,3 +120,11 @@ export class S3UploadError extends Result<UseCaseError> {
     Logger.log(message, S3UploadError.name);
   }
 }
+
+export class EmailUserAlreadyExistsError extends Result<UseCaseError> {
+  public constructor() {
+    const message = `Email already exists.`;
+    super(false, { message } as UseCaseError);
+    Logger.log(message, EmailUserAlreadyExistsError.name);
+  }
+}
