@@ -35,7 +35,7 @@ export class UserRepository {
     return count === userIds.length;
   }
 
-  async emailsExist(emails: string[]): Promise<boolean> {
+  async emailsExists(emails: string[]): Promise<boolean> {
     const count = await this.userModel
       .countDocuments({ email: { $in: emails } })
       .exec();

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { UserData } from 'src/shared/interfaces/user';
-import { UserRepository } from '../repositories/user.repository';
+import { UserData } from '@/shared/interfaces/user';
+import { UserRepository } from '@/module/user/repositories/user.repository';
 
 @Injectable()
 export class UserService {
@@ -43,6 +43,6 @@ export class UserService {
   }
 
   async emailExists(emails: string[]): Promise<boolean> {
-    return this.userRepository.emailsExist(emails);
+    return this.userRepository.emailsExists(emails);
   }
 }

@@ -20,8 +20,14 @@ export default class CreateUserDTO {
 }
 
 export class CreateUserResponseDTO {
+  // TODO: fix Omit UserResponse issue that displaying the bot schema as response
+  // @ApiProperty({
+  //   type: OmitType(UserResponse, ['deletedAt'] as const),
+  // })
+  // user: Omit<UserResponse, 'deletedAt'>;
+
   @ApiProperty({
-    type: OmitType(UserResponse, ['deletedAt'] as const),
+    type: () => UserResponse,
   })
-  user: Omit<UserResponse, 'deletedAt'>;
+  user: UserResponse;
 }
