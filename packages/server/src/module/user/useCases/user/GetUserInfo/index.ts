@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { UserNotFoundError } from '@/shared/core/AppError';
-import { Either, Result, left, right } from '@/shared/core/Result';
+import UnexpectedError, { UserNotFoundError } from 'src/shared/core/AppError';
+import { Either, Result, left, right } from 'src/shared/core/Result';
 import { GetUserInfoResponseDTO } from './dto';
 import { UserService } from '@/module/user/services/user.service';
 
