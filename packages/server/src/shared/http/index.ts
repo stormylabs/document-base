@@ -24,12 +24,21 @@ export const errorHandler = (
 ) => {
   switch (error.constructor.name) {
     case 'NotFoundError':
+    case 'BotNotFoundError':
+    case 'CrawlJobNotFoundError':
+    case 'DocumentNotFoundError':
+    case 'DocIndexJobNotFoundError':
+    case 'ExtractFileJobNotFoundError':
+    case 'UserNotFoundError':
       throw new NotFoundException(error.errorValue().message);
 
     case 'InvalidInputError':
       throw new BadRequestException(error.errorValue().message);
 
-    case 'UnfinishedJobsError':
+    case 'UnfinishedCrawlJobsError':
+    case 'UnfinishedDocIndexJobsError':
+    case 'UnfinishedExtractFileJobsError':
+    case 'EmailUserAlreadyExistsError':
     case 'ConflictError':
     case 'AbortJobError':
     case 'LockedJobError':

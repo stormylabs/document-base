@@ -128,3 +128,11 @@ export class EmailUserAlreadyExistsError extends Result<UseCaseError> {
     Logger.log(message, EmailUserAlreadyExistsError.name);
   }
 }
+
+export class UserNotFoundError extends Result<UseCaseError> {
+  public constructor() {
+    const message = 'User not found';
+    super(false, { message } as UseCaseError);
+    Logger.log(message, UserNotFoundError.name);
+  }
+}

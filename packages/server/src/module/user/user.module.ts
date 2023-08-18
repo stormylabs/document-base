@@ -7,6 +7,7 @@ import { UserRepository } from './repositories/user.repository';
 import { User, UserSchema } from './schemas/user.schema';
 import { UserController } from './controllers/user.controller';
 import CreateUserUseCase from './useCases/user/CreateUser';
+import GetUserInfoUseCase from './useCases/user/GetUserInfo';
 
 @Module({
   imports: [
@@ -19,7 +20,12 @@ import CreateUserUseCase from './useCases/user/CreateUser';
     ConfigModule,
   ],
   controllers: [UserController],
-  providers: [UserRepository, UserService, CreateUserUseCase],
+  providers: [
+    UserRepository,
+    UserService,
+    CreateUserUseCase,
+    GetUserInfoUseCase,
+  ],
   exports: [UserService, CreateUserUseCase],
 })
 export class UserModule {}
