@@ -12,6 +12,7 @@ const turndownService = new TurndownService();
 class Crawler {
   text: string;
   urls: string[];
+  title: string;
   url: string;
   spider: Spider | null = {};
   textLengthMinimum = 200;
@@ -22,6 +23,7 @@ class Crawler {
     this.textLengthMinimum = textLengthMinimum;
 
     this.text = '';
+    this.title = '';
     this.spider = {};
     this.urls = [];
   }
@@ -65,26 +67,30 @@ class Crawler {
       this.urls.push(targetUrl);
     });
 
+  
     $('script').remove();
+    $('#hub-sidebar').remove();
+    $('img').remove();
     $('style').remove();
     $('noscript').remove();
     $('iframe').remove();
-    $('#hub-sidebar').remove();
-    $('header').remove();
-    $('nav').remove();
-    $('img').remove();
-    $('footer').remove();
-    $('*[class*=footer]').remove();
-    $('*[id*=footer]').remove();
-    $('*[class*=nav]').remove();
-    $('*[id*=nav]').remove();
-    // const title = $('title').text() || $('.article-title').text();
+    
+    // $('header').remove();
+    // $('nav').remove();
+    // $('footer').remove();
+    // $('*[class*=footer]').remove();
+    // $('*[id*=footer]').remove();
+    // $('*[class*=nav]').remove();
+    // $('*[id*=nav]').remove();
+    const title = $('title').text() || $('.article-title').text();
     const html = $('body').html();
 
     const text = turndownService.turndown(html);
+
     this.logger.log('Crawled website successfully');
     if (text.length > this.textLengthMinimum) {
       this.text = text;
+      this.title = title;
     }
   };
 
@@ -106,7 +112,7 @@ class Crawler {
         },
         // Called when there are no more requests
         done: () => {
-          resolve({ text: this.text, urls: this.urls });
+          resolve({ text: this.text, urls: this.urls, title: this.title });
         },
         headers: { 'user-agent': 'node-spider' },
         encoding: null,

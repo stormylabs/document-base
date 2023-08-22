@@ -86,15 +86,19 @@ export default class IndexDocumentUseCase {
 
       let docs: LCDocument<Record<string, any>>[];
       try {
-        docs = await this.langChainService.splitDocuments([
-          new LCDocument({
-            pageContent: document.content,
-            metadata: {
-              botId,
-              sourceName: document.sourceName,
-            },
-          }),
-        ]);
+        docs = await this.langChainService.splitDocuments(
+          [
+            new LCDocument({
+              pageContent: document.content,
+              metadata: {
+                botId,
+                sourceName: document.sourceName,
+              },
+            }),
+          ],
+          document.title,
+          document.sourceName,
+        );
       } catch (e) {
         return left(new LangChainSplitDocsError(e));
       }

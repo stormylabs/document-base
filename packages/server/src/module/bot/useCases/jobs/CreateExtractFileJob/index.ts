@@ -4,6 +4,7 @@ import UnexpectedError, {
   SQSSendMessageError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
+import * as path from 'path';
 
 import { BotService } from '@/module/bot/services/bot.service';
 import { ExtractFileJobMessage } from '@/shared/interfaces/extractFileJob';
@@ -79,6 +80,7 @@ export default class CreateExtractFileJobUseCase {
         const { _id } = await this.documentService.create({
           sourceName: url,
           type: DocumentExtToType[fileExt],
+          title: path.basename(decodeURIComponent(url)),
         });
         documentId = _id;
       } else {

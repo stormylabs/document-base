@@ -85,11 +85,13 @@ export default class CrawlWebsiteUseCase {
       let data: {
         text: string;
         urls: string[];
+        title: string;
       };
       try {
         data = (await crawler.start()) as {
           text: string;
           urls: string[];
+          title: string;
         };
       } catch (e) {
         await this.crawlJobService.removeDocument(jobId, documentId);
@@ -110,7 +112,11 @@ export default class CrawlWebsiteUseCase {
         return right(Result.ok());
       }
 
-      await this.documentService.updateContent(documentId, data.text);
+      await this.documentService.updateContent({
+        documentId,
+        content: data.text,
+        title: data.title,
+      });
       this.logger.log('document content updated');
       const upsertedBot = await this.botService.upsertDocument(
         botId,

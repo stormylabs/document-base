@@ -18,7 +18,7 @@ export class LangChainService {
     this.tokenSplitter = new TokenTextSplitter({
       encodingName: 'gpt2',
       chunkSize: 500,
-      chunkOverlap: 0,
+      chunkOverlap: 100,
     });
   }
 
@@ -59,7 +59,10 @@ export class LangChainService {
     });
   }
 
-  async splitDocuments(documents: LCDocument[]) {
-    return this.tokenSplitter.splitDocuments(documents);
+  async splitDocuments(documents: LCDocument[], docHeader: string, url: string) {
+    return this.tokenSplitter.splitDocuments(documents, {
+      chunkHeader: `DOCUMENT NAME: ${docHeader}\n\nURL: ${url}\n\n---\n\n`,
+      appendChunkOverlapHeader: true,
+    });
   }
 }

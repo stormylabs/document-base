@@ -18,6 +18,7 @@ export interface DocumentData {
   _id: string;
   type: DocumentType;
   sourceName: string;
+  title?: string;
   content?: string;
   createdAt: Date;
   deletedAt?: Date;
