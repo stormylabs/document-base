@@ -72,7 +72,7 @@ export default class MessageBotUseCase {
 
       const model = this.langChainService.chat;
 
-      const template = `${bot.prompt}\n If you don't have the information, reply with "${bot.fallbackMessage}". ${templates.qaTemplate}`;
+      const template = `${bot.prompt}\n Always attempt to answer the question with the information provided, and only include information relevant to the question. Reply "${bot.fallbackMessage}" only if the information is not adequate. ${templates.qaTemplate}`;
 
       const k = 3;
 
