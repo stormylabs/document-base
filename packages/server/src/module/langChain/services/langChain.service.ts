@@ -59,7 +59,11 @@ export class LangChainService {
     });
   }
 
-  async splitDocuments(documents: LCDocument[], docHeader: string, url: string) {
+  async splitDocuments(
+    documents: LCDocument[],
+    docHeader: string,
+    url: string,
+  ) {
     return this.tokenSplitter.splitDocuments(documents, {
       chunkHeader: `DOCUMENT NAME: ${docHeader}\n\nURL: ${url}\n\n---\n\n`,
       appendChunkOverlapHeader: true,

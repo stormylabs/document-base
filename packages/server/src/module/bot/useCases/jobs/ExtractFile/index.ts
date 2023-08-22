@@ -112,7 +112,10 @@ export default class ExtractFileUseCase {
       this.logger.log('data extracted');
 
       // upsert document with extracted file result/content
-      await this.documentService.updateContent({ documentId, content: data.text });
+      await this.documentService.updateContent({
+        documentId,
+        content: data.text,
+      });
       this.logger.log('document content updated');
 
       await this.botService.upsertDocument(botId, documentId);

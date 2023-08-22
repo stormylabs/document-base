@@ -67,14 +67,13 @@ class Crawler {
       this.urls.push(targetUrl);
     });
 
-  
     $('script').remove();
     $('#hub-sidebar').remove();
     $('img').remove();
     $('style').remove();
     $('noscript').remove();
     $('iframe').remove();
-    
+
     // $('header').remove();
     // $('nav').remove();
     // $('footer').remove();
