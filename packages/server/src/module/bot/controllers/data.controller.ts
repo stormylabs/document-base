@@ -2,6 +2,7 @@ import { Controller, Logger, Get, Param, Post } from '@nestjs/common';
 import { errorHandler } from 'src/shared/http';
 
 import {
+  ApiConflictResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -64,6 +65,9 @@ export class DataController {
   })
   @ApiNotFoundResponse({
     description: 'Crawl Job not found',
+  })
+  @ApiConflictResponse({
+    description: `The jobId is not in 'running' or 'pending' statuses.`,
   })
   async abortCrawlJob(@Param() { id }: IdParams) {
     this.logger.log(`[POST] Start aborting crawl job`);

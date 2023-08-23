@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { CrawlJobNotFoundError } from '@/shared/core/AppError';
+import UnexpectedError, {
+  CrawlJobNotFoundError,
+  InvalidAbortJobError,
+} from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
 
 import { JobStatus } from '@/shared/interfaces';
@@ -22,6 +25,10 @@ export default class AbortCrawlJobUseCase {
       const crawlJob = await this.crawlJobService.findById(jobId);
 
       if (!crawlJob) return left(new CrawlJobNotFoundError());
+
+      if (!['pending', 'running'].includes(crawlJob.status)) {
+        return left(new InvalidAbortJobError());
+      }
 
       const updatedCrawlJob = await this.crawlJobService.updateStatus(
         jobId,

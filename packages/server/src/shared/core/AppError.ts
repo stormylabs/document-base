@@ -76,6 +76,14 @@ export class UnfinishedExtractFileJobsError extends Result<UseCaseError> {
   }
 }
 
+export class InvalidAbortJobError extends Result<UseCaseError> {
+  public constructor() {
+    const message = `The jobId is not in 'running' or 'pending' statuses.`;
+    super(false, { message } as UseCaseError);
+    Logger.log(message, InvalidAbortJobError.name);
+  }
+}
+
 export class LockedDocIndexJobError extends Result<UseCaseError> {
   public constructor(jobId: string) {
     const message = `Doc Index job is locked: ${jobId}`;
