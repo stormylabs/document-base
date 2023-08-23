@@ -24,7 +24,7 @@ export const errorHandler = (error: Result<UseCaseError>) => {
     case 'UnfinishedCrawlJobsError':
     case 'UnfinishedDocIndexJobsError':
     case 'UnfinishedExtractFileJobsError':
-    case 'EmailUserAlreadyExistsError':
+    case 'UserAlreadyExistsError':
     case 'ConflictError':
       throw new ConflictException(error.errorValue().message);
 

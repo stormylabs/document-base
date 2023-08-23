@@ -1,12 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  EmailUserAlreadyExistsError,
+  UserAlreadyExistsError,
 } from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
 import { UserService } from '@/module/user/services/user.service';
 import { CreateUserResponseDTO } from './dto';
 
-type Response = Either<UnexpectedError, Result<CreateUserResponseDTO>>;
+type Response = Either<
+  UnexpectedError | UserAlreadyExistsError,
+  Result<CreateUserResponseDTO>
+>;
 
 @Injectable()
 export default class CreateUserUseCase {
@@ -17,7 +20,7 @@ export default class CreateUserUseCase {
       this.logger.log(`Start creating user`);
 
       const emailExists = await this.userService.emailExists([email]);
-      if (emailExists) return left(new EmailUserAlreadyExistsError());
+      if (emailExists) return left(new UserAlreadyExistsError());
 
       const user = await this.userService.create({
         email,
