@@ -17,18 +17,6 @@ export class UserService {
     return user;
   }
 
-  async updateInfo(
-    userId: string,
-    { email }: { email: string },
-  ): Promise<UserData> {
-    const exists = await this.exists([userId]);
-    if (!exists) throw new Error('User does not exist.');
-    const updatedUser = await this.userRepository.update(userId, {
-      email,
-    });
-    return updatedUser;
-  }
-
   async delete(userId: string): Promise<UserData> {
     const exists = await this.exists([userId]);
     if (!exists) throw new Error('User does not exist.');

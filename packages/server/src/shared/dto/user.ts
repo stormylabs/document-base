@@ -10,6 +10,7 @@ export class UserResponse {
   @ApiProperty({
     description: 'User Email',
     type: String,
+    example: 'example@example.com',
   })
   email?: string;
 

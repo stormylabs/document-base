@@ -6,28 +6,28 @@ export default class CreateUserDTO {
   @ApiProperty({
     description: 'Email of the user',
     minLength: 1,
-    maxLength: 64,
-    required: false,
+    maxLength: 320,
+    required: true,
     default: 'default',
-    example: 'foo@example.com',
+    example: 'example@example.com',
     type: String,
   })
   @IsEmail()
-  @MaxLength(64)
+  @MaxLength(320)
   @MinLength(1)
   @IsNotEmpty()
-  email?: string;
+  email: string;
 }
 
-export class CreateUserResponseDTO {
-  // TODO: fix Omit UserResponse issue that displaying the bot schema as response
-  // @ApiProperty({
-  //   type: OmitType(UserResponse, ['deletedAt'] as const),
-  // })
-  // user: Omit<UserResponse, 'deletedAt'>;
+export class CreateUserResponse extends OmitType(UserResponse, [
+  'deletedAt',
+  'createdAt',
+  'updatedAt',
+] as const) {}
 
+export class CreateUserResponseDTO {
   @ApiProperty({
-    type: () => UserResponse,
+    type: CreateUserResponse,
   })
-  user: UserResponse;
+  user: Omit<UserResponse, 'deletedAt' | 'updatedAt' | 'createdAt'>;
 }
