@@ -47,6 +47,7 @@ import {
 import CreateExtractFileJobUseCase from './useCases/jobs/CreateExtractFileJob';
 import GetExtractFileJobStatusUseCase from './useCases/jobs/GetExtractFileJobStatus';
 import DeleteBotUseCase from './useCases/bot/DeleteBot';
+import AbortCrawlJobUseCase from './useCases/jobs/AbortCrawlJob';
 
 @Module({
   imports: [
@@ -112,6 +113,7 @@ import DeleteBotUseCase from './useCases/bot/DeleteBot';
     CreateExtractFileJobUseCase,
     GetExtractFileJobStatusUseCase,
     DeleteBotUseCase,
+    AbortCrawlJobUseCase,
   ],
   exports: [
     BotService,

@@ -10,4 +10,5 @@ export enum JobStatus {
   Running = 'running',
   Finished = 'finished',
   Failed = 'failed',
+  Aborted = 'aborted',
 }
