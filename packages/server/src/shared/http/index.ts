@@ -23,6 +23,7 @@ export const errorHandler = (error: Result<UseCaseError>) => {
     case 'UnfinishedCrawlJobsError':
     case 'UnfinishedDocIndexJobsError':
     case 'ConflictError':
+    case 'InvalidAbortJobError':
       throw new ConflictException(error.errorValue().message);
 
     default:
