@@ -5,7 +5,8 @@ import * as parse from 'url-parse';
 import { Logger } from '@nestjs/common';
 import * as path from 'path';
 import * as iconv from 'iconv-lite';
-import { EXTENSIONS } from '../constants';
+import { EXTENSIONS, HTML_CONTENT_TYPES } from '../constants';
+import { isValidUrl } from './web-utils';
 
 const turndownService = new TurndownService();
 
@@ -52,16 +53,21 @@ class Crawler {
     this.logger.log('Identifying urls');
     doc.$('a').each((i: number, elem: any) => {
       const href = doc.$(elem).attr('href')?.split('#')[0];
-      const targetUrl = href && doc.resolve(href);
+      const targetUrl = href && isValidUrl(href) && doc.resolve(href);
       const targetUrlParts = parse(encodeURI(targetUrl));
       const uParts = parse(this.url);
       const extension = path.extname(targetUrlParts.pathname);
+      const contentType = doc.res.headers['content-type'] || '';
+      const contentTypeParts = contentType.split('; ');
       if (
         !targetUrl ||
         targetUrlParts.hostname !== uParts.hostname ||
-        EXTENSIONS.includes(extension.toLowerCase())
+        EXTENSIONS.includes(extension.toLowerCase()) ||
+        contentTypeParts.every((part) => !HTML_CONTENT_TYPES.includes(part))
       ) {
-        this.logger.log(`Ignoring url ${targetUrl}, extension: ${extension}`);
+        this.logger.log(
+          `Ignoring url ${targetUrl}, extension: ${extension}, content-type: ${contentType}`,
+        );
         return;
       }
       this.urls.push(targetUrl);

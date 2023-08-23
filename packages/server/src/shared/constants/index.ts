@@ -46,7 +46,10 @@ export const EXTENSIONS = [
   '.webp',
   '.tif',
   '.tiff',
+  '.heic',
 ];
+
+export const HTML_CONTENT_TYPES = ['text/html', 'application/xhtml+xml'];
 
 export const DEFAULT_FALLBACK_MSG =
   "I'm sorry, but I'm not able to answer your question right now as I don't have enough information. However, I'll do my best to help you. Can you please provide me with more details or rephrase your question so I can better understand what you're asking?";
