@@ -16,6 +16,8 @@ export class User extends Document {
     default: 'default',
     required: true,
     unique: true,
+    trim: true,
+    immutable: true,
   })
   email: string;
 
