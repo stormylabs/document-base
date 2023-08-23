@@ -38,7 +38,7 @@ export const errorHandler = (
     case 'UnfinishedCrawlJobsError':
     case 'UnfinishedDocIndexJobsError':
     case 'UnfinishedExtractFileJobsError':
-    case 'EmailUserAlreadyExistsError':
+    case 'UserAlreadyExistsError':
     case 'ConflictError':
     case 'AbortJobError':
     case 'LockedJobError':
