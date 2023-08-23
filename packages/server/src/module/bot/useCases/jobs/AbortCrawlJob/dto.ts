@@ -3,12 +3,7 @@ import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 
 export class AbortCrawlJobResponseDTO extends PartialType(
-  PickType(CrawlJobResponse, [
-    'status',
-    'createdAt',
-    'updatedAt',
-    'limit',
-  ] as const),
+  PickType(CrawlJobResponse, ['createdAt', 'updatedAt', 'limit'] as const),
 ) {
   @ApiProperty({
     description: 'Crawl Job ID',
@@ -28,7 +23,13 @@ export class AbortCrawlJobResponseDTO extends PartialType(
   })
   progress: number;
 
+  @ApiProperty({
+    description: 'Crawl Job Status',
+    enum: JobStatus,
+    example: JobStatus.Aborted,
+  })
   status: JobStatus;
+
   createdAt: Date;
   updatedAt: Date;
   limit: number;
