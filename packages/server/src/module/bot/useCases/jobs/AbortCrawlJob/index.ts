@@ -24,7 +24,7 @@ export default class AbortCrawlJobUseCase {
 
       if (!crawlJob) return left(new NotFoundError(Resource.CrawlJob, [jobId]));
 
-      if (!['pending', 'running'].includes(crawlJob.status)) {
+      if (![JobStatus.Pending, JobStatus.Running].includes(crawlJob.status)) {
         return left(new AbortJobError([jobId], JobType.WebCrawl));
       }
 
