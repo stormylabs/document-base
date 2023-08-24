@@ -9,6 +9,7 @@ import { AppController } from './app.controller';
 import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerAsyncModule } from './module/throttler/throttler.module';
 import { S3Module } from './module/s3/s3.module';
+import { UserModule } from './module/user/user.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { S3Module } from './module/s3/s3.module';
     BotModule,
     SqsConsumerModule,
     S3Module,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [Logger],

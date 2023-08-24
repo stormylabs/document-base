@@ -15,6 +15,7 @@ export const errorHandler = (error: Result<UseCaseError>) => {
     case 'DocumentNotFoundError':
     case 'DocIndexJobNotFoundError':
     case 'ExtractFileJobNotFoundError':
+    case 'UserNotFoundError':
       throw new NotFoundException(error.errorValue().message);
 
     case 'InvalidInputError':
@@ -22,6 +23,8 @@ export const errorHandler = (error: Result<UseCaseError>) => {
 
     case 'UnfinishedCrawlJobsError':
     case 'UnfinishedDocIndexJobsError':
+    case 'UnfinishedExtractFileJobsError':
+    case 'UserAlreadyExistsError':
     case 'ConflictError':
       throw new ConflictException(error.errorValue().message);
 
