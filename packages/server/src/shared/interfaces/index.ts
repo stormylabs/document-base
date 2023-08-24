@@ -15,6 +15,7 @@ export enum Resource {
   CrawlJob = 'Crawl job',
   DocIndexJob = 'Train job',
   ExtractFileJob = 'Extract file job',
+  User = 'User',
 }
 
 export enum JobStatus {
