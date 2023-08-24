@@ -1,13 +1,12 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { UserNotFoundError } from '@/shared/core/AppError';
-import { Either, Result, left, right } from '@/shared/core/Result';
+import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
+import { Either, Result, left, right } from 'src/shared/core/Result';
 import { GetUserInfoResponseDTO } from './dto';
 import { UserService } from '@/module/user/services/user.service';
+import UseCaseError from '@/shared/core/UseCaseError';
+import { Resource } from '@/shared/interfaces';
 
-type Response = Either<
-  UnexpectedError | UserNotFoundError,
-  Result<GetUserInfoResponseDTO>
->;
+type Response = Either<Result<UseCaseError>, Result<GetUserInfoResponseDTO>>;
 
 @Injectable()
 export default class GetUserInfoUseCase {
@@ -18,7 +17,7 @@ export default class GetUserInfoUseCase {
       this.logger.log(`Start getting user info`);
 
       const user = await this.userService.findById(userId);
-      if (!user) return left(new UserNotFoundError());
+      if (!user) return left(new NotFoundError(Resource.User, [userId]));
 
       this.logger.log(`Get user info successfully`);
       return right(

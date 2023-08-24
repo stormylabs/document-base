@@ -1,27 +1,20 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  BotNotFoundError,
-  DocumentNotFoundError,
-  UnfinishedCrawlJobsError,
-  UnfinishedDocIndexJobsError,
-  UnfinishedExtractFileJobsError,
+  NotFoundError,
+  UnfinishedJobsError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
-import { DocumentService } from '@/module/bot/services/document.service';
 import CreateDocIndexJobUseCase from '../../jobs/CreateDocIndexJob';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { SaveDocsAndTrainBotResponseDTO } from './dto';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
+import { JobType, Resource } from '@/shared/interfaces';
+import UseCaseError from '@/shared/core/UseCaseError';
 
 type Response = Either<
-  | UnexpectedError
-  | BotNotFoundError
-  | DocumentNotFoundError
-  | UnfinishedDocIndexJobsError
-  | UnfinishedExtractFileJobsError
-  | UnfinishedCrawlJobsError,
+  Result<UseCaseError>,
   Result<SaveDocsAndTrainBotResponseDTO>
 >;
 
@@ -30,7 +23,6 @@ export default class SaveDocsAndTrainBotUseCase {
   private readonly logger = new Logger(SaveDocsAndTrainBotUseCase.name);
   constructor(
     private readonly botService: BotService,
-    private readonly documentService: DocumentService,
     private readonly createDocIndexJobUseCase: CreateDocIndexJobUseCase,
     private readonly crawlJobService: CrawlJobService,
     private readonly extractFileJobService: ExtractFileJobService,
@@ -41,7 +33,7 @@ export default class SaveDocsAndTrainBotUseCase {
       this.logger.log(`Start saving to bot and indexing documents`);
 
       const bot = await this.botService.findById(botId);
-      if (!bot) return left(new BotNotFoundError());
+      if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
 
       // check unfinished crawl job
       const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
@@ -50,8 +42,9 @@ export default class SaveDocsAndTrainBotUseCase {
       if (unfinishedCrawlJobs.length > 0) {
         // early return
         return left(
-          new UnfinishedCrawlJobsError(
+          new UnfinishedJobsError(
             unfinishedCrawlJobs.map((job) => job._id),
+            JobType.WebCrawl,
           ),
         );
       }
@@ -61,8 +54,9 @@ export default class SaveDocsAndTrainBotUseCase {
         await this.extractFileJobService.findUnfinishedJobs(botId);
       if (unfinishedExtractFileJobs.length > 0) {
         return left(
-          new UnfinishedExtractFileJobsError(
-            unfinishedCrawlJobs.map((job) => job._id),
+          new UnfinishedJobsError(
+            unfinishedExtractFileJobs.map((job) => job._id),
+            JobType.FileExtract,
           ),
         );
       }
@@ -72,8 +66,9 @@ export default class SaveDocsAndTrainBotUseCase {
         await this.docIndexJobService.findUnfinishedJobs(botId);
       if (unfinishedDocIndexJobs.length > 0) {
         return left(
-          new UnfinishedDocIndexJobsError(
+          new UnfinishedJobsError(
             unfinishedDocIndexJobs.map((job) => job._id),
+            JobType.DocIndex,
           ),
         );
       }

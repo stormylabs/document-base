@@ -1,10 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  BotNotFoundError,
-  ExtractFileJobNotFoundError,
-  DocumentNotFoundError,
   ExtractFileError,
-  LockedExtractFileJobError,
+  LockedJobError,
+  NotFoundError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { ExtractFileJobService } from '../../../services/extractFileJob.service';
@@ -12,18 +10,11 @@ import { BotService } from '@/module/bot/services/bot.service';
 import { DocumentService } from '@/module/bot/services/document.service';
 import { ExtractPDF } from '@/shared/utils/extractPdf';
 import { DocumentType } from '@/shared/interfaces/document';
-import { JobStatus } from '@/shared/interfaces';
+import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { ExtractWord } from '@/shared/utils/extractWord';
+import UseCaseError from '@/shared/core/UseCaseError';
 
-type Response = Either<
-  | ExtractFileJobNotFoundError
-  | DocumentNotFoundError
-  | BotNotFoundError
-  | UnexpectedError
-  | LockedExtractFileJobError
-  | ExtractFileError,
-  Result<void>
->;
+type Response = Either<Result<UseCaseError>, Result<void>>;
 
 @Injectable()
 export default class ExtractFileUseCase {
@@ -44,17 +35,17 @@ export default class ExtractFileUseCase {
       const lockAcquired = await this.extractFileJobService.acquireLock(jobId);
 
       if (!lockAcquired) {
-        return left(new LockedExtractFileJobError(jobId));
+        return left(new LockedJobError([jobId], JobType.FileExtract));
       }
 
       const extractFileJob = await this.extractFileJobService.findById(jobId);
       if (!extractFileJob) {
-        return left(new ExtractFileJobNotFoundError());
+        return left(new NotFoundError(Resource.ExtractFileJob, [jobId]));
       }
 
       const document = await this.documentService.findById(documentId);
       if (!document) {
-        return left(new DocumentNotFoundError());
+        return left(new NotFoundError(Resource.Document, [documentId]));
       }
 
       if (extractFileJob.status === JobStatus.Finished) {
@@ -77,7 +68,7 @@ export default class ExtractFileUseCase {
 
       const bot = await this.botService.findById(botId);
       if (!bot) {
-        return left(new BotNotFoundError());
+        return left(new NotFoundError(Resource.Bot, [botId]));
       }
 
       const url = document.sourceName;

@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  BotNotFoundError,
+  NotFoundError,
   SQSSendMessageError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
@@ -9,14 +9,15 @@ import * as path from 'path';
 import { BotService } from '@/module/bot/services/bot.service';
 import { ExtractFileJobMessage } from '@/shared/interfaces/extractFileJob';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
-import { JobStatus } from '@/shared/interfaces';
+import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { DocumentService } from '@/module/bot/services/document.service';
 import { DocumentExtToType } from '@/shared/interfaces/document';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 import { extractExtensionFromUrl } from '@/shared/utils/web-utils';
+import UseCaseError from '@/shared/core/UseCaseError';
 
 type Response = Either<
-  UnexpectedError | SQSSendMessageError | BotNotFoundError,
+  Result<UseCaseError>,
   Result<{ jobId: string; status: JobStatus }>
 >;
 
@@ -34,7 +35,7 @@ export default class CreateExtractFileJobUseCase {
       this.logger.log(`Start creating extract files job`);
 
       const botExists = await this.botService.exists([botId]);
-      if (!botExists) return left(new BotNotFoundError());
+      if (!botExists) return left(new NotFoundError(Resource.Bot, [botId]));
 
       const extractFileJob = await this.extractFileJobService.create({
         botId,
@@ -63,7 +64,7 @@ export default class CreateExtractFileJobUseCase {
   async sendMessages(jobId: string, payloads: ExtractFileJobMessage[]) {
     await this.sqsMessageService.sendMessages<ExtractFileJobMessage>(
       jobId,
-      'file-extract',
+      JobType.FileExtract,
       payloads,
     );
   }
