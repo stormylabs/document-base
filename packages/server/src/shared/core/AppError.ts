@@ -105,14 +105,6 @@ export class ExtractFileError extends Result<UseCaseError> {
   }
 }
 
-// export class ExtractFileJobNotFoundError extends Result<UseCaseError> {
-//   public constructor() {
-//     const message = 'Extract File Job not found';
-//     super(false, { message } as UseCaseError);
-//     Logger.log(message, ExtractFileJobNotFoundError.name);
-//   }
-// }
-
 export class S3UploadError extends Result<UseCaseError> {
   public constructor(filenames: string[]) {
     const message = `S3 upload failed: ${filenames.join(', ')}`;
@@ -121,11 +113,11 @@ export class S3UploadError extends Result<UseCaseError> {
   }
 }
 
-export class UserAlreadyExistsError extends Result<UseCaseError> {
+export class UserExistsError extends Result<UseCaseError> {
   public constructor() {
     const message = `Email already exists.`;
     super(false, { message } as UseCaseError);
-    Logger.log(message, UserAlreadyExistsError.name);
+    Logger.log(message, UserExistsError.name);
   }
 }
 
