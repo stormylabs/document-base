@@ -1,4 +1,5 @@
 import * as dotenv from 'dotenv';
+import { JobType } from '../interfaces';
 dotenv.config();
 
 export const TOKEN_LIMIT = 3000;
@@ -52,3 +53,9 @@ export const DEFAULT_FALLBACK_MSG =
 
 export const DEFAULT_PROMPT =
   'You are a customer facing agent for the organization, answer the question on behalf of the organization.';
+
+export const JOB_TERM_MAPPING: { [key in JobType]: string } = {
+  [JobType.WebCrawl]: 'Crawl job',
+  [JobType.DocIndex]: 'Train job',
+  [JobType.FileExtract]: 'File Extract job',
+};

@@ -1,15 +1,14 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, {
-  BotNotFoundError,
-  DocIndexJobNotFoundError,
-} from 'src/shared/core/AppError';
+import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { GetDocIndexJobStatusResponseDTO } from './dto';
+import UseCaseError from '@/shared/core/UseCaseError';
+import { Resource } from '@/shared/interfaces';
 
 type Response = Either<
-  DocIndexJobNotFoundError | UnexpectedError | BotNotFoundError,
+  Result<UseCaseError>,
   Result<GetDocIndexJobStatusResponseDTO>
 >;
 
@@ -26,7 +25,8 @@ export default class GetDocIndexJobStatusUseCase {
 
       const docIndexJob = await this.docIndexJobService.findById(jobId);
 
-      if (!docIndexJob) return left(new DocIndexJobNotFoundError());
+      if (!docIndexJob)
+        return left(new NotFoundError(Resource.DocIndexJob, [jobId]));
 
       const {
         status,
@@ -38,7 +38,7 @@ export default class GetDocIndexJobStatusUseCase {
 
       const bot = await this.botService.findById(botId);
 
-      if (!bot) return left(new BotNotFoundError());
+      if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
 
       const progress =
         jobDocs.length === 0

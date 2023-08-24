@@ -1,18 +1,16 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  CrawlJobNotFoundError,
-  InvalidAbortJobError,
+  AbortJobError,
+  NotFoundError,
 } from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
 
-import { JobStatus } from '@/shared/interfaces';
+import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { AbortCrawlJobResponseDTO } from './dto';
+import UseCaseError from '@/shared/core/UseCaseError';
 
-type Response = Either<
-  UnexpectedError | CrawlJobNotFoundError,
-  Result<AbortCrawlJobResponseDTO>
->;
+type Response = Either<Result<UseCaseError>, Result<AbortCrawlJobResponseDTO>>;
 
 @Injectable()
 export default class AbortCrawlJobUseCase {
@@ -24,10 +22,10 @@ export default class AbortCrawlJobUseCase {
 
       const crawlJob = await this.crawlJobService.findById(jobId);
 
-      if (!crawlJob) return left(new CrawlJobNotFoundError());
+      if (!crawlJob) return left(new NotFoundError(Resource.CrawlJob, [jobId]));
 
       if (!['pending', 'running'].includes(crawlJob.status)) {
-        return left(new InvalidAbortJobError());
+        return left(new AbortJobError([jobId], JobType.WebCrawl));
       }
 
       const updatedCrawlJob = await this.crawlJobService.updateStatus(
@@ -44,7 +42,7 @@ export default class AbortCrawlJobUseCase {
         bot: botId,
       } = updatedCrawlJob;
 
-      this.logger.log(`Update crawl job status to "aborted" successfully`);
+      this.logger.log(`Crawl job is aborted successfully`);
 
       return right(
         Result.ok({
