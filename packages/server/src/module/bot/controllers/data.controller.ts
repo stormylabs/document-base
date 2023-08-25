@@ -19,6 +19,8 @@ import { AbortCrawlJobResponseDTO } from '../useCases/jobs/AbortCrawlJob/dto';
 import AbortCrawlJobUseCase from '../useCases/jobs/AbortCrawlJob';
 import { AbortExtractFileJobResponseDTO } from '../useCases/jobs/AbortExtractFIleJob/dto';
 import AbortExtractFileJobUseCase from '../useCases/jobs/AbortExtractFIleJob';
+import AbortDocIndexJobUseCase from '../useCases/jobs/AbortDocIndexJob';
+import { AbortDocIndexJobResponseDTO } from '../useCases/jobs/AbortDocIndexJob/dto';
 
 @ApiTags('data')
 @Controller('data')
@@ -30,6 +32,7 @@ export class DataController {
     private getExtractFileJobStatusUseCase: GetExtractFileJobStatusUseCase,
     private abortCrawlJobUseCase: AbortCrawlJobUseCase,
     private abortExtractFileJobUseCase: AbortExtractFileJobUseCase,
+    private abortDocIndexJobUseCase: AbortDocIndexJobUseCase,
   ) {}
 
   @Get('/crawl/:id')
@@ -106,6 +109,35 @@ export class DataController {
       const error = result.value;
       this.logger.error(
         `[GET] get DocIndex job status error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+
+    return result.value.getValue();
+  }
+
+  @Post('/train/abort/:id')
+  @ApiOperation({
+    summary: 'Abort doc index job by job ID.',
+  })
+  @ApiOkResponse({
+    description: 'Aborted doc index job',
+    type: AbortDocIndexJobResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Abort doc index Job not found',
+  })
+  @ApiConflictResponse({
+    description: `The jobId is not in 'running' or 'pending' statuses.`,
+  })
+  async abortDocIndexJob(@Param() { id }: IdParams) {
+    this.logger.log(`[POST] Start aborting doc index job`);
+    const result = await this.abortDocIndexJobUseCase.exec(id);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] abort doc index job error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
