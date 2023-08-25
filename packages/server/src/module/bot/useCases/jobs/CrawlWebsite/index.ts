@@ -49,7 +49,7 @@ export default class CrawlWebsiteUseCase {
       }
 
       if (crawlJob.status === JobStatus.Aborted) {
-        this.logger.log('crawl job is not processed cause aborted');
+        this.logger.log('Crawl job is not processed cause aborted');
         await this.documentService.delete(documentId);
         return right(Result.ok());
       }
