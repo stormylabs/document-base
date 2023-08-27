@@ -78,6 +78,12 @@ export default class MessageBotUseCase {
         }),
       );
 
+     
+      const refinePrompt = new PromptTemplate({
+        inputVariables: ['question', 'existing_answer', 'context'],
+        template: templates.refinePromptTemplate,
+      });
+
       const chain = ConversationalRetrievalQAChain.fromLLM(
         model,
         vectorStore.asRetriever(k, {
@@ -90,8 +96,9 @@ export default class MessageBotUseCase {
             template: templates.inquiryTemplate,
           },
           qaChainOptions: {
-            type: 'stuff',
-            prompt,
+            type: 'refine',
+            questionPrompt: prompt,
+            refinePrompt,
           },
           memory: new BufferMemory({
             memoryKey: 'chat_history',
@@ -109,11 +116,13 @@ export default class MessageBotUseCase {
         question: message,
       });
 
+      console.log({ response });
+
       const urls = response.sourceDocuments.map(
         (doc) => doc.metadata.sourceName,
       );
 
-      return right(Result.ok({ message: response.text, sources: urls }));
+      return right(Result.ok({ message: response.output_text, sources: urls }));
     } catch (err) {
       return left(new UnexpectedError(err));
     }
