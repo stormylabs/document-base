@@ -37,15 +37,16 @@ const templates = {
   ================
   {existing_answer}
   ================
-  You can refine the original answer with the following context only if the context provides more information to answer the question.
+  We have the opportunity to refine the existing answer  
+  (only if needed) with some more context below.  
   The context is provided below between the - lines:
   ------------
   {context}
   ------------
-  Be very precise and only answer the question.
+  Answer the question precisely.
   Do not repeat the question in the answer.
   Do not make up any information.
-  You must provide either the existing answer or the refined answer as a response.
+  You must provide a response, either original answer or refined answer.
 
   
   REFINED ANSWER:`,
