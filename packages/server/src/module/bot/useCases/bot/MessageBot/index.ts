@@ -78,7 +78,6 @@ export default class MessageBotUseCase {
         }),
       );
 
-     
       const refinePrompt = new PromptTemplate({
         inputVariables: ['question', 'existing_answer', 'context'],
         template: templates.refinePromptTemplate,
@@ -115,8 +114,6 @@ export default class MessageBotUseCase {
         chat_history: ch,
         question: message,
       });
-
-      console.log({ response });
 
       const urls = response.sourceDocuments.map(
         (doc) => doc.metadata.sourceName,
