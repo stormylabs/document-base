@@ -48,15 +48,17 @@ export default class CrawlWebsiteUseCase {
         return left(new NotFoundError(Resource.Document, [documentId]));
       }
 
-      if (crawlJob.status === JobStatus.Aborted) {
-        this.logger.log('Crawl job is not processed cause aborted');
-        await this.documentService.delete(documentId);
-        return right(Result.ok());
-      }
+      if (
+        crawlJob.status === JobStatus.Finished ||
+        crawlJob.status === JobStatus.Aborted
+      ) {
+        const logMessage =
+          crawlJob.status === JobStatus.Aborted
+            ? 'Crawl job is not processed cause aborted'
+            : 'Crawl job finished';
+        this.logger.log(logMessage);
 
-      if (crawlJob.status === JobStatus.Finished) {
-        this.logger.log('crawl job finished');
-        // delete uncrawled documents
+        // delete un-crawled documents
         await this.documentService.delete(documentId);
         return right(Result.ok());
       }

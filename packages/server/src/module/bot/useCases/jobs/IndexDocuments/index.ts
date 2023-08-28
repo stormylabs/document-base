@@ -60,13 +60,16 @@ export default class IndexDocumentUseCase {
         return left(new NotFoundError(Resource.DocIndexJob, [jobId]));
       }
 
-      if (docIndexJob.status === JobStatus.Aborted) {
-        this.logger.log('Doc index job is not processed cause aborted');
-        await this.documentService.delete(documentId);
-        return right(Result.ok());
-      }
+      if (
+        docIndexJob.status === JobStatus.Finished ||
+        docIndexJob.status === JobStatus.Aborted
+      ) {
+        const logMessage =
+          docIndexJob.status === JobStatus.Aborted
+            ? 'Doc index job is not processed cause aborted'
+            : 'DOc index job finished';
+        this.logger.log(logMessage);
 
-      if (docIndexJob.status === JobStatus.Finished) {
         return right(Result.ok());
       }
 
