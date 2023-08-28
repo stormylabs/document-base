@@ -1,6 +1,7 @@
 const templates = {
   qaTemplate: `
   Given the piece of context, question and a set of rules, create a final answer. 
+  The context is provided between the = lines:
   
   =========
   CONTEXT: {context}
@@ -13,7 +14,10 @@ const templates = {
   Please make sure that the FINAL ANSWER is within 5 sentences.
   Do not include any information irrelevant to the QUESTION in the FINAL ANSWER.
 
+  The question is provided between the * lines:
+  **********
   QUESTION: {question}
+  **********
   The FINAL ANSWER should be in the same language as the QUESTION.
 
   FINAL ANSWER:
