@@ -42,7 +42,7 @@ const templates = {
   Dont make up any information.
   You must provide a response, either original answer or refined answer.
   
-  HELPFUL ANSWER:`,
+  REFINED ANSWER:`,
 };
 
 export { templates };

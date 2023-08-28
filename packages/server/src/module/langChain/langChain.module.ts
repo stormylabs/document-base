@@ -18,7 +18,7 @@ import { OpenAI } from 'langchain';
           streaming: true,
           verbose: true,
           modelName: 'gpt-3.5-turbo',
-          temperature: 0.2,
+          temperature: 0,
         };
         return new ChatOpenAI(configuration);
       },
@@ -41,7 +41,7 @@ import { OpenAI } from 'langchain';
         const configuration = {
           modelName: 'gpt-3.5-turbo',
           openAIApiKey: config.get('OPENAI_API_KEY'),
-          temperature: 0.2,
+          temperature: 0,
         };
         return new OpenAI(configuration);
       },
