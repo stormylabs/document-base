@@ -26,11 +26,14 @@ export default class CreateApiKeyUseCase {
 
       // generate uniq api key
       const uniqApiKey = await this.generateUniqApiKey();
+
       const { user: userId, ...restApiKey } = await this.apiKeyService.create({
         apiKey: uniqApiKey.secretKey,
         userId: data.userId,
       });
+
       delete restApiKey.apiKey; // exclude the apiKey as response
+
       this.logger.log(`Create API Key successfully`);
 
       return right(

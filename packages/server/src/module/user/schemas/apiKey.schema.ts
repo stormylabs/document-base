@@ -13,7 +13,7 @@ export class ApiKey extends Document {
 
   @Prop({
     type: String,
-    maxlength: 64,
+    maxlength: 256,
     required: true,
     unique: true,
   })
