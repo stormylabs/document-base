@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { ApiKeyData } from 'src/shared/interfaces/apiKey';
-import { ApiKey } from '../schemas/apiKey.schema';
+import { ApiKeyData } from '@/shared/interfaces/apiKey';
+import { ApiKey } from '@/module/user/schemas/apiKey.schema';
 
 @Injectable()
 export class ApiKeyRepository {
@@ -10,8 +10,13 @@ export class ApiKeyRepository {
     @InjectModel(ApiKey.name) private readonly apiKeyModel: Model<ApiKey>,
   ) {}
 
-  async create(apiKeyData: Partial<ApiKeyData>): Promise<ApiKeyData> {
-    const apiKey = new this.apiKeyModel(apiKeyData);
+  async create(apiKeyData: {
+    userId: string;
+    apiKey: string;
+  }): Promise<ApiKeyData> {
+    const userId = new Types.ObjectId(apiKeyData.userId);
+
+    const apiKey = new this.apiKeyModel({ ...apiKeyData, user: userId });
     const saved = await apiKey.save();
     return saved.toJSON() as ApiKeyData;
   }
@@ -23,9 +28,12 @@ export class ApiKeyRepository {
     return apiKey.toJSON() as ApiKeyData;
   }
 
-  async findAll(): Promise<ApiKeyData[]> {
-    const apiKeys = await this.apiKeyModel.find().exec();
-    return apiKeys.map((apiKey) => apiKey.toJSON() as ApiKeyData);
+  async apiKeyExists(apiKeys: string[]): Promise<boolean> {
+    const count = await this.apiKeyModel
+      .countDocuments({ apiKey: { $in: apiKeys }, deletedAt: null })
+      .exec();
+
+    return count === apiKeys.length;
   }
 
   async exists(apiKeyIds: string[]): Promise<boolean> {

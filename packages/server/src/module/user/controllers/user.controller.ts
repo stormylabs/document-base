@@ -18,6 +18,9 @@ import CreateUserUseCase from '../useCases/user/CreateUser';
 import { GetUserInfoResponseDTO } from '../useCases/user/GetUserInfo/dto';
 import { IdParams } from '@/shared/dto/IdParams';
 import GetUserInfoUseCase from '../useCases/user/GetUserInfo';
+import CreateApiKeyUseCase from '../useCases/apiKey/CreateApiKey';
+import { CreateApiKeyResponseDTO } from '../useCases/apiKey/CreateApiKey/dto';
+import { UserIdParams } from '@/shared/dto/user';
 
 @ApiTags('users')
 @Controller('users')
@@ -26,6 +29,7 @@ export class UserController {
   constructor(
     private createUserUseCase: CreateUserUseCase,
     private getUserInfoUseCase: GetUserInfoUseCase,
+    private createApiKeyUseCase: CreateApiKeyUseCase,
   ) {}
 
   @Post()
@@ -73,6 +77,30 @@ export class UserController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(`[GET] get user error ${error.errorValue().message}`);
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Post('/:userId/api-keys')
+  @ApiOperation({
+    summary: 'Creates a API Key',
+  })
+  @ApiCreatedResponse({
+    description: 'Created API Key',
+    type: CreateApiKeyResponseDTO,
+  })
+  async createApiKey(@Param() { userId }: UserIdParams) {
+    this.logger.log(`[POST] Start creating API Key`);
+    const result = await this.createApiKeyUseCase.exec({
+      userId,
+    });
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] create API Key error ${error.errorValue().message}`,
+      );
       return errorHandler(error);
     }
     return result.value.getValue();

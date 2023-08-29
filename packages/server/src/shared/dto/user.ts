@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class UserResponse {
   @ApiProperty({
@@ -31,4 +32,11 @@ export class UserResponse {
     type: Date,
   })
   deletedAt?: Date;
+}
+
+export class UserIdParams {
+  @ApiProperty({ name: 'userId', type: String, description: 'User ID' })
+  @IsString()
+  @IsNotEmpty()
+  userId: string;
 }
