@@ -8,7 +8,7 @@ import { Vector } from '@pinecone-database/pinecone';
 
 @Injectable()
 export class LangChainService {
-  private tokenSplitter: RecursiveCharacterTextSplitter;
+  private textSplitter: RecursiveCharacterTextSplitter;
   private readonly logger = new Logger(LangChainService.name);
   constructor(
     @Inject(ChatOpenAI) public readonly chat: ChatOpenAI,
@@ -16,7 +16,7 @@ export class LangChainService {
     @Inject(OpenAI) public readonly llm: OpenAI,
     @Inject(OpenAIEmbeddings) public readonly embedder: OpenAIEmbeddings,
   ) {
-    this.tokenSplitter = new RecursiveCharacterTextSplitter({
+    this.textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: 500,
       chunkOverlap: 100,
     });
@@ -64,7 +64,7 @@ export class LangChainService {
     docHeader: string,
     url: string,
   ) {
-    return this.tokenSplitter.splitDocuments(documents, {
+    return this.textSplitter.splitDocuments(documents, {
       chunkHeader: `DOCUMENT NAME: ${docHeader}\n\nURL: ${url}\n\n---\n\n`,
       appendChunkOverlapHeader: true,
     });
