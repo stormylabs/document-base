@@ -79,11 +79,6 @@ export default class MessageBotUseCase {
         }),
       );
 
-      // const refinePrompt = new PromptTemplate({
-      //   inputVariables: ['question', 'existing_answer', 'context'],
-      //   template: templates.refinePromptTemplate,
-      // });
-
       const chain = ConversationalRetrievalQAChain.fromLLM(
         model,
         vectorStore.asRetriever(k, {
@@ -98,8 +93,6 @@ export default class MessageBotUseCase {
           qaChainOptions: {
             type: 'stuff',
             prompt,
-            // questionPrompt: prompt,
-            // refinePrompt,
           },
           memory: new BufferMemory({
             memoryKey: 'chat_history',
