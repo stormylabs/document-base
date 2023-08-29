@@ -3,6 +3,7 @@ import {
   InternalServerErrorException,
   ConflictException,
   BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   InvalidInputError,
@@ -11,6 +12,7 @@ import {
   AbortJobError,
   NotFoundError,
   LockedJobError,
+  UnauthorizedError,
 } from '../core/AppError';
 
 export const errorHandler = (
@@ -20,7 +22,8 @@ export const errorHandler = (
     | UnfinishedJobsError
     | ConflictError
     | LockedJobError
-    | AbortJobError,
+    | AbortJobError
+    | UnauthorizedError,
 ) => {
   switch (error.constructor.name) {
     case 'NotFoundError':
@@ -43,6 +46,9 @@ export const errorHandler = (
     case 'AbortJobError':
     case 'LockedJobError':
       throw new ConflictException(error.errorValue().message);
+
+    case 'UnauthorizedError':
+      throw new UnauthorizedException(error.errorValue().message);
 
     default:
       throw new InternalServerErrorException();

@@ -120,3 +120,11 @@ export class UserExistsError extends Result<UseCaseError> {
     Logger.log(message, UserExistsError.name);
   }
 }
+
+export class UnauthorizedError extends Result<UseCaseError> {
+  public constructor() {
+    const message = `Unauthorized`;
+    super(false, { message } as UseCaseError);
+    Logger.log(message, UnauthorizedError.name);
+  }
+}

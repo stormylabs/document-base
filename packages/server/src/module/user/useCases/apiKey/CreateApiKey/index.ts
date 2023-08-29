@@ -1,20 +1,28 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError from '@/shared/core/AppError';
+import UnexpectedError, { UnauthorizedError } from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
 import { ApiKeyService } from '@/module/user/services/apiKey.service';
 import { CreateApiKeyResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { generateKey } from '@/shared/utils/apiKey';
+import { UserService } from '@/module/user/services/user.service';
 
 type Response = Either<Result<UseCaseError>, Result<CreateApiKeyResponseDTO>>;
 
 @Injectable()
 export default class CreateApiKeyUseCase {
   private readonly logger = new Logger(CreateApiKeyUseCase.name);
-  constructor(private readonly apiKeyService: ApiKeyService) {}
+  constructor(
+    private readonly apiKeyService: ApiKeyService,
+    private readonly userService: UserService,
+  ) {}
   public async exec(data: { userId: string }): Promise<Response> {
     try {
       this.logger.log(`Start creating api key`);
+
+      // check is user exist
+      const userExists = await this.userService.exists([data.userId]);
+      if (!userExists) return left(new UnauthorizedError());
 
       // generate uniq api key
       const uniqApiKey = await this.generateUniqApiKey();

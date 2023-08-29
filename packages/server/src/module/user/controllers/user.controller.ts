@@ -7,6 +7,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { errorHandler } from '@/shared/http';
@@ -89,6 +90,9 @@ export class UserController {
   @ApiCreatedResponse({
     description: 'Created API Key',
     type: CreateApiKeyResponseDTO,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   async createApiKey(@Param() { userId }: UserIdParams) {
     this.logger.log(`[POST] Start creating API Key`);
