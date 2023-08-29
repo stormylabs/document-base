@@ -38,12 +38,16 @@ export class DocumentService {
     return this.documentRepository.exists(documentIds);
   }
 
-  async updateContent(
-    documentId: string,
-    content: string,
-  ): Promise<DocumentData> {
+  async updateContent({
+    documentId,
+    content,
+    title,
+  }: { documentId: string } & Partial<
+    Omit<DocumentData, '_id' | 'createdAt'>
+  >): Promise<DocumentData> {
     const updatedDocument = await this.documentRepository.update(documentId, {
       content,
+      title,
     });
     return updatedDocument;
   }

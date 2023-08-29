@@ -1,6 +1,8 @@
 import { Logger } from '@nestjs/common';
 import { Result } from './Result';
 import UseCaseError from './UseCaseError';
+import { JobType, Resource } from '../interfaces';
+import { JOB_TERM_MAPPING } from '../constants';
 
 export default class UnexpectedError extends Result<UseCaseError> {
   public constructor(err: Error) {
@@ -46,96 +48,39 @@ export class ConflictError extends Result<UseCaseError> {
   }
 }
 
-export class UnfinishedCrawlJobsError extends Result<UseCaseError> {
-  public constructor(jobIds: string[]) {
-    const message = `There are unfinished crawl jobs. Please wait until they are finished: ${jobIds.join(
-      ', ',
-    )}`;
+export class UnfinishedJobsError extends Result<UseCaseError> {
+  public constructor(jobIds: string[], jobType: JobType) {
+    const message = `${
+      JOB_TERM_MAPPING[jobType]
+    } unfinished. Please wait until they are finished: ${jobIds.join(', ')}`;
     super(false, { message } as UseCaseError);
-    Logger.log(message, UnfinishedCrawlJobsError.name);
+    Logger.log(message, UnfinishedJobsError.name);
   }
 }
 
-export class UnfinishedDocIndexJobsError extends Result<UseCaseError> {
-  public constructor(jobIds: string[]) {
-    const message = `There are unfinished train jobs. Please wait until they are finished: ${jobIds.join(
-      ', ',
-    )}`;
+export class AbortJobError extends Result<UseCaseError> {
+  public constructor(jobIds: string[], jobType: JobType) {
+    const message = `${
+      JOB_TERM_MAPPING[jobType]
+    } are not in 'running' or 'pending' statuses: ${jobIds.join(', ')}`;
     super(false, { message } as UseCaseError);
-    Logger.log(message, UnfinishedDocIndexJobsError.name);
+    Logger.log(message, AbortJobError.name);
   }
 }
 
-export class UnfinishedExtractFileJobsError extends Result<UseCaseError> {
-  public constructor(jobIds: string[]) {
-    const message = `There are unfinished extract file jobs. Please wait until they are finished: ${jobIds.join(
-      ', ',
-    )}`;
+export class LockedJobError extends Result<UseCaseError> {
+  public constructor(jobIds: string[], jobType: JobType) {
+    const message = `${JOB_TERM_MAPPING[jobType]} locked: ${jobIds.join(', ')}`;
     super(false, { message } as UseCaseError);
-    Logger.log(message, UnfinishedExtractFileJobsError.name);
-  }
-}
-
-export class LockedDocIndexJobError extends Result<UseCaseError> {
-  public constructor(jobId: string) {
-    const message = `Doc Index job is locked: ${jobId}`;
-    super(false, { message } as UseCaseError);
-    Logger.log(message, LockedDocIndexJobError.name);
-  }
-}
-
-export class LockedCrawlJobError extends Result<UseCaseError> {
-  public constructor(jobId: string) {
-    const message = `Crawl job is locked: ${jobId}`;
-    super(false, { message } as UseCaseError);
-    Logger.log(message, LockedCrawlJobError.name);
-  }
-}
-
-export class LockedExtractFileJobError extends Result<UseCaseError> {
-  public constructor(jobId: string) {
-    const message = `Extract File job is locked: ${jobId}`;
-    super(false, { message } as UseCaseError);
-    Logger.log(message, LockedExtractFileJobError.name);
+    Logger.log(message, LockedJobError.name);
   }
 }
 
 export class NotFoundError extends Result<UseCaseError> {
-  public constructor(message: string) {
+  public constructor(resource: Resource, ids: string[]) {
+    const message = `${resource} not found: ${ids.join(', ')}`;
     super(false, { message } as UseCaseError);
     Logger.log(message, NotFoundError.name);
-  }
-}
-
-export class BotNotFoundError extends Result<UseCaseError> {
-  public constructor() {
-    const message = 'Bot not found';
-    super(false, { message } as UseCaseError);
-    Logger.log(message, BotNotFoundError.name);
-  }
-}
-
-export class DocumentNotFoundError extends Result<UseCaseError> {
-  public constructor() {
-    const message = 'Document not found';
-    super(false, { message } as UseCaseError);
-    Logger.log(message, DocumentNotFoundError.name);
-  }
-}
-
-export class CrawlJobNotFoundError extends Result<UseCaseError> {
-  public constructor() {
-    const message = 'Crawl Job not found';
-    super(false, { message } as UseCaseError);
-    Logger.log(message, CrawlJobNotFoundError.name);
-  }
-}
-
-export class DocIndexJobNotFoundError extends Result<UseCaseError> {
-  public constructor() {
-    const message = 'Train Job not found';
-    super(false, { message } as UseCaseError);
-    Logger.log(message, DocIndexJobNotFoundError.name);
   }
 }
 
@@ -160,14 +105,6 @@ export class ExtractFileError extends Result<UseCaseError> {
   }
 }
 
-export class ExtractFileJobNotFoundError extends Result<UseCaseError> {
-  public constructor() {
-    const message = 'Extract File Job not found';
-    super(false, { message } as UseCaseError);
-    Logger.log(message, ExtractFileJobNotFoundError.name);
-  }
-}
-
 export class S3UploadError extends Result<UseCaseError> {
   public constructor(filenames: string[]) {
     const message = `S3 upload failed: ${filenames.join(', ')}`;
@@ -176,18 +113,10 @@ export class S3UploadError extends Result<UseCaseError> {
   }
 }
 
-export class EmailUserAlreadyExistsError extends Result<UseCaseError> {
+export class UserExistsError extends Result<UseCaseError> {
   public constructor() {
     const message = `Email already exists.`;
     super(false, { message } as UseCaseError);
-    Logger.log(message, EmailUserAlreadyExistsError.name);
-  }
-}
-
-export class UserNotFoundError extends Result<UseCaseError> {
-  public constructor() {
-    const message = 'User not found';
-    super(false, { message } as UseCaseError);
-    Logger.log(message, UserNotFoundError.name);
+    Logger.log(message, UserExistsError.name);
   }
 }

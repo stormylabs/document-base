@@ -10,7 +10,15 @@ export class User extends Document {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @Prop({ type: String, maxlength: 64, default: 'default', required: true })
+  @Prop({
+    type: String,
+    maxlength: 320,
+    default: 'default',
+    required: true,
+    unique: true,
+    trim: true,
+    immutable: true,
+  })
   email: string;
 
   @Prop({ default: Date.now, type: Date })
@@ -24,5 +32,5 @@ export class User extends Document {
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
-UserSchema.index({ name: 1 });
+UserSchema.index({ email: 1 });
 UserSchema.set('toJSON', toJSONOverride);

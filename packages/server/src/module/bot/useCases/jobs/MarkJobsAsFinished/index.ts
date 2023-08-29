@@ -6,8 +6,9 @@ import { Cron, CronExpression } from '@nestjs/schedule';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
+import UseCaseError from '@/shared/core/UseCaseError';
 
-type Response = Either<UnexpectedError, Result<void>>;
+type Response = Either<Result<UseCaseError>, Result<void>>;
 
 @Injectable()
 export default class MarkJobsAsFinishedUseCase {

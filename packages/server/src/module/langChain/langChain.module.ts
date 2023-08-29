@@ -25,6 +25,20 @@ import { OpenAI } from 'langchain';
       inject: [ConfigService],
     },
     {
+      provide: ChatOpenAI,
+      useFactory: async (config: ConfigService) => {
+        const configuration = {
+          openAIApiKey: config.get('OPENAI_API_KEY'),
+          streaming: true,
+          verbose: true,
+          modelName: 'gpt-3.5-turbo-16k',
+          temperature: 0,
+        };
+        return new ChatOpenAI(configuration);
+      },
+      inject: [ConfigService],
+    },
+    {
       provide: OpenAIEmbeddings,
       useFactory: async (config: ConfigService) => {
         const configuration = {

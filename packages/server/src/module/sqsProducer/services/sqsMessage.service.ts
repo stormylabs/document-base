@@ -3,7 +3,7 @@ import { SqsService } from '@ssut/nestjs-sqs';
 import { Message } from '@ssut/nestjs-sqs/dist/sqs.types';
 import { ConfigService } from '@nestjs/config';
 import { uuid } from 'uuidv4';
-import { JobType } from '@aws-sdk/client-sqs/dist-cjs';
+import { JobType } from '@/shared/interfaces';
 
 @Injectable()
 export class SqsMessageService {
@@ -22,11 +22,11 @@ export class SqsMessageService {
   }
 
   getQueueName(job: JobType) {
-    if (job === 'web-crawl') {
+    if (job === JobType.WebCrawl) {
       return this.config.get<string>('WEB_CRAWL_QUEUE_NAME');
     }
 
-    if (job === 'file-extract') {
+    if (job === JobType.FileExtract) {
       return this.config.get<string>('FILE_EXTRACT_QUEUE_NAME');
     }
 

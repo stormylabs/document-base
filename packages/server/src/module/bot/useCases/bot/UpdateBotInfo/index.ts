@@ -1,14 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { BotNotFoundError } from 'src/shared/core/AppError';
+import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 
 import UpdateBotInfoDTO, { UpdateBotInfoResponseDTO } from './dto';
 import { BotService } from '@/module/bot/services/bot.service';
+import UseCaseError from '@/shared/core/UseCaseError';
+import { Resource } from '@/shared/interfaces';
 
-type Response = Either<
-  BotNotFoundError | UnexpectedError,
-  Result<UpdateBotInfoResponseDTO>
->;
+type Response = Either<Result<UseCaseError>, Result<UpdateBotInfoResponseDTO>>;
 
 @Injectable()
 export default class UpdateBotInfoUseCase {
@@ -23,7 +22,7 @@ export default class UpdateBotInfoUseCase {
       this.logger.log(`Start updating bot`);
 
       const bot = await this.botService.findById(botId);
-      if (!bot) return left(new BotNotFoundError());
+      if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
 
       const updatedBot = await this.botService.updateInfo(botId, botData);
 

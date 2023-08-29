@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  BotNotFoundError,
+  NotFoundError,
   SQSSendMessageError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
@@ -8,13 +8,14 @@ import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
 import { CrawlJobMessage } from '@/shared/interfaces/crawlJob';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
-import { JobStatus } from '@/shared/interfaces';
+import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { DocumentService } from '@/module/bot/services/document.service';
 import { DocumentType } from '@/shared/interfaces/document';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
+import UseCaseError from '@/shared/core/UseCaseError';
 
 type Response = Either<
-  UnexpectedError | SQSSendMessageError | BotNotFoundError,
+  Result<UseCaseError>,
   Result<{ jobId: string; status: JobStatus }>
 >;
 
@@ -36,7 +37,7 @@ export default class CreateCrawlJobUseCase {
       this.logger.log(`Start creating crawl job`);
 
       const bot = await this.botService.findById(botId);
-      if (!bot) return left(new BotNotFoundError());
+      if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
 
       const urlDocs = bot.documents.filter(
         (doc) => doc.type === DocumentType.Url,
@@ -79,7 +80,7 @@ export default class CreateCrawlJobUseCase {
   async sendMessages(jobId: string, payloads: CrawlJobMessage[]) {
     await this.sqsMessageService.sendMessages<CrawlJobMessage>(
       jobId,
-      'web-crawl',
+      JobType.WebCrawl,
       payloads,
     );
   }

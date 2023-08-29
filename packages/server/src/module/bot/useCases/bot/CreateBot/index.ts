@@ -3,8 +3,9 @@ import UnexpectedError from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '../../../services/bot.service';
 import { CreateBotResponseDTO } from './dto';
+import UseCaseError from '@/shared/core/UseCaseError';
 
-type Response = Either<UnexpectedError, Result<CreateBotResponseDTO>>;
+type Response = Either<Result<UseCaseError>, Result<CreateBotResponseDTO>>;
 
 @Injectable()
 export default class CreateBotUseCase {

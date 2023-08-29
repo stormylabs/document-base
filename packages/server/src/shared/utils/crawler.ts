@@ -5,13 +5,15 @@ import * as parse from 'url-parse';
 import { Logger } from '@nestjs/common';
 import * as path from 'path';
 import * as iconv from 'iconv-lite';
-import { EXTENSIONS } from '../constants';
+import { EXTENSIONS, HTML_CONTENT_TYPES } from '../constants';
+import { isValidUrl } from './web-utils';
 
 const turndownService = new TurndownService();
 
 class Crawler {
   text: string;
   urls: string[];
+  title: string;
   url: string;
   spider: Spider | null = {};
   textLengthMinimum = 200;
@@ -22,6 +24,7 @@ class Crawler {
     this.textLengthMinimum = textLengthMinimum;
 
     this.text = '';
+    this.title = '';
     this.spider = {};
     this.urls = [];
   }
@@ -50,41 +53,49 @@ class Crawler {
     this.logger.log('Identifying urls');
     doc.$('a').each((i: number, elem: any) => {
       const href = doc.$(elem).attr('href')?.split('#')[0];
-      const targetUrl = href && doc.resolve(href);
+      const targetUrl = href && isValidUrl(href) && doc.resolve(href);
       const targetUrlParts = parse(encodeURI(targetUrl));
       const uParts = parse(this.url);
       const extension = path.extname(targetUrlParts.pathname);
+      const contentType = doc.res.headers['content-type'] || '';
+      const contentTypeParts = contentType.split('; ');
       if (
         !targetUrl ||
         targetUrlParts.hostname !== uParts.hostname ||
-        EXTENSIONS.includes(extension.toLowerCase())
+        EXTENSIONS.includes(extension.toLowerCase()) ||
+        contentTypeParts.every((part) => !HTML_CONTENT_TYPES.includes(part))
       ) {
-        this.logger.log(`Ignoring url ${targetUrl}, extension: ${extension}`);
+        this.logger.log(
+          `Ignoring url ${targetUrl}, extension: ${extension}, content-type: ${contentType}`,
+        );
         return;
       }
       this.urls.push(targetUrl);
     });
 
     $('script').remove();
+    $('#hub-sidebar').remove();
+    $('img').remove();
     $('style').remove();
     $('noscript').remove();
     $('iframe').remove();
-    $('#hub-sidebar').remove();
-    $('header').remove();
-    $('nav').remove();
-    $('img').remove();
-    $('footer').remove();
-    $('*[class*=footer]').remove();
-    $('*[id*=footer]').remove();
-    $('*[class*=nav]').remove();
-    $('*[id*=nav]').remove();
-    // const title = $('title').text() || $('.article-title').text();
+
+    // $('header').remove();
+    // $('nav').remove();
+    // $('footer').remove();
+    // $('*[class*=footer]').remove();
+    // $('*[id*=footer]').remove();
+    // $('*[class*=nav]').remove();
+    // $('*[id*=nav]').remove();
+    const title = $('title').text() || $('.article-title').text();
     const html = $('body').html();
 
     const text = turndownService.turndown(html);
+
     this.logger.log('Crawled website successfully');
     if (text.length > this.textLengthMinimum) {
       this.text = text;
+      this.title = title;
     }
   };
 
@@ -106,7 +117,7 @@ class Crawler {
         },
         // Called when there are no more requests
         done: () => {
-          resolve({ text: this.text, urls: this.urls });
+          resolve({ text: this.text, urls: this.urls, title: this.title });
         },
         headers: { 'user-agent': 'node-spider' },
         encoding: null,

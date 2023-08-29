@@ -1,7 +1,8 @@
-import { Controller, Logger, Get, Param } from '@nestjs/common';
+import { Controller, Logger, Get, Param, Post } from '@nestjs/common';
 import { errorHandler } from 'src/shared/http';
 
 import {
+  ApiConflictResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -14,6 +15,8 @@ import { GetCrawlJobStatusResponseDTO } from '../useCases/jobs/GetCrawlJobStatus
 import { GetDocIndexJobStatusResponseDTO } from '../useCases/jobs/GetDocIndexJobStatus/dto';
 import GetExtractFileJobStatusUseCase from '../useCases/jobs/GetExtractFileJobStatus';
 import { GetExtractFileJobStatusResponseDTO } from '../useCases/jobs/GetExtractFileJobStatus/dto';
+import { AbortCrawlJobResponseDTO } from '../useCases/jobs/AbortCrawlJob/dto';
+import AbortCrawlJobUseCase from '../useCases/jobs/AbortCrawlJob';
 
 @ApiTags('data')
 @Controller('data')
@@ -23,6 +26,7 @@ export class DataController {
     private getCrawlJobStatusUseCase: GetCrawlJobStatusUseCase,
     private getDocIndexJobStatusUseCase: GetDocIndexJobStatusUseCase,
     private getExtractFileJobStatusUseCase: GetExtractFileJobStatusUseCase,
+    private abortCrawlJobUseCase: AbortCrawlJobUseCase,
   ) {}
 
   @Get('/crawl/:id')
@@ -44,6 +48,35 @@ export class DataController {
       const error = result.value;
       this.logger.error(
         `[GET] get crawl job status error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+
+    return result.value.getValue();
+  }
+
+  @Post('/crawl/abort/:id')
+  @ApiOperation({
+    summary: 'Abort crawl job by job ID.',
+  })
+  @ApiOkResponse({
+    description: 'Aborted crawl job',
+    type: AbortCrawlJobResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Crawl Job not found',
+  })
+  @ApiConflictResponse({
+    description: `The jobId is not in 'running' or 'pending' statuses.`,
+  })
+  async abortCrawlJob(@Param() { id }: IdParams) {
+    this.logger.log(`[POST] Start aborting crawl job`);
+    const result = await this.abortCrawlJobUseCase.exec(id);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] abort crawl job error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

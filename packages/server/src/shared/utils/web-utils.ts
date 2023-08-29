@@ -54,3 +54,12 @@ export const extractExtensionFromUrl = (url: string) => {
   const extension = path.extname(parsedUrl.pathname);
   return extension;
 };
+
+export const isValidUrl = (str: string) => {
+  try {
+    new URL(str);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};

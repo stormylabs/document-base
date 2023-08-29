@@ -1,20 +1,21 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  BotNotFoundError,
+  NotFoundError,
   SQSSendMessageError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
-import { JobStatus } from '@/shared/interfaces';
+import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { DocumentData } from '@/shared/interfaces/document';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
 import { DocIndexJobMessage } from '@/shared/interfaces/docIndexJob';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { PineconeDeleteError } from '@/shared/core/PineconeError';
+import UseCaseError from '@/shared/core/UseCaseError';
 
 type Response = Either<
-  BotNotFoundError | UnexpectedError | PineconeDeleteError,
+  Result<UseCaseError>,
   Result<{ jobId: string; status: JobStatus }>
 >;
 
@@ -35,7 +36,7 @@ export default class CreateDocIndexJobUseCase {
       this.logger.log(`Start creating doc index job`);
 
       const botExists = await this.botService.exists([botId]);
-      if (!botExists) return left(new BotNotFoundError());
+      if (!botExists) return left(new NotFoundError(Resource.Bot, [botId]));
 
       const index = this.pineconeService.index;
 
@@ -79,7 +80,7 @@ export default class CreateDocIndexJobUseCase {
   async sendMessages(jobId: string, payloads: DocIndexJobMessage[]) {
     await this.sqsMessageService.sendMessages<DocIndexJobMessage>(
       jobId,
-      'doc-index',
+      JobType.DocIndex,
       payloads,
     );
   }

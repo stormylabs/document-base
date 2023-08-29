@@ -1,32 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  BotNotFoundError,
-  DocIndexJobNotFoundError,
-  DocumentNotFoundError,
-  LockedDocIndexJobError,
+  LockedJobError,
+  NotFoundError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { Document as LCDocument } from 'langchain/document';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
-import { JobStatus } from '@/shared/interfaces';
+import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { BotService } from '@/module/bot/services/bot.service';
 import { LangChainService } from '@/module/langChain/services/langChain.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
-import {
-  LangChainGetVectorsError,
-  LangChainSplitDocsError,
-} from '@/shared/core/LangChainError';
-import { PineconeUpsertError } from '@/shared/core/PineconeError';
+import { LangChainSplitDocsError } from '@/shared/core/LangChainError';
 import { DocumentService } from '@/module/bot/services/document.service';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
+import UseCaseError from '@/shared/core/UseCaseError';
 
 type Response = Either<
-  | DocIndexJobNotFoundError
-  | BotNotFoundError
-  | UnexpectedError
-  | LangChainSplitDocsError
-  | LangChainGetVectorsError
-  | PineconeUpsertError,
+  Result<UseCaseError>,
   Result<{
     jobId: string;
     botId: string;
@@ -57,17 +47,17 @@ export default class IndexDocumentUseCase {
       const lockAcquired = await this.docIndexJobService.acquireLock(jobId);
 
       if (!lockAcquired) {
-        return left(new LockedDocIndexJobError(jobId));
+        return left(new LockedJobError([jobId], JobType.DocIndex));
       }
 
       const document = await this.documentService.findById(documentId);
       if (!document) {
-        return left(new DocumentNotFoundError());
+        return left(new NotFoundError(Resource.Document, [jobId]));
       }
 
       const docIndexJob = await this.docIndexJobService.findById(jobId);
       if (!docIndexJob) {
-        return left(new DocIndexJobNotFoundError());
+        return left(new NotFoundError(Resource.DocIndexJob, [jobId]));
       }
       if (docIndexJob.status === JobStatus.Finished) {
         return right(Result.ok());
@@ -79,22 +69,26 @@ export default class IndexDocumentUseCase {
 
       const bot = await this.botService.findById(botId);
       if (!bot) {
-        return left(new BotNotFoundError());
+        return left(new NotFoundError(Resource.Bot, [botId]));
       }
 
       this.logger.log(`Start splitting document: ${document.sourceName}`);
 
       let docs: LCDocument<Record<string, any>>[];
       try {
-        docs = await this.langChainService.splitDocuments([
-          new LCDocument({
-            pageContent: document.content,
-            metadata: {
-              botId,
-              sourceName: document.sourceName,
-            },
-          }),
-        ]);
+        docs = await this.langChainService.splitDocuments(
+          [
+            new LCDocument({
+              pageContent: document.content,
+              metadata: {
+                botId,
+                sourceName: document.sourceName,
+              },
+            }),
+          ],
+          document.title,
+          document.sourceName,
+        );
       } catch (e) {
         return left(new LangChainSplitDocsError(e));
       }

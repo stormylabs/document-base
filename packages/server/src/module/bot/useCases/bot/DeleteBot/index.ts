@@ -1,17 +1,15 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { BotNotFoundError } from '@/shared/core/AppError';
+import UnexpectedError, { NotFoundError } from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DeleteBotResponseDTO } from './dto';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
-import { JobStatus } from '@/shared/interfaces';
+import { JobStatus, Resource } from '@/shared/interfaces';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
+import UseCaseError from '@/shared/core/UseCaseError';
 
-type Response = Either<
-  UnexpectedError | BotNotFoundError,
-  Result<DeleteBotResponseDTO>
->;
+type Response = Either<Result<UseCaseError>, Result<DeleteBotResponseDTO>>;
 
 @Injectable()
 export default class DeleteBotUseCase {
@@ -28,7 +26,7 @@ export default class DeleteBotUseCase {
 
       const bot = await this.botService.findById(botId);
       if (!bot) {
-        return left(new BotNotFoundError());
+        return left(new NotFoundError(Resource.Bot, [botId]));
       }
 
       // check unfinished doc index jobs

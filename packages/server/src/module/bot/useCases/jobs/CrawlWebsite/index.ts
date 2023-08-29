@@ -1,10 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  BotNotFoundError,
-  CrawlJobNotFoundError,
   CrawlerError,
-  DocumentNotFoundError,
-  LockedCrawlJobError,
+  LockedJobError,
+  NotFoundError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { CrawlJobService } from '../../../services/crawlJob.service';
@@ -12,18 +10,11 @@ import { BotService } from '@/module/bot/services/bot.service';
 import { DocumentService } from '@/module/bot/services/document.service';
 import { Crawler } from '@/shared/utils/crawler';
 import { DocumentType } from '@/shared/interfaces/document';
-import { JobStatus } from '@/shared/interfaces';
+import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import CreateCrawlJobUseCase from '../CreateCrawlJob';
+import UseCaseError from '@/shared/core/UseCaseError';
 
-type Response = Either<
-  | CrawlJobNotFoundError
-  | DocumentNotFoundError
-  | BotNotFoundError
-  | UnexpectedError
-  | LockedCrawlJobError
-  | CrawlerError,
-  Result<void>
->;
+type Response = Either<Result<UseCaseError>, Result<void>>;
 
 @Injectable()
 export default class CrawlWebsiteUseCase {
@@ -44,17 +35,17 @@ export default class CrawlWebsiteUseCase {
       const lockAcquired = await this.crawlJobService.acquireLock(jobId);
 
       if (!lockAcquired) {
-        return left(new LockedCrawlJobError(jobId));
+        return left(new LockedJobError([jobId], JobType.WebCrawl));
       }
 
       const crawlJob = await this.crawlJobService.findById(jobId);
       if (!crawlJob) {
-        return left(new CrawlJobNotFoundError());
+        return left(new NotFoundError(Resource.CrawlJob, [jobId]));
       }
 
       const document = await this.documentService.findById(documentId);
       if (!document) {
-        return left(new DocumentNotFoundError());
+        return left(new NotFoundError(Resource.Document, [documentId]));
       }
 
       if (crawlJob.status === JobStatus.Finished) {
@@ -75,7 +66,7 @@ export default class CrawlWebsiteUseCase {
 
       const bot = await this.botService.findById(botId);
       if (!bot) {
-        return left(new BotNotFoundError());
+        return left(new NotFoundError(Resource.Bot, [botId]));
       }
 
       const url = document.sourceName;
@@ -85,11 +76,13 @@ export default class CrawlWebsiteUseCase {
       let data: {
         text: string;
         urls: string[];
+        title: string;
       };
       try {
         data = (await crawler.start()) as {
           text: string;
           urls: string[];
+          title: string;
         };
       } catch (e) {
         await this.crawlJobService.removeDocument(jobId, documentId);
@@ -110,7 +103,11 @@ export default class CrawlWebsiteUseCase {
         return right(Result.ok());
       }
 
-      await this.documentService.updateContent(documentId, data.text);
+      await this.documentService.updateContent({
+        documentId,
+        content: data.text,
+        title: data.title,
+      });
       this.logger.log('document content updated');
       const upsertedBot = await this.botService.upsertDocument(
         botId,

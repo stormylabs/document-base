@@ -4,10 +4,24 @@ import {
   ConflictException,
   BadRequestException,
 } from '@nestjs/common';
-import { Result } from '../core/Result';
-import UseCaseError from '../core/UseCaseError';
+import {
+  InvalidInputError,
+  UnfinishedJobsError,
+  ConflictError,
+  AbortJobError,
+  NotFoundError,
+  LockedJobError,
+} from '../core/AppError';
 
-export const errorHandler = (error: Result<UseCaseError>) => {
+export const errorHandler = (
+  error:
+    | NotFoundError
+    | InvalidInputError
+    | UnfinishedJobsError
+    | ConflictError
+    | LockedJobError
+    | AbortJobError,
+) => {
   switch (error.constructor.name) {
     case 'NotFoundError':
     case 'BotNotFoundError':
@@ -24,8 +38,10 @@ export const errorHandler = (error: Result<UseCaseError>) => {
     case 'UnfinishedCrawlJobsError':
     case 'UnfinishedDocIndexJobsError':
     case 'UnfinishedExtractFileJobsError':
-    case 'EmailUserAlreadyExistsError':
+    case 'UserAlreadyExistsError':
     case 'ConflictError':
+    case 'AbortJobError':
+    case 'LockedJobError':
       throw new ConflictException(error.errorValue().message);
 
     default:

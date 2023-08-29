@@ -2,23 +2,23 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { LLMChain, OpenAI, PromptTemplate } from 'langchain';
 import { ChatOpenAI } from 'langchain/chat_models/openai';
-import { TokenTextSplitter } from 'langchain/text_splitter';
+import { RecursiveCharacterTextSplitter } from 'langchain/text_splitter';
 import { Document as LCDocument } from 'langchain/document';
 import { Vector } from '@pinecone-database/pinecone';
 
 @Injectable()
 export class LangChainService {
-  private tokenSplitter: TokenTextSplitter;
+  private textSplitter: RecursiveCharacterTextSplitter;
   private readonly logger = new Logger(LangChainService.name);
   constructor(
     @Inject(ChatOpenAI) public readonly chat: ChatOpenAI,
+    @Inject(ChatOpenAI) public readonly chat16k: ChatOpenAI,
     @Inject(OpenAI) public readonly llm: OpenAI,
     @Inject(OpenAIEmbeddings) public readonly embedder: OpenAIEmbeddings,
   ) {
-    this.tokenSplitter = new TokenTextSplitter({
-      encodingName: 'gpt2',
+    this.textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: 500,
-      chunkOverlap: 0,
+      chunkOverlap: 100,
     });
   }
 
@@ -59,7 +59,14 @@ export class LangChainService {
     });
   }
 
-  async splitDocuments(documents: LCDocument[]) {
-    return this.tokenSplitter.splitDocuments(documents);
+  async splitDocuments(
+    documents: LCDocument[],
+    docHeader: string,
+    url: string,
+  ) {
+    return this.textSplitter.splitDocuments(documents, {
+      chunkHeader: `DOCUMENT NAME: ${docHeader}\n\nURL: ${url}\n\n---\n\n`,
+      appendChunkOverlapHeader: true,
+    });
   }
 }

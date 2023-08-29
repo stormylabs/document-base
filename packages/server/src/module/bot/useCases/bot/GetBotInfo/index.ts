@@ -1,5 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { BotNotFoundError } from 'src/shared/core/AppError';
+import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { encode } from 'gpt-3-encoder';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
@@ -7,11 +7,10 @@ import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { GetBotInfoResponseDTO } from './dto';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
+import UseCaseError from '@/shared/core/UseCaseError';
+import { Resource } from '@/shared/interfaces';
 
-type Response = Either<
-  UnexpectedError | BotNotFoundError,
-  Result<GetBotInfoResponseDTO>
->;
+type Response = Either<Result<UseCaseError>, Result<GetBotInfoResponseDTO>>;
 
 @Injectable()
 export default class GetBotInfoUseCase {
@@ -27,7 +26,7 @@ export default class GetBotInfoUseCase {
       this.logger.log(`Start getting bot info`);
 
       const bot = await this.botService.findById(botId);
-      if (!bot) return left(new BotNotFoundError());
+      if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
 
       const { documents, _id, name, createdAt, fallbackMessage, prompt } = bot;
 

@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  UnfinishedDocIndexJobsError,
-  BotNotFoundError,
+  NotFoundError,
+  UnfinishedJobsError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
@@ -10,28 +10,15 @@ import { LangChainService } from '@/module/langChain/services/langChain.service'
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { MessageBotResponseDTO } from './dto';
-import {
-  LangChainCallError,
-  LangChainGetEmbeddingError,
-  LangChainSummarizeError,
-} from '@/shared/core/LangChainError';
-import { PineconeGetMatchesError } from '@/shared/core/PineconeError';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import { ConversationalRetrievalQAChain } from 'langchain/chains';
 import { BufferMemory, ChatMessageHistory } from 'langchain/memory';
 import { PromptTemplate } from 'langchain';
 import { AIChatMessage, HumanChatMessage } from 'langchain/schema';
+import UseCaseError from '@/shared/core/UseCaseError';
+import { JobType, Resource } from '@/shared/interfaces';
 
-type Response = Either<
-  | UnexpectedError
-  | UnfinishedDocIndexJobsError
-  | BotNotFoundError
-  | LangChainCallError
-  | LangChainGetEmbeddingError
-  | PineconeGetMatchesError
-  | LangChainSummarizeError,
-  Result<MessageBotResponseDTO>
->;
+type Response = Either<Result<UseCaseError>, Result<MessageBotResponseDTO>>;
 
 @Injectable()
 export default class MessageBotUseCase {
@@ -53,7 +40,7 @@ export default class MessageBotUseCase {
 
       const bot = await this.botService.findById(botId);
 
-      if (!bot) return left(new BotNotFoundError());
+      if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
 
       const unfinishedJobs = await this.docIndexJobService.findUnfinishedJobs(
         botId,
@@ -61,7 +48,10 @@ export default class MessageBotUseCase {
 
       if (unfinishedJobs.length > 0) {
         return left(
-          new UnfinishedDocIndexJobsError(unfinishedJobs.map((job) => job._id)),
+          new UnfinishedJobsError(
+            unfinishedJobs.map((job) => job._id),
+            JobType.DocIndex,
+          ),
         );
       }
 
@@ -70,11 +60,12 @@ export default class MessageBotUseCase {
         { pineconeIndex: this.pineconeService.index },
       );
 
-      const model = this.langChainService.chat;
+      const model = this.langChainService.chat16k;
+      const llm = this.langChainService.llm;
 
-      const template = `${bot.prompt}\n If you don't have the information, reply with "${bot.fallbackMessage}", do not make stuff up. ${templates.qaTemplate}`;
+      const template = `${bot.prompt}\n Always attempt to answer the question with the information provided, and only include information relevant to the question. Reply "${bot.fallbackMessage}" only if the information is not adequate. ${templates.qaTemplate}`;
 
-      const k = 3;
+      const k = 5;
 
       const prompt = new PromptTemplate({
         template,
@@ -96,7 +87,7 @@ export default class MessageBotUseCase {
         {
           verbose: true,
           questionGeneratorChainOptions: {
-            llm: model,
+            llm: llm,
             template: templates.inquiryTemplate,
           },
           qaChainOptions: {
@@ -119,9 +110,11 @@ export default class MessageBotUseCase {
         question: message,
       });
 
-      const urls = response.sourceDocuments.map(
-        (doc) => doc.metadata.sourceName,
-      );
+      const urls = [
+        ...new Set<string>(
+          response.sourceDocuments.map((doc) => doc.metadata.sourceName),
+        ),
+      ];
 
       return right(Result.ok({ message: response.text, sources: urls }));
     } catch (err) {
