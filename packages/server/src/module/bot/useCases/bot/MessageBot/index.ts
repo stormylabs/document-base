@@ -110,9 +110,11 @@ export default class MessageBotUseCase {
         question: message,
       });
 
-      const urls = response.sourceDocuments.map(
-        (doc) => doc.metadata.sourceName,
-      );
+      const urls = [
+        ...new Set<string>(
+          response.sourceDocuments.map((doc) => doc.metadata.sourceName),
+        ),
+      ];
 
       return right(Result.ok({ message: response.text, sources: urls }));
     } catch (err) {
