@@ -40,3 +40,10 @@ export class UserIdParams {
   @IsNotEmpty()
   userId: string;
 }
+
+export class RevealAPIKeyParams extends UserIdParams {
+  @ApiProperty({ name: 'apiKeyId', type: String, description: 'API Key ID' })
+  @IsString()
+  @IsNotEmpty()
+  apiKeyId: string;
+}

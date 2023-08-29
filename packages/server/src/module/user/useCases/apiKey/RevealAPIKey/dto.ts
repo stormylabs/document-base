@@ -1,7 +1,7 @@
 import { ApiKeyResponse } from '@/shared/dto/apiKey';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 
-export class CreateApiKeyResponseDTO extends PartialType(
+export class RevealAPIKeyResponseDTO extends PartialType(
   PickType(ApiKeyResponse, ['_id', 'apiKey', 'createdAt'] as const),
 ) {
   @ApiProperty({
@@ -11,6 +11,6 @@ export class CreateApiKeyResponseDTO extends PartialType(
   userId: string;
 
   _id: string;
-  apiKeyId: string;
+  apiKey: string;
   createdAt: Date;
 }

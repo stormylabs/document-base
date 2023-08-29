@@ -28,6 +28,19 @@ export class ApiKeyRepository {
     return apiKey.toJSON() as ApiKeyData;
   }
 
+  async finByUserId(userId: string): Promise<ApiKeyData | null> {
+    const user = new Types.ObjectId(userId);
+    const apiKey = await this.apiKeyModel
+      .findOne({
+        user,
+      })
+      .sort({ createdAt: -1 }) // get latest api key
+      .exec();
+    if (!apiKey || apiKey.deletedAt) return null;
+
+    return apiKey.toJSON() as ApiKeyData;
+  }
+
   async apiKeyExists(apiKeys: string[]): Promise<boolean> {
     const count = await this.apiKeyModel
       .countDocuments({ apiKey: { $in: apiKeys }, deletedAt: null })

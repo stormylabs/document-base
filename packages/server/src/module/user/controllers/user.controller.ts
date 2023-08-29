@@ -21,7 +21,9 @@ import { IdParams } from '@/shared/dto/IdParams';
 import GetUserInfoUseCase from '../useCases/user/GetUserInfo';
 import CreateApiKeyUseCase from '../useCases/apiKey/CreateApiKey';
 import { CreateApiKeyResponseDTO } from '../useCases/apiKey/CreateApiKey/dto';
-import { UserIdParams } from '@/shared/dto/user';
+import { RevealAPIKeyParams, UserIdParams } from '@/shared/dto/user';
+import { RevealAPIKeyResponseDTO } from '../useCases/apiKey/RevealAPIKey/dto';
+import RevealAPIKeyUseCase from '../useCases/apiKey/RevealAPIKey';
 
 @ApiTags('users')
 @Controller('users')
@@ -31,6 +33,7 @@ export class UserController {
     private createUserUseCase: CreateUserUseCase,
     private getUserInfoUseCase: GetUserInfoUseCase,
     private createApiKeyUseCase: CreateApiKeyUseCase,
+    private revealApiKeyUseCase: RevealAPIKeyUseCase,
   ) {}
 
   @Post()
@@ -104,6 +107,34 @@ export class UserController {
       const error = result.value;
       this.logger.error(
         `[POST] create API Key error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Get('/:userId/api-keys/:apiKeyId')
+  @ApiOperation({
+    summary: 'Reveal a API Key',
+  })
+  @ApiOkResponse({
+    description: 'Revealed API Key',
+    type: RevealAPIKeyResponseDTO,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  async revealApiKey(@Param() { userId, apiKeyId }: RevealAPIKeyParams) {
+    this.logger.log(`[GET] Start revealing API Key`);
+    const result = await this.revealApiKeyUseCase.exec({
+      userId,
+      apiKeyId,
+    });
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[GET] reveal API Key error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
