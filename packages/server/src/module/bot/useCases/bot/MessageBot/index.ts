@@ -60,11 +60,12 @@ export default class MessageBotUseCase {
         { pineconeIndex: this.pineconeService.index },
       );
 
-      const model = this.langChainService.chat;
+      const model = this.langChainService.chat16k;
+      const llm = this.langChainService.llm;
 
       const template = `${bot.prompt}\n Always attempt to answer the question with the information provided, and only include information relevant to the question. Reply "${bot.fallbackMessage}" only if the information is not adequate. ${templates.qaTemplate}`;
 
-      const k = 3;
+      const k = 5;
 
       const prompt = new PromptTemplate({
         template,
@@ -78,11 +79,6 @@ export default class MessageBotUseCase {
         }),
       );
 
-      const refinePrompt = new PromptTemplate({
-        inputVariables: ['question', 'existing_answer', 'context'],
-        template: templates.refinePromptTemplate,
-      });
-
       const chain = ConversationalRetrievalQAChain.fromLLM(
         model,
         vectorStore.asRetriever(k, {
@@ -91,13 +87,12 @@ export default class MessageBotUseCase {
         {
           verbose: true,
           questionGeneratorChainOptions: {
-            llm: model,
+            llm: llm,
             template: templates.inquiryTemplate,
           },
           qaChainOptions: {
-            type: 'refine',
-            questionPrompt: prompt,
-            refinePrompt,
+            type: 'stuff',
+            prompt,
           },
           memory: new BufferMemory({
             memoryKey: 'chat_history',
@@ -119,7 +114,7 @@ export default class MessageBotUseCase {
         (doc) => doc.metadata.sourceName,
       );
 
-      return right(Result.ok({ message: response.output_text, sources: urls }));
+      return right(Result.ok({ message: response.text, sources: urls }));
     } catch (err) {
       return left(new UnexpectedError(err));
     }

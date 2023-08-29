@@ -12,6 +12,7 @@ export class LangChainService {
   private readonly logger = new Logger(LangChainService.name);
   constructor(
     @Inject(ChatOpenAI) public readonly chat: ChatOpenAI,
+    @Inject(ChatOpenAI) public readonly chat16k: ChatOpenAI,
     @Inject(OpenAI) public readonly llm: OpenAI,
     @Inject(OpenAIEmbeddings) public readonly embedder: OpenAIEmbeddings,
   ) {
