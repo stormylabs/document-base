@@ -31,7 +31,6 @@ const templates = {
   FOLLOW_UP_QUESTION: {question}
   Standalone question:`,
   summerierTemplate: `Summarize the following text. You should follow the following rules when generating and answer:`,
-  refinePrompt: `Given the following QUESTION, CONTEXT and ANSWER, refine the ANSWER to be a standalone answer. You must follow all the rules when generating an answer.`,
   refinePromptTemplate: `
   The original question is provided between the * lines:
   ****************
