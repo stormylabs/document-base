@@ -31,7 +31,7 @@ import { OpenAI } from 'langchain';
           openAIApiKey: config.get('OPENAI_API_KEY'),
           streaming: true,
           verbose: true,
-          modelName: 'gpt-3.5-turbo-16k',
+          modelName: 'gpt-3.5-turbo',
           temperature: 0,
         };
         return new ChatOpenAI(configuration);
