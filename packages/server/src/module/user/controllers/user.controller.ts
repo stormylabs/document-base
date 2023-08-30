@@ -1,8 +1,19 @@
-import { Body, Controller, Get, Logger, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpStatus,
+  Logger,
+  Param,
+  Post,
+  Res,
+} from '@nestjs/common';
 import {
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -22,8 +33,10 @@ import GetUserInfoUseCase from '../useCases/user/GetUserInfo';
 import CreateApiKeyUseCase from '../useCases/apiKey/CreateApiKey';
 import { CreateApiKeyResponseDTO } from '../useCases/apiKey/CreateApiKey/dto';
 import { RevealAPIKeyParams, UserIdParams } from '@/shared/dto/user';
-import { RevealAPIKeyResponseDTO } from '../useCases/apiKey/RevealAPIKey/dto';
-import RevealAPIKeyUseCase from '../useCases/apiKey/RevealAPIKey';
+import { RevealAPIKeyResponseDTO } from '../useCases/apiKey/RevealApiKey/dto';
+import RevealAPIKeyUseCase from '../useCases/apiKey/RevealApiKey';
+import DeleteApiKeyUseCase from '../useCases/apiKey/DeleteApiKey';
+import { Response } from 'express';
 
 @ApiTags('users')
 @Controller('users')
@@ -34,6 +47,7 @@ export class UserController {
     private getUserInfoUseCase: GetUserInfoUseCase,
     private createApiKeyUseCase: CreateApiKeyUseCase,
     private revealApiKeyUseCase: RevealAPIKeyUseCase,
+    private deleteApiKeyUseCase: DeleteApiKeyUseCase,
   ) {}
 
   @Post()
@@ -97,7 +111,10 @@ export class UserController {
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
   })
-  async createApiKey(@Param() { userId }: UserIdParams) {
+  async createApiKey(
+    @Param() { userId }: UserIdParams,
+    @Res() @Res() res: Response,
+  ) {
     this.logger.log(`[POST] Start creating API Key`);
     const result = await this.createApiKeyUseCase.exec({
       userId,
@@ -110,6 +127,8 @@ export class UserController {
       );
       return errorHandler(error);
     }
+
+    res.status(HttpStatus.CREATED).send();
     return result.value.getValue();
   }
 
@@ -122,7 +141,10 @@ export class UserController {
     type: RevealAPIKeyResponseDTO,
   })
   @ApiUnauthorizedResponse({
-    description: 'Unauthorized',
+    description: 'User Id Does Not Exist',
+  })
+  @ApiNotFoundResponse({
+    description: 'API Key Id Does Not Exist',
   })
   async revealApiKey(@Param() { userId, apiKeyId }: RevealAPIKeyParams) {
     this.logger.log(`[GET] Start revealing API Key`);
@@ -138,6 +160,42 @@ export class UserController {
       );
       return errorHandler(error);
     }
+
+    return result.value.getValue();
+  }
+
+  @Delete('/:userId/api-keys/:apiKeyId')
+  @ApiOperation({
+    summary: 'Delete API Key',
+  })
+  @ApiNoContentResponse({
+    description: 'API Key Deleted',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'User Id Does Not Exist',
+  })
+  @ApiNotFoundResponse({
+    description: 'API Key Id Does Not Exist',
+  })
+  async deleteApiKey(
+    @Param() { userId, apiKeyId }: RevealAPIKeyParams,
+    @Res() @Res() res: Response,
+  ) {
+    this.logger.log(`[DELETE] Start deleting API Key`);
+    const result = await this.deleteApiKeyUseCase.exec({
+      userId,
+      apiKeyId,
+    });
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[DELETE] delete API Key error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+
+    res.status(HttpStatus.NO_CONTENT).send();
     return result.value.getValue();
   }
 }

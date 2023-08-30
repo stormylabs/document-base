@@ -12,7 +12,8 @@ import CreateApiKeyUseCase from './useCases/apiKey/CreateApiKey';
 import { ApiKeyService } from './services/apiKey.service';
 import { ApiKeyRepository } from './repositories/apiKey.repository';
 import { ApiKey, ApiKeySchema } from './schemas/apiKey.schema';
-import RevealAPIKeyUseCase from './useCases/apiKey/RevealAPIKey';
+import RevealAPIKeyUseCase from './useCases/apiKey/RevealApiKey';
+import DeleteApiKeyUseCase from './useCases/apiKey/DeleteApiKey';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import RevealAPIKeyUseCase from './useCases/apiKey/RevealAPIKey';
     GetUserInfoUseCase,
     CreateApiKeyUseCase,
     RevealAPIKeyUseCase,
+    DeleteApiKeyUseCase,
   ],
   exports: [UserService, CreateUserUseCase],
 })
