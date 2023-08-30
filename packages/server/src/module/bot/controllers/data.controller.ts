@@ -118,14 +118,14 @@ export class DataController {
 
   @Post('/train/abort/:id')
   @ApiOperation({
-    summary: 'Abort doc index job by job ID.',
+    summary: 'Abort train job by job ID.',
   })
   @ApiOkResponse({
-    description: 'Aborted doc index job',
+    description: 'Aborted train job',
     type: AbortDocIndexJobResponseDTO,
   })
   @ApiNotFoundResponse({
-    description: 'Abort doc index Job not found',
+    description: 'Abort train Job not found',
   })
   @ApiConflictResponse({
     description: `The jobId is not in 'running' or 'pending' statuses.`,
