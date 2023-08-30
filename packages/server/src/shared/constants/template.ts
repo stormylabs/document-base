@@ -17,7 +17,7 @@ const templates = {
   
   Answer the QUESTION based only on the CONTEXT provided.
   Do not use any information outside of the CONTEXT to answer the QUESTION.
-  If you are not sure about the answer, reply with the Fallback Message or "I don't know".
+  If you are not sure about the answer, reply with the Fallback Message.
 
   Do not repeat the QUESTION in the FINAL ANSWER.
 
@@ -26,8 +26,6 @@ const templates = {
   Keep the FINAL ANSWER concise and to the point.
 
   The FINAL ANSWER should be in the same language as the QUESTION.
-
-
 
   FINAL ANSWER:
  `,
@@ -39,7 +37,6 @@ const templates = {
   CHAT_HISTORY: {chat_history}
   FOLLOW_UP_QUESTION: {question}
   Standalone question:`,
-  summerierTemplate: `Summarize the following text. You should follow the following rules when generating and answer:`,
 };
 
 export { templates };
