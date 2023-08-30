@@ -4,7 +4,7 @@ import { Either, Result, left, right } from '@/shared/core/Result';
 import { ApiKeyService } from '@/module/user/services/apiKey.service';
 import { CreateApiKeyResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
-import { generateKey, generateSecretHash } from '@/shared/utils/apiKey';
+import { generateAPIKey } from '@/shared/utils/apiKey';
 import { UserService } from '@/module/user/services/user.service';
 
 type Response = Either<Result<UseCaseError>, Result<CreateApiKeyResponseDTO>>;
@@ -25,9 +25,9 @@ export default class CreateApiKeyUseCase {
       if (!userExists) return left(new UnauthorizedError());
 
       // generate uniq api key
-      const uniqApiKey = await this.generateUniqApiKey();
+      const uniqAPIKey = await this.generateUniqAPIKey();
       const { user: userId, ...restApiKey } = await this.apiKeyService.create({
-        apiKey: uniqApiKey.secretKey,
+        apiKey: uniqAPIKey,
         userId: data.userId,
       });
       delete restApiKey.apiKey; // exclude the apiKey as response
@@ -36,7 +36,7 @@ export default class CreateApiKeyUseCase {
       return right(
         Result.ok({
           ...restApiKey,
-          apiKeyId: uniqApiKey.keyId,
+          apiKeyId: restApiKey._id,
           userId,
         }),
       );
@@ -45,21 +45,15 @@ export default class CreateApiKeyUseCase {
     }
   }
 
-  async generateUniqApiKey() {
-    const keyId = generateKey(32, 'base64');
-    const secretKeyHash = generateSecretHash(keyId);
+  async generateUniqAPIKey(): Promise<string> {
+    const apiKey = generateAPIKey();
     // check to make sure that there is no duplication of apiKey
-    const apiKeysExists = await this.apiKeyService.apiKeyExists([
-      secretKeyHash,
-    ]);
+    const apiKeysExists = await this.apiKeyService.apiKeyExists([apiKey]);
 
     if (apiKeysExists) {
-      this.generateUniqApiKey();
+      this.generateUniqAPIKey();
     } else {
-      return {
-        keyId,
-        secretKey: secretKeyHash,
-      };
+      return apiKey;
     }
   }
 }

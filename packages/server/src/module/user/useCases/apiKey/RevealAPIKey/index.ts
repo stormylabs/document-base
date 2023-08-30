@@ -4,7 +4,6 @@ import { Either, Result, left, right } from '@/shared/core/Result';
 import { ApiKeyService } from '@/module/user/services/apiKey.service';
 import { RevealAPIKeyResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
-import { compareKeys } from '@/shared/utils/apiKey';
 import { UserService } from '@/module/user/services/user.service';
 
 type Response = Either<Result<UseCaseError>, Result<RevealAPIKeyResponseDTO>>;
@@ -27,14 +26,13 @@ export default class RevealAPIKeyUseCase {
       const userExists = await this.userService.exists([data.userId]);
       if (!userExists) return left(new UnauthorizedError());
 
-      // get last user api keys
-      const { user: userId, ...apiKey } = await this.apiKeyService.findByUserId(
-        data.userId,
-      );
+      // get user api keys
+      const { user: userId, ...apiKey } = await this.apiKeyService.findOne({
+        userId: data.userId,
+        apiKeyId: data.apiKeyId,
+      });
 
-      const isMatch = compareKeys(apiKey.apiKey, data.apiKeyId);
-
-      if (!isMatch) return left(new UnauthorizedError());
+      if (!apiKey) return left(new UnauthorizedError());
 
       this.logger.log(`Reveal API Key successfully`);
 

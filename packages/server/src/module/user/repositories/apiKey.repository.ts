@@ -28,11 +28,17 @@ export class ApiKeyRepository {
     return apiKey.toJSON() as ApiKeyData;
   }
 
-  async finByUserId(userId: string): Promise<ApiKeyData | null> {
-    const user = new Types.ObjectId(userId);
+  async findOne(data: {
+    userId: string;
+    apiKeyId: string;
+  }): Promise<ApiKeyData | null> {
+    const userId = new Types.ObjectId(data.userId);
+    const apiKeyId = new Types.ObjectId(data.apiKeyId);
     const apiKey = await this.apiKeyModel
       .findOne({
-        user,
+        _id: apiKeyId,
+        user: userId,
+        deletedAt: null,
       })
       .sort({ createdAt: -1 }) // get latest api key
       .exec();
