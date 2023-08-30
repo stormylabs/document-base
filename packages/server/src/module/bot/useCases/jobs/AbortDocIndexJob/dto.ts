@@ -2,7 +2,7 @@ import { DocIndexJobResponse } from '@/shared/dto/docIndexJob';
 import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 
-export class AbortDocIndexJobResponseDTO extends PartialType(
+export class AbortTrainJobResponseDTO extends PartialType(
   PickType(DocIndexJobResponse, ['createdAt', 'updatedAt'] as const),
 ) {
   @ApiProperty({

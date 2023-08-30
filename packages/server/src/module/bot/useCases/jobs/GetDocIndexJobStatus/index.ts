@@ -3,13 +3,13 @@ import UnexpectedError, { NotFoundError } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
-import { GetDocIndexJobStatusResponseDTO } from './dto';
+import { GetTrainJobStatusResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { Resource } from '@/shared/interfaces';
 
 type Response = Either<
   Result<UseCaseError>,
-  Result<GetDocIndexJobStatusResponseDTO>
+  Result<GetTrainJobStatusResponseDTO>
 >;
 
 @Injectable()

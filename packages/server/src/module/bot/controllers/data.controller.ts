@@ -12,7 +12,7 @@ import { IdParams } from '@/shared/dto/IdParams';
 import GetCrawlJobStatusUseCase from '../useCases/jobs/GetCrawlJobStatus';
 import GetDocIndexJobStatusUseCase from '../useCases/jobs/GetDocIndexJobStatus';
 import { GetCrawlJobStatusResponseDTO } from '../useCases/jobs/GetCrawlJobStatus/dto';
-import { GetDocIndexJobStatusResponseDTO } from '../useCases/jobs/GetDocIndexJobStatus/dto';
+import { GetTrainJobStatusResponseDTO } from '../useCases/jobs/GetDocIndexJobStatus/dto';
 import GetExtractFileJobStatusUseCase from '../useCases/jobs/GetExtractFileJobStatus';
 import { GetExtractFileJobStatusResponseDTO } from '../useCases/jobs/GetExtractFileJobStatus/dto';
 import { AbortCrawlJobResponseDTO } from '../useCases/jobs/AbortCrawlJob/dto';
@@ -20,7 +20,7 @@ import AbortCrawlJobUseCase from '../useCases/jobs/AbortCrawlJob';
 import { AbortExtractFileJobResponseDTO } from '../useCases/jobs/AbortExtractFIleJob/dto';
 import AbortExtractFileJobUseCase from '../useCases/jobs/AbortExtractFIleJob';
 import AbortDocIndexJobUseCase from '../useCases/jobs/AbortDocIndexJob';
-import { AbortDocIndexJobResponseDTO } from '../useCases/jobs/AbortDocIndexJob/dto';
+import { AbortTrainJobResponseDTO } from '../useCases/jobs/AbortDocIndexJob/dto';
 
 @ApiTags('data')
 @Controller('data')
@@ -96,7 +96,7 @@ export class DataController {
   })
   @ApiOkResponse({
     description: 'Train job status',
-    type: GetDocIndexJobStatusResponseDTO,
+    type: GetTrainJobStatusResponseDTO,
   })
   @ApiNotFoundResponse({
     description: 'Bot or train job not found',
@@ -122,7 +122,7 @@ export class DataController {
   })
   @ApiOkResponse({
     description: 'Aborted train job',
-    type: AbortDocIndexJobResponseDTO,
+    type: AbortTrainJobResponseDTO,
   })
   @ApiNotFoundResponse({
     description: 'Abort train Job not found',

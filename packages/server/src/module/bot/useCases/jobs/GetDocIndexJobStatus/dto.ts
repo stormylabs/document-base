@@ -13,7 +13,7 @@ export default class GetDocIndexJobStatusDTO {
   jobId: string;
 }
 
-export class GetDocIndexJobStatusResponseDTO extends PartialType(
+export class GetTrainJobStatusResponseDTO extends PartialType(
   PickType(DocIndexJobResponse, ['status', 'createdAt', 'updatedAt'] as const),
 ) {
   @ApiProperty({

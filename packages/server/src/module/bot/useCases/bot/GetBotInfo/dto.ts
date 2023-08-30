@@ -33,7 +33,7 @@ class GetBotCrawlJobResponse extends PartialType(
   createdAt: Date;
 }
 
-class GetBotDocIndexJobResponse extends PartialType(
+class GetBotTrainJobResponse extends PartialType(
   PickType(DocIndexJobResponse, ['_id', 'status', 'createdAt'] as const),
 ) {
   _id: string;
@@ -71,10 +71,10 @@ class GetBotResponse extends PartialType(
   documents: GetBotDocResponse[];
 
   @ApiProperty({
-    type: () => [GetBotDocIndexJobResponse],
+    type: () => [GetBotTrainJobResponse],
     required: true,
   })
-  trainJobs: GetBotDocIndexJobResponse[];
+  trainJobs: GetBotTrainJobResponse[];
 
   @ApiProperty({
     type: () => [GetBotCrawlJobResponse],

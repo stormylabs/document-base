@@ -6,14 +6,14 @@ import UnexpectedError, {
 import { Either, Result, left, right } from '@/shared/core/Result';
 
 import { JobStatus, JobType, Resource } from '@/shared/interfaces';
-import { AbortDocIndexJobResponseDTO } from './dto';
+import { AbortTrainJobResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { BotService } from '@/module/bot/services/bot.service';
 
 type Response = Either<
   Result<UseCaseError>,
-  Result<AbortDocIndexJobResponseDTO>
+  Result<AbortTrainJobResponseDTO>
 >;
 
 @Injectable()
