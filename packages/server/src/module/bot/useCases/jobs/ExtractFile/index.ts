@@ -48,8 +48,14 @@ export default class ExtractFileUseCase {
         return left(new NotFoundError(Resource.Document, [documentId]));
       }
 
-      if (extractFileJob.status === JobStatus.Finished) {
-        this.logger.log('extract file job finished');
+      if (
+        extractFileJob.status === JobStatus.Finished ||
+        extractFileJob.status === JobStatus.Aborted
+      ) {
+        this.logger.log(`Extract file job is ${extractFileJob.status}`);
+
+        // delete un-extracted documents
+        await this.documentService.delete(documentId);
         return right(Result.ok());
       }
 

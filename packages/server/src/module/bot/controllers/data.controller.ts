@@ -17,6 +17,10 @@ import GetExtractFileJobStatusUseCase from '../useCases/jobs/GetExtractFileJobSt
 import { GetExtractFileJobStatusResponseDTO } from '../useCases/jobs/GetExtractFileJobStatus/dto';
 import { AbortCrawlJobResponseDTO } from '../useCases/jobs/AbortCrawlJob/dto';
 import AbortCrawlJobUseCase from '../useCases/jobs/AbortCrawlJob';
+import { AbortExtractFileJobResponseDTO } from '../useCases/jobs/AbortExtractFIleJob/dto';
+import AbortExtractFileJobUseCase from '../useCases/jobs/AbortExtractFIleJob';
+import AbortDocIndexJobUseCase from '../useCases/jobs/AbortDocIndexJob';
+import { AbortDocIndexJobResponseDTO } from '../useCases/jobs/AbortDocIndexJob/dto';
 
 @ApiTags('data')
 @Controller('data')
@@ -27,6 +31,8 @@ export class DataController {
     private getDocIndexJobStatusUseCase: GetDocIndexJobStatusUseCase,
     private getExtractFileJobStatusUseCase: GetExtractFileJobStatusUseCase,
     private abortCrawlJobUseCase: AbortCrawlJobUseCase,
+    private abortExtractFileJobUseCase: AbortExtractFileJobUseCase,
+    private abortDocIndexJobUseCase: AbortDocIndexJobUseCase,
   ) {}
 
   @Get('/crawl/:id')
@@ -110,6 +116,35 @@ export class DataController {
     return result.value.getValue();
   }
 
+  @Post('/train/abort/:id')
+  @ApiOperation({
+    summary: 'Abort doc index job by job ID.',
+  })
+  @ApiOkResponse({
+    description: 'Aborted doc index job',
+    type: AbortDocIndexJobResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Abort doc index Job not found',
+  })
+  @ApiConflictResponse({
+    description: `The jobId is not in 'running' or 'pending' statuses.`,
+  })
+  async abortDocIndexJob(@Param() { id }: IdParams) {
+    this.logger.log(`[POST] Start aborting doc index job`);
+    const result = await this.abortDocIndexJobUseCase.exec(id);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] abort doc index job error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+
+    return result.value.getValue();
+  }
+
   @Get('/extract/:id')
   @ApiOperation({
     summary: 'Get extract file job status by job ID.',
@@ -129,6 +164,35 @@ export class DataController {
       const error = result.value;
       this.logger.error(
         `[GET] Get extract file job status error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+
+    return result.value.getValue();
+  }
+
+  @Post('/extract/abort/:id')
+  @ApiOperation({
+    summary: 'Abort extract file job by job ID.',
+  })
+  @ApiOkResponse({
+    description: 'Aborted extract file job',
+    type: AbortExtractFileJobResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Extract file Job not found',
+  })
+  @ApiConflictResponse({
+    description: `The jobId is not in 'running' or 'pending' statuses.`,
+  })
+  async abortExtractFileJob(@Param() { id }: IdParams) {
+    this.logger.log(`[POST] Start aborting extract file job`);
+    const result = await this.abortExtractFileJobUseCase.exec(id);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] abort extract file job error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

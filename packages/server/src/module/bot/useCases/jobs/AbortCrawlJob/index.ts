@@ -18,7 +18,7 @@ export default class AbortCrawlJobUseCase {
   constructor(private readonly crawlJobService: CrawlJobService) {}
   public async exec(jobId: string): Promise<Response> {
     try {
-      this.logger.log(`Start creating crawl job`);
+      this.logger.log(`Start aborting crawl job`);
 
       const crawlJob = await this.crawlJobService.findById(jobId);
 

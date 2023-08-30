@@ -59,7 +59,12 @@ export default class IndexDocumentUseCase {
       if (!docIndexJob) {
         return left(new NotFoundError(Resource.DocIndexJob, [jobId]));
       }
-      if (docIndexJob.status === JobStatus.Finished) {
+
+      if (
+        docIndexJob.status === JobStatus.Finished ||
+        docIndexJob.status === JobStatus.Aborted
+      ) {
+        this.logger.log(`Doc Index job is ${docIndexJob.status}`);
         return right(Result.ok());
       }
 

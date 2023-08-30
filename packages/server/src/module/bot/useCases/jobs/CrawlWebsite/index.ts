@@ -48,9 +48,13 @@ export default class CrawlWebsiteUseCase {
         return left(new NotFoundError(Resource.Document, [documentId]));
       }
 
-      if (crawlJob.status === JobStatus.Finished) {
-        this.logger.log('crawl job finished');
-        // delete uncrawled documents
+      if (
+        crawlJob.status === JobStatus.Finished ||
+        crawlJob.status === JobStatus.Aborted
+      ) {
+        this.logger.log(`Crawl job is ${crawlJob.status}`);
+
+        // delete un-crawled documents
         await this.documentService.delete(documentId);
         return right(Result.ok());
       }
