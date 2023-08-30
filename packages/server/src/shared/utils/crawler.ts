@@ -52,25 +52,30 @@ class Crawler {
 
     this.logger.log('Identifying urls');
     doc.$('a').each((i: number, elem: any) => {
-      const href = doc.$(elem).attr('href')?.split('#')[0];
-      const targetUrl = href && isValidUrl(href) && doc.resolve(href);
-      const targetUrlParts = parse(encodeURI(targetUrl));
-      const uParts = parse(this.url);
-      const extension = path.extname(targetUrlParts.pathname);
-      const contentType = doc.res.headers['content-type'] || '';
-      const contentTypeParts = contentType.split('; ');
-      if (
-        !targetUrl ||
-        targetUrlParts.hostname !== uParts.hostname ||
-        EXTENSIONS.includes(extension.toLowerCase()) ||
-        contentTypeParts.every((part) => !HTML_CONTENT_TYPES.includes(part))
-      ) {
-        this.logger.log(
-          `Ignoring url ${targetUrl}, extension: ${extension}, content-type: ${contentType}`,
-        );
-        return;
+      try {
+        const href = doc.$(elem).attr('href')?.split('#')[0];
+        const targetUrl =
+          href && isValidUrl(doc.resolve(href)) && doc.resolve(href);
+        const targetUrlParts = parse(encodeURI(targetUrl));
+        const uParts = parse(this.url);
+        const extension = path.extname(targetUrlParts.pathname);
+        const contentType = doc.res.headers['content-type'] || '';
+        const contentTypeParts = contentType.split('; ');
+        if (
+          !targetUrl ||
+          targetUrlParts.hostname !== uParts.hostname ||
+          EXTENSIONS.includes(extension.toLowerCase()) ||
+          contentTypeParts.every((part) => !HTML_CONTENT_TYPES.includes(part))
+        ) {
+          this.logger.log(
+            `Ignoring url ${targetUrl}, extension: ${extension}, content-type: ${contentType}`,
+          );
+          return;
+        }
+        this.urls.push(targetUrl);
+      } catch (e) {
+        console.log(e);
       }
-      this.urls.push(targetUrl);
     });
 
     $('script').remove();

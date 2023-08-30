@@ -60,11 +60,12 @@ export default class MessageBotUseCase {
         { pineconeIndex: this.pineconeService.index },
       );
 
-      const model = this.langChainService.chat;
+      const model = this.langChainService.chat16k;
+      const llm = this.langChainService.llm;
 
       const template = `${bot.prompt}\n Always attempt to answer the question with the information provided, and only include information relevant to the question. Reply "${bot.fallbackMessage}" only if the information is not adequate. ${templates.qaTemplate}`;
 
-      const k = 3;
+      const k = 5;
 
       const prompt = new PromptTemplate({
         template,
@@ -86,7 +87,7 @@ export default class MessageBotUseCase {
         {
           verbose: true,
           questionGeneratorChainOptions: {
-            llm: model,
+            llm: llm,
             template: templates.inquiryTemplate,
           },
           qaChainOptions: {
@@ -109,9 +110,11 @@ export default class MessageBotUseCase {
         question: message,
       });
 
-      const urls = response.sourceDocuments.map(
-        (doc) => doc.metadata.sourceName,
-      );
+      const urls = [
+        ...new Set<string>(
+          response.sourceDocuments.map((doc) => doc.metadata.sourceName),
+        ),
+      ];
 
       return right(Result.ok({ message: response.text, sources: urls }));
     } catch (err) {
