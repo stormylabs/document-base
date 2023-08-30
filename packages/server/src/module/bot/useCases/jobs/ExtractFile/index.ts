@@ -52,11 +52,7 @@ export default class ExtractFileUseCase {
         extractFileJob.status === JobStatus.Finished ||
         extractFileJob.status === JobStatus.Aborted
       ) {
-        const logMessage =
-          extractFileJob.status === JobStatus.Aborted
-            ? 'Extract file job is not processed cause aborted'
-            : 'Extract file job finished';
-        this.logger.log(logMessage);
+        this.logger.log(`Extract file job is ${extractFileJob.status}`);
 
         // delete un-extracted documents
         await this.documentService.delete(documentId);

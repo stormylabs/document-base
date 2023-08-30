@@ -52,11 +52,7 @@ export default class CrawlWebsiteUseCase {
         crawlJob.status === JobStatus.Finished ||
         crawlJob.status === JobStatus.Aborted
       ) {
-        const logMessage =
-          crawlJob.status === JobStatus.Aborted
-            ? 'Crawl job is not processed cause aborted'
-            : 'Crawl job finished';
-        this.logger.log(logMessage);
+        this.logger.log(`Crawl job is ${crawlJob.status}`);
 
         // delete un-crawled documents
         await this.documentService.delete(documentId);

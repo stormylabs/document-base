@@ -64,12 +64,7 @@ export default class IndexDocumentUseCase {
         docIndexJob.status === JobStatus.Finished ||
         docIndexJob.status === JobStatus.Aborted
       ) {
-        const logMessage =
-          docIndexJob.status === JobStatus.Aborted
-            ? 'Doc index job is not processed cause aborted'
-            : 'DOc index job finished';
-        this.logger.log(logMessage);
-
+        this.logger.log(`Doc Index job is ${docIndexJob.status}`);
         return right(Result.ok());
       }
 
