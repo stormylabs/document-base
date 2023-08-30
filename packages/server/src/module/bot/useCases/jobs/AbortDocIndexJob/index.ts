@@ -11,10 +11,7 @@ import UseCaseError from '@/shared/core/UseCaseError';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { BotService } from '@/module/bot/services/bot.service';
 
-type Response = Either<
-  Result<UseCaseError>,
-  Result<AbortTrainJobResponseDTO>
->;
+type Response = Either<Result<UseCaseError>, Result<AbortTrainJobResponseDTO>>;
 
 @Injectable()
 export default class AbortDocIndexJobUseCase {
