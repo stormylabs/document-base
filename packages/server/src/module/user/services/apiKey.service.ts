@@ -27,6 +27,12 @@ export class ApiKeyService {
     return apiKey;
   }
 
+  async find(data?: { userId?: string }): Promise<ApiKeyData[] | null> {
+    const apiKeys = await this.apiKeyRepository.find(data);
+
+    return apiKeys;
+  }
+
   async delete(apiKeyId: string): Promise<ApiKeyData> {
     const exists = await this.exists([apiKeyId]);
     if (!exists) throw new Error('Api Key does not exist.');

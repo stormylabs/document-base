@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
+import { Model, ObjectId, Types } from 'mongoose';
 import { ApiKeyData } from '@/shared/interfaces/apiKey';
 import { ApiKey } from '@/module/user/schemas/apiKey.schema';
 
@@ -45,6 +45,19 @@ export class ApiKeyRepository {
     if (!apiKey || apiKey.deletedAt) return null;
 
     return apiKey.toJSON() as ApiKeyData;
+  }
+
+  async find(data?: { userId?: string }): Promise<ApiKeyData[]> {
+    const queries = {} as {
+      user?: Types.ObjectId;
+    };
+
+    if (data?.userId) {
+      queries.user = new Types.ObjectId(data.userId);
+    }
+
+    const apiKeys = await this.apiKeyModel.find(queries).exec();
+    return apiKeys.map((user) => user.toJSON() as ApiKeyData);
   }
 
   async apiKeyExists(apiKeys: string[]): Promise<boolean> {

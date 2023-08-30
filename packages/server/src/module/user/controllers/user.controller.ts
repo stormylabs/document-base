@@ -37,6 +37,7 @@ import { RevealAPIKeyResponseDTO } from '../useCases/apiKey/RevealApiKey/dto';
 import RevealAPIKeyUseCase from '../useCases/apiKey/RevealApiKey';
 import DeleteApiKeyUseCase from '../useCases/apiKey/DeleteApiKey';
 import { Response } from 'express';
+import GetApiKeyIdsUseCase from '../useCases/apiKey/GetApiKeyIds';
 
 @ApiTags('users')
 @Controller('users')
@@ -48,6 +49,7 @@ export class UserController {
     private createApiKeyUseCase: CreateApiKeyUseCase,
     private revealApiKeyUseCase: RevealAPIKeyUseCase,
     private deleteApiKeyUseCase: DeleteApiKeyUseCase,
+    private getApiKeyIdsUseCase: GetApiKeyIdsUseCase,
   ) {}
 
   @Post()
@@ -196,6 +198,31 @@ export class UserController {
     }
 
     res.status(HttpStatus.NO_CONTENT).send();
+    return result.value.getValue();
+  }
+
+  @Get('/:userId/api-keys')
+  @ApiOperation({
+    summary: 'Get API Keys by User Id',
+  })
+  @ApiOkResponse({
+    description: 'API Keys',
+  })
+  @ApiNotFoundResponse({
+    description: 'User Id Does Not Exist',
+  })
+  async getApiKeys(@Param() { userId }: UserIdParams) {
+    this.logger.log(`[GET] Start getting API Keys by UserId`);
+    const result = await this.getApiKeyIdsUseCase.exec({
+      userId,
+    });
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(`[GET] API Keys error ${error.errorValue().message}`);
+      return errorHandler(error);
+    }
+
     return result.value.getValue();
   }
 }
