@@ -121,7 +121,6 @@ import { AuthModule } from '../auth/auth.module';
     AbortCrawlJobUseCase,
     AbortExtractFileJobUseCase,
     AbortDocIndexJobUseCase,
-    ApiKeyGuard,
   ],
   exports: [
     BotService,

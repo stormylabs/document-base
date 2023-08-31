@@ -31,6 +31,6 @@ import GetApiKeyIdsUseCase from './useCases/apiKey/GetApiKeyIds';
     GetApiKeyIdsUseCase,
     ApiKeyGuard,
   ],
-  exports: [ApiKeyService],
+  exports: [ApiKeyService, ApiKeyGuard],
 })
 export class AuthModule {}
