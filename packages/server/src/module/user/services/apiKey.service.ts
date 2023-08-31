@@ -20,8 +20,8 @@ export class ApiKeyService {
   }
 
   async findOne(data: {
-    userId: string;
-    apiKeyId: string;
+    userId?: string;
+    apiKeyId?: string;
   }): Promise<ApiKeyData | null> {
     const apiKey = await this.apiKeyRepository.findOne(data);
     return apiKey;
