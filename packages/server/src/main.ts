@@ -27,7 +27,7 @@ async function bootstrap() {
     const options = new DocumentBuilder()
       .setTitle('DocumentBase API')
       .setDescription('API documentations of Document Base')
-      .setVersion('1.0')
+      .setVersion('1.1.0-beta')
       .addApiKey(
         { type: 'apiKey', name: 'x-api-key', in: 'header' },
         'x-api-key',
