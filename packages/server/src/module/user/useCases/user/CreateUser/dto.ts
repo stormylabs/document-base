@@ -21,13 +21,11 @@ export default class CreateUserDTO {
 
 export class CreateUserResponse extends OmitType(UserResponse, [
   'deletedAt',
-  'createdAt',
-  'updatedAt',
 ] as const) {}
 
 export class CreateUserResponseDTO {
   @ApiProperty({
     type: CreateUserResponse,
   })
-  user: Omit<UserResponse, 'deletedAt' | 'updatedAt' | 'createdAt'>;
+  user: Omit<UserResponse, 'deletedAt'>;
 }

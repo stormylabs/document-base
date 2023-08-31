@@ -9,7 +9,7 @@ import UseCaseError from '@/shared/core/UseCaseError';
 import { UserService } from '@/module/user/services/user.service';
 import { Resource } from '@/shared/interfaces';
 
-type Response = Either<Result<UseCaseError>, Result<unknown>>;
+type Response = Either<Result<UseCaseError>, Result<void>>;
 
 @Injectable()
 export default class DeleteApiKeyUseCase {
@@ -23,27 +23,26 @@ export default class DeleteApiKeyUseCase {
     apiKeyId: string;
   }): Promise<Response> {
     try {
-      this.logger.log(`Start deleting api key`);
+      this.logger.log(`Start deleting API Key`);
 
-      // check is user exist
+      // check if user exist
       const userExists = await this.userService.exists([data.userId]);
       if (!userExists) return left(new UnauthorizedError());
 
-      // get user api key
-      const apiKey = await this.apiKeyService.findOne({
-        userId: data.userId,
-        apiKeyId: data.apiKeyId,
-      });
+      // check if user owns the API Key
+      const apiKey = await this.apiKeyService.findOneByUserIdApiKeyId(
+        data.userId,
+        data.apiKeyId,
+      );
 
-      // check is the user and apiKey is exist and matches
       if (!apiKey)
         return left(new NotFoundError(Resource.ApiKey, [data.apiKeyId]));
 
       await this.apiKeyService.delete(data.apiKeyId);
 
-      this.logger.log(`Deleting API Key successfully`);
+      this.logger.log(`Deleted API Key successfully`);
 
-      return right(Result.ok(null));
+      return right(Result.ok());
     } catch (err) {
       return left(new UnexpectedError(err));
     }

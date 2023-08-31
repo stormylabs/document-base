@@ -33,5 +33,5 @@ export class ApiKey extends Document {
 }
 
 export const ApiKeySchema = SchemaFactory.createForClass(ApiKey);
-ApiKeySchema.index({ name: 1 });
+ApiKeySchema.index({ user: 1 });
 ApiKeySchema.set('toJSON', toJSONOverride);

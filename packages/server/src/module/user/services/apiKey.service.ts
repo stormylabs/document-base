@@ -1,35 +1,33 @@
 import { Injectable } from '@nestjs/common';
 import { ApiKeyData } from '@/shared/interfaces/apiKey';
 import { ApiKeyRepository } from '@/module/user/repositories/apiKey.repository';
+import { generateAPIKey } from '@/shared/utils/apiKey';
 
 @Injectable()
 export class ApiKeyService {
   constructor(private apiKeyRepository: ApiKeyRepository) {}
 
-  async create(apiKeyData: {
-    userId: string;
-    apiKey: string;
-  }): Promise<ApiKeyData> {
-    const createdUser = await this.apiKeyRepository.create(apiKeyData);
-    return createdUser;
+  async create(userId: string): Promise<ApiKeyData> {
+    const apiKey = await this.generateUniqueApiKey();
+    const created = await this.apiKeyRepository.create({
+      userId,
+      apiKey,
+    });
+    return created;
   }
 
-  async findById(apiKeyId: string): Promise<ApiKeyData | null> {
-    const apiKey = await this.apiKeyRepository.findById(apiKeyId);
+  async findOneByUserIdApiKeyId(
+    userId: string,
+    apiKeyId: string,
+  ): Promise<ApiKeyData | null> {
+    const apiKey = await this.apiKeyRepository.findOne({ userId, apiKeyId });
     return apiKey;
   }
 
-  async findOne(data: {
-    userId?: string;
-    apiKeyId?: string;
-  }): Promise<ApiKeyData | null> {
-    const apiKey = await this.apiKeyRepository.findOne(data);
-    return apiKey;
-  }
-
-  async find(data?: { userId?: string }): Promise<ApiKeyData[] | null> {
-    const apiKeys = await this.apiKeyRepository.find(data);
-
+  async findByUserId(userId: string): Promise<ApiKeyData[]> {
+    const apiKeys = await this.apiKeyRepository.find({
+      userId,
+    });
     return apiKeys;
   }
 
@@ -48,5 +46,15 @@ export class ApiKeyService {
 
   async exists(apiKeyIds: string[]): Promise<boolean> {
     return this.apiKeyRepository.exists(apiKeyIds);
+  }
+
+  private async generateUniqueApiKey(): Promise<string> {
+    const apiKey = generateAPIKey();
+    // check to make sure that there is no duplication of apiKey
+    const apiKeysExists = await this.apiKeyExists([apiKey]);
+    if (apiKeysExists) {
+      return this.generateUniqueApiKey();
+    }
+    return apiKey;
   }
 }

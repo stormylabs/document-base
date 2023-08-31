@@ -12,7 +12,6 @@ import CreateApiKeyUseCase from './useCases/apiKey/CreateApiKey';
 import { ApiKeyService } from './services/apiKey.service';
 import { ApiKeyRepository } from './repositories/apiKey.repository';
 import { ApiKey, ApiKeySchema } from './schemas/apiKey.schema';
-import RevealAPIKeyUseCase from './useCases/apiKey/RevealApiKey';
 import DeleteApiKeyUseCase from './useCases/apiKey/DeleteApiKey';
 import GetApiKeyIdsUseCase from './useCases/apiKey/GetApiKeyIds';
 
@@ -39,7 +38,6 @@ import GetApiKeyIdsUseCase from './useCases/apiKey/GetApiKeyIds';
     CreateUserUseCase,
     GetUserInfoUseCase,
     CreateApiKeyUseCase,
-    RevealAPIKeyUseCase,
     DeleteApiKeyUseCase,
     GetApiKeyIdsUseCase,
   ],

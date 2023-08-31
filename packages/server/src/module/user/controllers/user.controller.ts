@@ -33,21 +33,19 @@ import GetUserInfoUseCase from '../useCases/user/GetUserInfo';
 import CreateApiKeyUseCase from '../useCases/apiKey/CreateApiKey';
 import { CreateApiKeyResponseDTO } from '../useCases/apiKey/CreateApiKey/dto';
 import { RevealAPIKeyParams, UserIdParams } from '@/shared/dto/user';
-import { RevealAPIKeyResponseDTO } from '../useCases/apiKey/RevealApiKey/dto';
-import RevealAPIKeyUseCase from '../useCases/apiKey/RevealApiKey';
 import DeleteApiKeyUseCase from '../useCases/apiKey/DeleteApiKey';
-import { Response } from 'express';
 import GetApiKeyIdsUseCase from '../useCases/apiKey/GetApiKeyIds';
+import { GetApiKeyIDsResponseDTO } from '../useCases/apiKey/GetApiKeyIds/dto';
+import { Response } from 'express';
 
-@ApiTags('users')
-@Controller('users')
+@ApiTags('user')
+@Controller('user')
 export class UserController {
   private readonly logger = new Logger(UserController.name);
   constructor(
     private createUserUseCase: CreateUserUseCase,
     private getUserInfoUseCase: GetUserInfoUseCase,
     private createApiKeyUseCase: CreateApiKeyUseCase,
-    private revealApiKeyUseCase: RevealAPIKeyUseCase,
     private deleteApiKeyUseCase: DeleteApiKeyUseCase,
     private getApiKeyIdsUseCase: GetApiKeyIdsUseCase,
   ) {}
@@ -104,7 +102,7 @@ export class UserController {
 
   @Post('/:userId/api-keys')
   @ApiOperation({
-    summary: 'Creates a API Key',
+    summary: 'Creates an API Key',
   })
   @ApiCreatedResponse({
     description: 'Created API Key',
@@ -113,52 +111,14 @@ export class UserController {
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
   })
-  async createApiKey(
-    @Param() { userId }: UserIdParams,
-    @Res() @Res() res: Response,
-  ) {
+  async createApiKey(@Param() { userId }: UserIdParams) {
     this.logger.log(`[POST] Start creating API Key`);
-    const result = await this.createApiKeyUseCase.exec({
-      userId,
-    });
+    const result = await this.createApiKeyUseCase.exec(userId);
 
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
         `[POST] create API Key error ${error.errorValue().message}`,
-      );
-      return errorHandler(error);
-    }
-
-    res.status(HttpStatus.CREATED).send();
-    return result.value.getValue();
-  }
-
-  @Get('/:userId/api-keys/:apiKeyId')
-  @ApiOperation({
-    summary: 'Reveal a API Key',
-  })
-  @ApiOkResponse({
-    description: 'Revealed API Key',
-    type: RevealAPIKeyResponseDTO,
-  })
-  @ApiUnauthorizedResponse({
-    description: 'User Id Does Not Exist',
-  })
-  @ApiNotFoundResponse({
-    description: 'API Key Id Does Not Exist',
-  })
-  async revealApiKey(@Param() { userId, apiKeyId }: RevealAPIKeyParams) {
-    this.logger.log(`[GET] Start revealing API Key`);
-    const result = await this.revealApiKeyUseCase.exec({
-      userId,
-      apiKeyId,
-    });
-
-    if (result.isLeft()) {
-      const error = result.value;
-      this.logger.error(
-        `[GET] reveal API Key error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -174,10 +134,10 @@ export class UserController {
     description: 'API Key Deleted',
   })
   @ApiUnauthorizedResponse({
-    description: 'User Id Does Not Exist',
+    description: 'Unauthorized',
   })
   @ApiNotFoundResponse({
-    description: 'API Key Id Does Not Exist',
+    description: 'API Key ID not found',
   })
   async deleteApiKey(
     @Param() { userId, apiKeyId }: RevealAPIKeyParams,
@@ -198,7 +158,6 @@ export class UserController {
     }
 
     res.status(HttpStatus.NO_CONTENT).send();
-    return result.value.getValue();
   }
 
   @Get('/:userId/api-keys')
@@ -207,9 +166,10 @@ export class UserController {
   })
   @ApiOkResponse({
     description: 'API Keys',
+    type: GetApiKeyIDsResponseDTO,
   })
-  @ApiNotFoundResponse({
-    description: 'User Id Does Not Exist',
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   async getApiKeys(@Param() { userId }: UserIdParams) {
     this.logger.log(`[GET] Start getting API Keys by UserId`);

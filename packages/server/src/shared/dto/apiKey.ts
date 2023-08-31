@@ -8,7 +8,7 @@ export class ApiKeyResponse {
   _id?: string;
 
   @ApiProperty({
-    description: 'Uniq API Key',
+    description: 'Unique API Key',
     type: String,
   })
   apiKey?: string;
