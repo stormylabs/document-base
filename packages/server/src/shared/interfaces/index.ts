@@ -16,6 +16,7 @@ export enum Resource {
   DocIndexJob = 'Train job',
   ExtractFileJob = 'Extract file job',
   User = 'User',
+  ApiKey = 'ApiKey',
 }
 
 export enum JobStatus {

@@ -40,5 +40,4 @@ export class Document extends MongooseDocument {
 }
 
 export const DocumentSchema = SchemaFactory.createForClass(Document);
-DocumentSchema.index({ name: 1 });
 DocumentSchema.set('toJSON', toJSONOverride);
