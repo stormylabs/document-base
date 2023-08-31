@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ApiKeyData } from '@/shared/interfaces/apiKey';
-import { ApiKey } from '@/module/user/schemas/apiKey.schema';
+import { ApiKey } from '@/module/auth/schemas/apiKey.schema';
 
 @Injectable()
 export class ApiKeyRepository {

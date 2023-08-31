@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ApiKeyData } from '@/shared/interfaces/apiKey';
-import { ApiKeyRepository } from '@/module/user/repositories/apiKey.repository';
+import { ApiKeyRepository } from '@/module/auth/repositories/apiKey.repository';
 import { generateAPIKey } from '@/shared/utils/apiKey';
 
 @Injectable()

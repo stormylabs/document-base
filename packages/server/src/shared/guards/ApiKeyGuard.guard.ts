@@ -1,4 +1,4 @@
-import { ApiKeyService } from '@/module/user/services/apiKey.service';
+import { ApiKeyService } from '@/module/auth/services/apiKey.service';
 import {
   Injectable,
   CanActivate,

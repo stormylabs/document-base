@@ -51,7 +51,7 @@ import AbortCrawlJobUseCase from './useCases/jobs/AbortCrawlJob';
 import AbortExtractFileJobUseCase from './useCases/jobs/AbortExtractFIleJob';
 import AbortDocIndexJobUseCase from './useCases/jobs/AbortDocIndexJob';
 import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
-import { UserModule } from '../user/user.module';
+import { AuthModule } from '../auth/auth.module';
 
 @Module({
   imports: [
@@ -83,7 +83,7 @@ import { UserModule } from '../user/user.module';
     SqsProducerModule,
     SqsConsumerModule,
     S3Module,
-    UserModule,
+    AuthModule,
   ],
   controllers: [BotController, DataController],
   providers: [
