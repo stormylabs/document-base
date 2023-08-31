@@ -28,6 +28,10 @@ async function bootstrap() {
       .setTitle('DocumentBase API')
       .setDescription('API documentations of Document Base')
       .setVersion('1.0')
+      .addApiKey(
+        { type: 'apiKey', name: 'x-api-key', in: 'header' },
+        'x-api-key',
+      )
       .build();
 
     const document = SwaggerModule.createDocument(app, options);

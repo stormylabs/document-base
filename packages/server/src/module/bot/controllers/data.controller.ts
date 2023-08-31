@@ -1,4 +1,11 @@
-import { Controller, Logger, Get, Param, Post } from '@nestjs/common';
+import {
+  Controller,
+  Logger,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { errorHandler } from 'src/shared/http';
 
 import {
@@ -6,6 +13,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 import { IdParams } from '@/shared/dto/IdParams';
@@ -21,9 +29,12 @@ import { AbortExtractFileJobResponseDTO } from '../useCases/jobs/AbortExtractFIl
 import AbortExtractFileJobUseCase from '../useCases/jobs/AbortExtractFIleJob';
 import AbortDocIndexJobUseCase from '../useCases/jobs/AbortDocIndexJob';
 import { AbortTrainJobResponseDTO } from '../useCases/jobs/AbortDocIndexJob/dto';
+import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
 
 @ApiTags('data')
 @Controller('data')
+@ApiSecurity('x-api-key')
+@UseGuards(ApiKeyGuard)
 export class DataController {
   private readonly logger = new Logger(DataController.name);
   constructor(

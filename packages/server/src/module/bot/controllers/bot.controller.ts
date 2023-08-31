@@ -10,6 +10,7 @@ import {
   Patch,
   Post,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import {
@@ -20,6 +21,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -60,6 +62,7 @@ import { ParseFilePipe } from '@nestjs/common';
 import { CustomFileCountValidationPipe } from '@/shared/validators/file-count.pipe';
 import { DeleteBotResponseDTO } from '../useCases/bot/DeleteBot/dto';
 import DeleteBotUseCase from '../useCases/bot/DeleteBot';
+import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
 
 const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
 const MAX_FILE_COUNT = 10;
@@ -67,6 +70,8 @@ const MIN_FILE_COUNT = 1;
 
 @ApiTags('bot')
 @Controller('bot')
+@ApiSecurity('x-api-key')
+@UseGuards(ApiKeyGuard)
 export class BotController {
   private readonly logger = new Logger(BotController.name);
   constructor(

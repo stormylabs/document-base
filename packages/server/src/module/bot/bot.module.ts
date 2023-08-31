@@ -50,6 +50,8 @@ import DeleteBotUseCase from './useCases/bot/DeleteBot';
 import AbortCrawlJobUseCase from './useCases/jobs/AbortCrawlJob';
 import AbortExtractFileJobUseCase from './useCases/jobs/AbortExtractFIleJob';
 import AbortDocIndexJobUseCase from './useCases/jobs/AbortDocIndexJob';
+import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -81,6 +83,7 @@ import AbortDocIndexJobUseCase from './useCases/jobs/AbortDocIndexJob';
     SqsProducerModule,
     SqsConsumerModule,
     S3Module,
+    UserModule,
   ],
   controllers: [BotController, DataController],
   providers: [
@@ -118,6 +121,7 @@ import AbortDocIndexJobUseCase from './useCases/jobs/AbortDocIndexJob';
     AbortCrawlJobUseCase,
     AbortExtractFileJobUseCase,
     AbortDocIndexJobUseCase,
+    ApiKeyGuard,
   ],
   exports: [
     BotService,

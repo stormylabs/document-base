@@ -40,8 +40,8 @@ export class ApiKeyService {
     return updatedUser;
   }
 
-  async apiKeyExists(apiKeys: string[]): Promise<boolean> {
-    return this.apiKeyRepository.apiKeyExists(apiKeys);
+  async isKeyValid(apiKey: string): Promise<boolean> {
+    return this.apiKeyRepository.apiKeyExists([apiKey]);
   }
 
   async exists(apiKeyIds: string[]): Promise<boolean> {
@@ -51,7 +51,7 @@ export class ApiKeyService {
   private async generateUniqueApiKey(): Promise<string> {
     const apiKey = generateAPIKey();
     // check to make sure that there is no duplication of apiKey
-    const apiKeysExists = await this.apiKeyExists([apiKey]);
+    const apiKeysExists = await this.isKeyValid(apiKey);
     if (apiKeysExists) {
       return this.generateUniqueApiKey();
     }

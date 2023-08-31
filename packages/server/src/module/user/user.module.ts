@@ -41,6 +41,6 @@ import GetApiKeyIdsUseCase from './useCases/apiKey/GetApiKeyIds';
     DeleteApiKeyUseCase,
     GetApiKeyIdsUseCase,
   ],
-  exports: [UserService, CreateUserUseCase],
+  exports: [UserService, ApiKeyService],
 })
 export class UserModule {}

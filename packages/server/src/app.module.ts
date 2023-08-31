@@ -10,6 +10,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { ThrottlerAsyncModule } from './module/throttler/throttler.module';
 import { S3Module } from './module/s3/s3.module';
 import { UserModule } from './module/user/user.module';
+import { AuthModule } from './module/auth/auth.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { UserModule } from './module/user/user.module';
     SqsConsumerModule,
     S3Module,
     UserModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [Logger],
