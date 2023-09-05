@@ -9,21 +9,52 @@ import { Bot } from '../schemas/bot.schema';
 export class BotRepository {
   constructor(@InjectModel(Bot.name) private readonly botModel: Model<Bot>) {}
 
-  async create(botData: Partial<BotData>): Promise<BotData> {
-    const bot = new this.botModel(botData);
+  async create(
+    botData: Partial<Omit<BotData, 'user'>> & { userId: string },
+  ): Promise<BotData> {
+    const bot = new this.botModel({
+      ...botData,
+      user: new Types.ObjectId(botData.userId),
+    });
     const saved = await bot.save();
     return saved.toJSON() as BotData;
   }
 
+  async findOne(data: { userId?: string; botId?: string }): Promise<BotData> {
+    const query = {};
+    if (data.userId) query['user'] = new Types.ObjectId(data.userId);
+    if (data.botId) query['_id'] = new Types.ObjectId(data.botId);
+    const bot = await this.botModel
+      .findOne({
+        ...query,
+        deletedAt: null,
+      })
+      .populate('documents')
+      .populate('user')
+      .exec();
+    if (!bot) return null;
+    return bot.toJSON() as BotData;
+  }
+
   async findById(botId: string): Promise<BotData | null> {
     const id = new Types.ObjectId(botId);
-    const bot = await this.botModel.findById(id).populate('documents').exec();
+    const bot = await this.botModel
+      .findById(id)
+      .populate('documents')
+      .populate('user')
+      .exec();
     if (!bot || bot.deletedAt) return null;
     return bot.toJSON() as BotData;
   }
 
-  async findAll(): Promise<BotData[]> {
-    const bots = await this.botModel.find().populate('documents').exec();
+  async findAll(userId?: string): Promise<BotData[]> {
+    const query = {};
+    if (userId) query['user'] = new Types.ObjectId(userId);
+    const bots = await this.botModel
+      .find(query)
+      .populate('documents')
+      .populate('user')
+      .exec();
     return bots.map((bot) => bot.toJSON() as BotData);
   }
 
@@ -42,6 +73,7 @@ export class BotRepository {
     const bot = await this.botModel
       .findByIdAndUpdate(id, { $set: data }, { new: true })
       .populate('documents')
+      .populate('user')
       .exec();
     return bot.toJSON() as BotData;
   }
@@ -51,6 +83,7 @@ export class BotRepository {
     const bot = await this.botModel
       .findByIdAndDelete(id)
       .populate('documents')
+      .populate('user')
       .exec();
     return bot.toJSON() as BotData;
   }
@@ -67,6 +100,7 @@ export class BotRepository {
         { new: true },
       )
       .populate('documents')
+      .populate('user')
       .exec();
     return bot.toJSON() as BotData;
   }
@@ -85,6 +119,7 @@ export class BotRepository {
         { new: true },
       )
       .populate('documents')
+      .populate('user')
       .exec();
     return bot.toJSON() as BotData;
   }

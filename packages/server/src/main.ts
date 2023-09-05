@@ -6,6 +6,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { NormalizeQueryParamsValidationPipe } from './shared/NormalizeQueryParamsValidationPipe';
 import { ValidationPipe } from '@nestjs/common';
+import { BotModule } from './module/bot/bot.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -34,7 +35,9 @@ async function bootstrap() {
       )
       .build();
 
-    const document = SwaggerModule.createDocument(app, options);
+    const document = SwaggerModule.createDocument(app, options, {
+      include: [BotModule],
+    });
     SwaggerModule.setup('api/v1/docs', app, document);
   }
 

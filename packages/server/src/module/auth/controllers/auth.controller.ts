@@ -14,7 +14,6 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
@@ -28,8 +27,7 @@ import GetApiKeyIdsUseCase from '../../auth/useCases/apiKey/GetApiKeyIds';
 import { GetApiKeyIDsResponseDTO } from '../../auth/useCases/apiKey/GetApiKeyIds/dto';
 import { Response } from 'express';
 
-@ApiTags('auth')
-@Controller('auth')
+@Controller('a26b81b5-a896-4dea-91cc-5d4dacf3dc74/auth')
 export class AuthController {
   private readonly logger = new Logger(AuthController.name);
   constructor(

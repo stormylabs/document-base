@@ -20,7 +20,10 @@ export class ApiKeyService {
     userId: string,
     apiKeyId: string,
   ): Promise<ApiKeyData | null> {
-    const apiKey = await this.apiKeyRepository.findOne({ userId, apiKeyId });
+    const apiKey = await this.apiKeyRepository.findOne({
+      userId,
+      apiKeyId,
+    });
     return apiKey;
   }
 
@@ -38,6 +41,11 @@ export class ApiKeyService {
       deletedAt: new Date(),
     });
     return updatedUser;
+  }
+
+  async findUserByApiKey(key: string): Promise<ApiKeyData | null> {
+    const apiKeyData = await this.apiKeyRepository.findOne({ key });
+    return apiKeyData;
   }
 
   async isKeyValid(apiKey: string): Promise<boolean> {

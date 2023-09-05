@@ -50,8 +50,8 @@ import DeleteBotUseCase from './useCases/bot/DeleteBot';
 import AbortCrawlJobUseCase from './useCases/jobs/AbortCrawlJob';
 import AbortExtractFileJobUseCase from './useCases/jobs/AbortExtractFIleJob';
 import AbortDocIndexJobUseCase from './useCases/jobs/AbortDocIndexJob';
-import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
 import { AuthModule } from '../auth/auth.module';
+import { UsageModule } from '../usage/usage.module';
 
 @Module({
   imports: [
@@ -84,6 +84,7 @@ import { AuthModule } from '../auth/auth.module';
     SqsConsumerModule,
     S3Module,
     AuthModule,
+    UsageModule,
   ],
   controllers: [BotController, DataController],
   providers: [

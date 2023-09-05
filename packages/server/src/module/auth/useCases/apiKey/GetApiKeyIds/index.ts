@@ -28,8 +28,8 @@ export default class GetApiKeyIdsUseCase {
       this.logger.log(`Get API Keys successfully`);
       return right(
         Result.ok({
-          apiKeys: apiKeys.map(({ _id, createdAt, apiKey, user: userId }) => ({
-            userId,
+          apiKeys: apiKeys.map(({ _id, createdAt, apiKey, user }) => ({
+            userId: user._id,
             apiKey,
             createdAt,
             _id,

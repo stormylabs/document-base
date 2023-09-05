@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { DocumentResponse } from './document';
+import { UserResponse } from './user';
 
 export class BotResponse {
   @ApiProperty({
@@ -19,6 +20,12 @@ export class BotResponse {
     type: () => [DocumentResponse],
   })
   documents?: DocumentResponse[];
+
+  @ApiProperty({
+    description: 'User of bot',
+    type: UserResponse,
+  })
+  user?: UserResponse;
 
   @ApiProperty({
     description: 'Fallback Message',

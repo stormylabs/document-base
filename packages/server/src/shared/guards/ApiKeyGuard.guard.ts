@@ -21,6 +21,10 @@ export class ApiKeyGuard implements CanActivate {
       throw new UnauthorizedException();
     }
 
+    const { user } = await this.apiKeyService.findUserByApiKey(key);
+
+    req.user = user;
+
     return true;
   }
 }
