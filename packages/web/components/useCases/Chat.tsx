@@ -13,12 +13,13 @@ import React from 'react';
 
 const Chat = () => {
   return (
-    <div className="flex flex-col flex-1 border rounded-[20px] border-[#DBE3EE] bg-white h-full">
+    <div className="flex flex-col flex-1 md:border rounded-[20px] border-[#DBE3EE] bg-white h-full">
       {/* Form Header */}
-      <div className="py-[26px] px-6">Version Alpha 1.2</div>
-      <div className="border-b border-[DBE3EE]"></div>
+      <div className="hidden md:!block py-[26px] px-6 border-b border-[DBE3EE]">
+        Version Alpha 1.2
+      </div>
 
-      <div className="flex-1 flex flex-col px-6 pt-20 gap-5 overflow-scroll pb-20 no-scrollbar">
+      <div className="flex-1 flex flex-col px-6 pt-10 md:!pt-20 gap-5 overflow-scroll pb-20 no-scrollbar">
         <RightBubble text="Hello!" />
         <LeftBubble />
         <RightBubble
@@ -39,7 +40,7 @@ const Chat = () => {
         />
       </div>
 
-      <div className="border-t border-[DBE3EE] py-[26px] px-6 flex flex-row gap-4 items-center sticky">
+      <div className="border-t border-[DBE3EE] py-[26px] px-6 flex flex-row gap-4 items-center sticky bottom-0 md:!relative bg-white rounded-b-[20px]">
         <IconButton
           icon={<Trash />}
           aria-label={'clear'}
