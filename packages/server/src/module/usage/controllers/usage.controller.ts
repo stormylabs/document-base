@@ -48,9 +48,13 @@ export class UsageController {
   async getUsageByBotId(
     @Param() { id }: IdParams,
     @Query() { from, to }: GetUsageByBotIdDTO,
+    @Req() req: AuthRequest,
   ) {
-    this.logger.log(`[GET] Start getting usage by bot id`);
+    this.logger.log(
+      `[GET] Start getting usage by bot id, user id: ${req.user._id}`,
+    );
     const result = await this.getUsageByBotIdUseCase.exec(
+      req.user._id,
       id,
       new Date(from),
       new Date(to),

@@ -37,9 +37,13 @@ export class BotUsageService {
     return usages;
   }
 
-  async findUsagesByBotId(botId: string): Promise<BotUsageData[]> {
+  async findUsagesByBotIdUserId(
+    botId: string,
+    userId: string,
+  ): Promise<BotUsageData[]> {
     const usages = await this.botUsageRepository.find({
       botId,
+      userId,
     });
     return usages;
   }

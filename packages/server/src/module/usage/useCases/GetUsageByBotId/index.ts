@@ -19,17 +19,27 @@ export default class GetUsageByBotIdUseCase {
     private readonly botUsageService: BotUsageService,
     private readonly resourceUsageService: ResourceUsageService,
   ) {}
-  public async exec(botId: string, from: Date, to: Date): Promise<Response> {
+  public async exec(
+    userId: string,
+    botId: string,
+    from: Date,
+    to: Date,
+  ): Promise<Response> {
     try {
       this.logger.log(`Start getting usages by bot id`);
 
-      const botUsages = await this.botUsageService.findUsagesByBotId(botId);
-
-      const resourceUsages = await this.resourceUsageService.findUsagesByBotId(
+      const botUsages = await this.botUsageService.findUsagesByBotIdUserId(
         botId,
-        from,
-        to,
+        userId,
       );
+
+      const resourceUsages =
+        await this.resourceUsageService.findUsagesByBotIdUserId(
+          botId,
+          userId,
+          from,
+          to,
+        );
 
       const {
         bot: botCost,

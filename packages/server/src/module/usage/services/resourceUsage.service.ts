@@ -41,12 +41,14 @@ export class ResourceUsageService {
     return usages;
   }
 
-  async findUsagesByBotId(
+  async findUsagesByBotIdUserId(
     botId: string,
+    userId: string,
     from: Date,
     to: Date,
   ): Promise<ResourceUsageData[]> {
     const usages = await this.resourceUsageRepository.find({
+      userId,
       botId,
       from,
       to,

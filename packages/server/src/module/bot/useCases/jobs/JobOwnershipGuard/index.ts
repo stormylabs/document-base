@@ -11,6 +11,7 @@ import {
   BadRequestException,
   NotFoundException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class JobOwnershipGuard implements CanActivate {
@@ -19,6 +20,7 @@ export class JobOwnershipGuard implements CanActivate {
     private readonly crawlJobService: CrawlJobService,
     private readonly extractFileJobService: ExtractFileJobService,
     private readonly docIndexJobService: DocIndexJobService,
+    private readonly configService: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -43,6 +45,7 @@ export class JobOwnershipGuard implements CanActivate {
     const job = await jobService.findById(resourceId);
     if (!job) throw new NotFoundException();
 
+    if (user.email === this.configService.get('ROOT_EMAIL')) return true;
     const bot = await this.botService.findOneByUserIdBotId(job.bot, user._id);
 
     // user accessing resource that does not belong to them
