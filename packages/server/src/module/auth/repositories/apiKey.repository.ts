@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { ApiKeyData } from '@/shared/interfaces/apiKey';
-import { ApiKey } from '@/module/user/schemas/apiKey.schema';
+import { ApiKey } from '@/module/auth/schemas/apiKey.schema';
 
 @Injectable()
 export class ApiKeyRepository {
@@ -25,23 +25,26 @@ export class ApiKeyRepository {
 
   async findById(apiKeyId: string): Promise<ApiKeyData | null> {
     const id = new Types.ObjectId(apiKeyId);
-    const apiKey = await this.apiKeyModel.findById(id).exec();
+    const apiKey = await this.apiKeyModel.findById(id).populate('user').exec();
     if (!apiKey || apiKey.deletedAt) return null;
     return apiKey.toJSON() as ApiKeyData;
   }
 
   async findOne(data: {
-    userId: string;
-    apiKeyId: string;
+    userId?: string;
+    apiKeyId?: string;
+    key?: string;
   }): Promise<ApiKeyData | null> {
-    const id = new Types.ObjectId(data.apiKeyId);
-    const user = new Types.ObjectId(data.userId);
+    const query = {};
+    if (data.userId) query['user'] = new Types.ObjectId(data.userId);
+    if (data.apiKeyId) query['_id'] = new Types.ObjectId(data.apiKeyId);
+    if (data.key) query['apiKey'] = data.key;
     const apiKey = await this.apiKeyModel
       .findOne({
-        _id: id,
-        user,
+        ...query,
         deletedAt: null,
       })
+      .populate('user')
       .exec();
 
     if (!apiKey || apiKey.deletedAt) return null;
@@ -52,6 +55,7 @@ export class ApiKeyRepository {
     const user = new Types.ObjectId(data.userId);
     const apiKeys = await this.apiKeyModel
       .find({ user, deletedAt: null })
+      .populate('user')
       .exec();
     return apiKeys.map((apiKey) => apiKey.toJSON() as ApiKeyData);
   }

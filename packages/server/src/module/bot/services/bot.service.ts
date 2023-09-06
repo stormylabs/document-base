@@ -6,12 +6,18 @@ import { BotRepository } from '../repositories/bot.repository';
 export class BotService {
   constructor(private botRepository: BotRepository) {}
 
-  async create(name: string): Promise<BotData> {
-    const botData: Partial<BotData> = {
+  async create(name: string, userId: string): Promise<BotData> {
+    const botData = {
       name,
+      userId,
     };
     const createdBot = await this.botRepository.create(botData);
     return createdBot;
+  }
+
+  async findOneByUserIdBotId(botId: string, userId: string): Promise<BotData> {
+    const bot = await this.botRepository.findOne({ userId, botId });
+    return bot;
   }
 
   async findById(botId: string): Promise<BotData | null> {

@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
-import { UserDocument } from './user.schema';
+import { UserDocument } from '../../user/schemas/user.schema';
 
 export type ApiKeyDocument = HydratedDocument<ApiKey>;
 

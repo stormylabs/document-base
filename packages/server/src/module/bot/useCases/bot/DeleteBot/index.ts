@@ -8,6 +8,7 @@ import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.serv
 import { JobStatus, Resource } from '@/shared/interfaces';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import UseCaseError from '@/shared/core/UseCaseError';
+import { BotUsageService } from '@/module/usage/services/botUsage.service';
 
 type Response = Either<Result<UseCaseError>, Result<DeleteBotResponseDTO>>;
 
@@ -19,6 +20,7 @@ export default class DeleteBotUseCase {
     private readonly docIndexJobService: DocIndexJobService,
     private readonly crawlJobService: CrawlJobService,
     private readonly extractFileJobService: ExtractFileJobService,
+    private readonly botUsageService: BotUsageService,
   ) {}
   public async exec(botId: string): Promise<Response> {
     try {
@@ -67,6 +69,9 @@ export default class DeleteBotUseCase {
       }
 
       await this.botService.delete(botId);
+
+      this.logger.log(`Logging delete bot usage`);
+      await this.botUsageService.onBotDeleted(botId);
 
       this.logger.log(`Delete bot info successfully`);
 

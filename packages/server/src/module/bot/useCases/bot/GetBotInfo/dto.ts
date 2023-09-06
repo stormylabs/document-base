@@ -6,6 +6,7 @@ import { DocumentResponse } from '@/shared/dto/document';
 import { DocIndexJobResponse } from '@/shared/dto/docIndexJob';
 import { BotResponse } from '@/shared/dto/bot';
 import { ExtractFileJobResponse } from '@/shared/dto/extractFileJob';
+import { UserResponse } from '@/shared/dto/user';
 
 class GetBotDocResponse extends PartialType(
   PickType(DocumentResponse, ['_id', 'sourceName', 'type'] as const),
@@ -56,10 +57,12 @@ class GetBotResponse extends PartialType(
     'createdAt',
     'fallbackMessage',
     'prompt',
+    'user',
   ] as const),
 ) {
   _id: string;
   name: string;
+  user: UserResponse;
   createdAt: Date;
   fallbackMessage: string;
   prompt: string;

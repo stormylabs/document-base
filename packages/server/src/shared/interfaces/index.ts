@@ -1,3 +1,5 @@
+import { UserData } from './user';
+
 export enum Languages {
   'zh' = 'zh',
   'en' = 'en',
@@ -25,4 +27,8 @@ export enum JobStatus {
   Finished = 'finished',
   Failed = 'failed',
   Aborted = 'aborted',
+}
+
+export interface AuthRequest extends Request {
+  user: UserData;
 }

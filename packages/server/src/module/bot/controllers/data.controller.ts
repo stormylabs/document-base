@@ -1,4 +1,11 @@
-import { Controller, Logger, Get, Param, Post } from '@nestjs/common';
+import {
+  Controller,
+  Logger,
+  Get,
+  Param,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import { errorHandler } from 'src/shared/http';
 
 import {
@@ -6,7 +13,9 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiSecurity,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { IdParams } from '@/shared/dto/IdParams';
 import GetCrawlJobStatusUseCase from '../useCases/jobs/GetCrawlJobStatus';
@@ -21,9 +30,13 @@ import { AbortExtractFileJobResponseDTO } from '../useCases/jobs/AbortExtractFIl
 import AbortExtractFileJobUseCase from '../useCases/jobs/AbortExtractFIleJob';
 import AbortDocIndexJobUseCase from '../useCases/jobs/AbortDocIndexJob';
 import { AbortTrainJobResponseDTO } from '../useCases/jobs/AbortDocIndexJob/dto';
+import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
+import { JobOwnershipGuard } from '../useCases/jobs/JobOwnershipGuard';
 
 @ApiTags('data')
 @Controller('data')
+@ApiSecurity('x-api-key')
+@UseGuards(ApiKeyGuard)
 export class DataController {
   private readonly logger = new Logger(DataController.name);
   constructor(
@@ -36,6 +49,7 @@ export class DataController {
   ) {}
 
   @Get('/crawl/:id')
+  @UseGuards(JobOwnershipGuard)
   @ApiOperation({
     summary: 'Get crawl job status by job ID.',
   })
@@ -45,6 +59,9 @@ export class DataController {
   })
   @ApiNotFoundResponse({
     description: 'Bot or crawl job not found',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   async getCrawlJobStatus(@Param() { id }: IdParams) {
     this.logger.log(`[GET] Start getting crawl job status`);
@@ -62,6 +79,7 @@ export class DataController {
   }
 
   @Post('/crawl/abort/:id')
+  @UseGuards(JobOwnershipGuard)
   @ApiOperation({
     summary: 'Abort crawl job by job ID.',
   })
@@ -74,6 +92,9 @@ export class DataController {
   })
   @ApiConflictResponse({
     description: `The jobId is not in 'running' or 'pending' statuses.`,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   async abortCrawlJob(@Param() { id }: IdParams) {
     this.logger.log(`[POST] Start aborting crawl job`);
@@ -91,6 +112,7 @@ export class DataController {
   }
 
   @Get('/train/:id')
+  @UseGuards(JobOwnershipGuard)
   @ApiOperation({
     summary: 'Get train job status by job ID.',
   })
@@ -100,6 +122,9 @@ export class DataController {
   })
   @ApiNotFoundResponse({
     description: 'Bot or train job not found',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   async getTrainJobStatus(@Param() { id }: IdParams) {
     this.logger.log(`[GET] Start getting DocIndex job status`);
@@ -117,6 +142,7 @@ export class DataController {
   }
 
   @Post('/train/abort/:id')
+  @UseGuards(JobOwnershipGuard)
   @ApiOperation({
     summary: 'Abort train job by job ID.',
   })
@@ -129,6 +155,9 @@ export class DataController {
   })
   @ApiConflictResponse({
     description: `The jobId is not in 'running' or 'pending' statuses.`,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   async abortDocIndexJob(@Param() { id }: IdParams) {
     this.logger.log(`[POST] Start aborting doc index job`);
@@ -146,6 +175,7 @@ export class DataController {
   }
 
   @Get('/extract/:id')
+  @UseGuards(JobOwnershipGuard)
   @ApiOperation({
     summary: 'Get extract file job status by job ID.',
   })
@@ -155,6 +185,9 @@ export class DataController {
   })
   @ApiNotFoundResponse({
     description: 'Bot or extract file job not found',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   async getFileExtractJobStatus(@Param() { id }: IdParams) {
     this.logger.log(`[GET] Start getting extract file job status`);
@@ -172,6 +205,7 @@ export class DataController {
   }
 
   @Post('/extract/abort/:id')
+  @UseGuards(JobOwnershipGuard)
   @ApiOperation({
     summary: 'Abort extract file job by job ID.',
   })
@@ -184,6 +218,9 @@ export class DataController {
   })
   @ApiConflictResponse({
     description: `The jobId is not in 'running' or 'pending' statuses.`,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   async abortExtractFileJob(@Param() { id }: IdParams) {
     this.logger.log(`[POST] Start aborting extract file job`);
