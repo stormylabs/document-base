@@ -6,7 +6,6 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiTags,
 } from '@nestjs/swagger';
 
 import { errorHandler } from '@/shared/http';

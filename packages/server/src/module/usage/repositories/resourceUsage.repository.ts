@@ -49,6 +49,7 @@ export class ResourceUsageRepository {
     if (data.botId) query['bot'] = new Types.ObjectId(data.botId);
 
     const usages = await this.resourceUsageModel.find(query).exec();
+
     return usages.map((usage) => usage.toJSON() as ResourceUsageData);
   }
 

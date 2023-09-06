@@ -15,7 +15,6 @@ export interface BotUsageData {
   _id: string;
   bot: string;
   user: string;
-  days: number;
-  activatedAt: Date;
-  disabledAt: Date;
+  createdAt: Date;
+  deletedAt: Date;
 }

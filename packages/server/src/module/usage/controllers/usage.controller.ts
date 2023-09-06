@@ -1,4 +1,12 @@
-import { Controller, Get, Logger, Param, Res, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Logger,
+  Param,
+  Query,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import GetUsageByBotIdUseCase from '../useCases/GetUsageByBotId';
 import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
 import {
@@ -38,10 +46,15 @@ export class UsageController {
     description: 'Unauthorized',
   })
   async getUsageByBotId(
-    @Param() { id, from, to }: IdParams & GetUsageByBotIdDTO,
+    @Param() { id }: IdParams,
+    @Query() { from, to }: GetUsageByBotIdDTO,
   ) {
     this.logger.log(`[GET] Start getting usage by bot id`);
-    const result = await this.getUsageByBotIdUseCase.exec(id, from, to);
+    const result = await this.getUsageByBotIdUseCase.exec(
+      id,
+      new Date(from),
+      new Date(to),
+    );
 
     if (result.isLeft()) {
       const error = result.value;
@@ -65,14 +78,14 @@ export class UsageController {
     description: 'Unauthorized',
   })
   async getUsageByUserId(
-    @Param() { from, to }: GetUsageByBotIdDTO,
-    @Res() res: AuthRequest,
+    @Query() { from, to }: GetUsageByBotIdDTO,
+    @Req() req: AuthRequest,
   ) {
-    this.logger.log(`[GET] Start getting usage by user id`);
+    this.logger.log(`[GET] Start getting usage by user id: ${req.user._id}`);
     const result = await this.getUsageByUserIdUseCase.exec(
-      res.user._id,
-      from,
-      to,
+      req.user._id,
+      new Date(from),
+      new Date(to),
     );
 
     if (result.isLeft()) {

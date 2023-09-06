@@ -30,28 +30,16 @@ export class BotUsageService {
     return this.botUsageRepository.exists(botUsageIds);
   }
 
-  async findUsagesByUserId(
-    userId: string,
-    from: Date,
-    to: Date,
-  ): Promise<BotUsageData[]> {
+  async findUsagesByUserId(userId: string): Promise<BotUsageData[]> {
     const usages = await this.botUsageRepository.find({
       userId,
-      from,
-      to,
     });
     return usages;
   }
 
-  async findUsagesByBotId(
-    botId: string,
-    from: Date,
-    to: Date,
-  ): Promise<BotUsageData[]> {
+  async findUsagesByBotId(botId: string): Promise<BotUsageData[]> {
     const usages = await this.botUsageRepository.find({
       botId,
-      from,
-      to,
     });
     return usages;
   }

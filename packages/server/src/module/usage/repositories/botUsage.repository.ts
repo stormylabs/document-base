@@ -46,15 +46,18 @@ export class BotUsageRepository {
   async find(data: {
     userId?: string;
     botId?: string;
-    from: Date;
-    to: Date;
+    to?: Date;
   }): Promise<BotUsageData[]> {
-    const query = {
-      createdAt: {
-        $gte: data.from,
-        $lte: data.to,
-      },
-    };
+    let query = {};
+    if (data.to) {
+      query = {
+        $or: [{ deletedAt: null }, { deletedAt: { $lte: data.to } }],
+      };
+    } else {
+      query = {
+        deletedAt: null,
+      };
+    }
     if (data.userId) query['user'] = new Types.ObjectId(data.userId);
     if (data.botId) query['bot'] = new Types.ObjectId(data.botId);
 

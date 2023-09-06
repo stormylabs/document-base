@@ -2,7 +2,6 @@ import {
   Body,
   Controller,
   Delete,
-  Request,
   Get,
   HttpStatus,
   Logger,
@@ -13,7 +12,7 @@ import {
   UploadedFiles,
   UseGuards,
   UseInterceptors,
-  Res,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -102,9 +101,8 @@ export class BotController {
   @ApiUnauthorizedResponse({
     description: 'Unauthorized',
   })
-  async createBot(@Request() req: AuthRequest, @Body() body: CreateBotDTO) {
+  async createBot(@Req() req: AuthRequest, @Body() body: CreateBotDTO) {
     const { name } = body;
-    console.log('req', req.user);
     this.logger.log(`[POST] Start creating bot`);
     const result = await this.createBotUseCase.exec(name, req.user._id);
 
@@ -199,12 +197,12 @@ export class BotController {
   async saveAndTrainBot(
     @Param() { id }: IdParams,
     @Body() body: SaveDocsAndTrainBotDTO,
-    @Res() res: AuthRequest,
+    @Req() req: AuthRequest,
   ) {
     this.logger.log(`[POST] Start indexing documents`);
     const { documentIds } = body;
     const result = await this.saveDocsAndTrainBotUseCase.exec(
-      res.user._id,
+      req.user._id,
       id,
       documentIds,
     );
@@ -282,12 +280,12 @@ export class BotController {
   async messageBot(
     @Param() { id }: IdParams,
     @Body() body: MessageBotDTO,
-    @Res() res: AuthRequest,
+    @Req() req: AuthRequest,
   ) {
     const { message, conversationHistory } = body;
     this.logger.log(`[POST] Start messaging bot`);
     const result = await this.messageBotUseCase.exec(
-      res.user._id,
+      req.user._id,
       id,
       message,
       conversationHistory,

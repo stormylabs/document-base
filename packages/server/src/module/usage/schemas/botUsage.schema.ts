@@ -18,9 +18,6 @@ export class BotUsage extends Document {
   @Prop({ type: Types.ObjectId, ref: 'User' })
   user: UserDocument;
 
-  @Prop({ type: Number, default: 0 })
-  days: number;
-
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 

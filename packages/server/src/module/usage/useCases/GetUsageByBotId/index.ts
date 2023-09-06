@@ -5,6 +5,7 @@ import UseCaseError from '@/shared/core/UseCaseError';
 import { ResourceUsageService } from '@/module/usage/services/resourceUsage.service';
 import { BotUsageService } from '../../services/botUsage.service';
 import { GetUsageByBotIdResponseDTO } from './dto';
+import { getCostsFromUsage } from '@/shared/utils/getCostsFromUsage';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -22,11 +23,7 @@ export default class GetUsageByBotIdUseCase {
     try {
       this.logger.log(`Start getting usages by bot id`);
 
-      const botUsages = await this.botUsageService.findUsagesByBotId(
-        botId,
-        from,
-        to,
-      );
+      const botUsages = await this.botUsageService.findUsagesByBotId(botId);
 
       const resourceUsages = await this.resourceUsageService.findUsagesByBotId(
         botId,
@@ -34,9 +31,24 @@ export default class GetUsageByBotIdUseCase {
         to,
       );
 
+      const {
+        bot: botCost,
+        resource: resourceCost,
+        total,
+      } = getCostsFromUsage(botUsages, resourceUsages, from);
+
       this.logger.log(`Got usages by bot id successfully`);
 
-      return right(Result.ok({ bot: botUsages, resource: resourceUsages }));
+      return right(
+        Result.ok({
+          bot: { usages: botUsages, costs: parseFloat(botCost.toFixed(3)) },
+          resource: {
+            usages: resourceUsages,
+            costs: parseFloat(resourceCost.toFixed(3)),
+          },
+          total: parseFloat(total.toFixed(3)),
+        }),
+      );
     } catch (err) {
       return left(new UnexpectedError(err));
     }
