@@ -4,7 +4,7 @@ import UnexpectedError, {
   UnauthorizedError,
 } from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
-import { ApiKeyService } from '@/module/user/services/apiKey.service';
+import { ApiKeyService } from '@/module/auth/services/apiKey.service';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { UserService } from '@/module/user/services/user.service';
 import { Resource } from '@/shared/interfaces';

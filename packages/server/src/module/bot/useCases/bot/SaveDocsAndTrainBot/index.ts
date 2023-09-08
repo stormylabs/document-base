@@ -12,6 +12,8 @@ import { SaveDocsAndTrainBotResponseDTO } from './dto';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 import { JobType, Resource } from '@/shared/interfaces';
 import UseCaseError from '@/shared/core/UseCaseError';
+import { ResourceUsageService } from '@/module/usage/services/resourceUsage.service';
+import { BillableResource } from '@/shared/interfaces/usage';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -27,8 +29,13 @@ export default class SaveDocsAndTrainBotUseCase {
     private readonly crawlJobService: CrawlJobService,
     private readonly extractFileJobService: ExtractFileJobService,
     private readonly docIndexJobService: DocIndexJobService,
+    private readonly resourceUsageService: ResourceUsageService,
   ) {}
-  public async exec(botId: string, documentIds: string[]): Promise<Response> {
+  public async exec(
+    userId: string,
+    botId: string,
+    documentIds: string[],
+  ): Promise<Response> {
     try {
       this.logger.log(`Start saving to bot and indexing documents`);
 
@@ -83,13 +90,15 @@ export default class SaveDocsAndTrainBotUseCase {
         (id) => !bot.documents.map((document) => document._id).includes(id),
       );
 
+      this.logger.log(`Removing documents from bot`);
       await this.botService.removeDocuments(botId, docIdsToRemove);
 
+      this.logger.log(`Upserting documents to bot`);
       const upsertedBot = await this.botService.upsertDocuments(
         botId,
         docIdsToAdd,
       );
-
+      this.logger.log(`Create doc index job`);
       const result = await this.createDocIndexJobUseCase.exec(
         botId,
         upsertedBot.documents,
@@ -98,6 +107,14 @@ export default class SaveDocsAndTrainBotUseCase {
       if (result.isLeft()) {
         return left(result.value);
       }
+
+      this.logger.log(`Logging training usage`);
+
+      await this.resourceUsageService.onResourceUsed({
+        botId,
+        userId,
+        resource: BillableResource.Training,
+      });
 
       return right(Result.ok({ ...result.value.getValue() }));
     } catch (err) {

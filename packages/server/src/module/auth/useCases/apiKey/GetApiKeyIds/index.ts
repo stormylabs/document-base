@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, { UnauthorizedError } from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
-import { ApiKeyService } from '@/module/user/services/apiKey.service';
+import { ApiKeyService } from '@/module/auth/services/apiKey.service';
 import { GetApiKeyIDsResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { UserService } from '@/module/user/services/user.service';
@@ -28,8 +28,8 @@ export default class GetApiKeyIdsUseCase {
       this.logger.log(`Get API Keys successfully`);
       return right(
         Result.ok({
-          apiKeys: apiKeys.map(({ _id, createdAt, apiKey, user: userId }) => ({
-            userId,
+          apiKeys: apiKeys.map(({ _id, createdAt, apiKey, user }) => ({
+            userId: user._id,
             apiKey,
             createdAt,
             _id,

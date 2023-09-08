@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { ApiKeyData } from '@/shared/interfaces/apiKey';
-import { ApiKeyRepository } from '@/module/user/repositories/apiKey.repository';
+import { ApiKeyRepository } from '@/module/auth/repositories/apiKey.repository';
 import { generateAPIKey } from '@/shared/utils/apiKey';
 
 @Injectable()
@@ -20,7 +20,10 @@ export class ApiKeyService {
     userId: string,
     apiKeyId: string,
   ): Promise<ApiKeyData | null> {
-    const apiKey = await this.apiKeyRepository.findOne({ userId, apiKeyId });
+    const apiKey = await this.apiKeyRepository.findOne({
+      userId,
+      apiKeyId,
+    });
     return apiKey;
   }
 
@@ -40,8 +43,13 @@ export class ApiKeyService {
     return updatedUser;
   }
 
-  async apiKeyExists(apiKeys: string[]): Promise<boolean> {
-    return this.apiKeyRepository.apiKeyExists(apiKeys);
+  async findUserByApiKey(key: string): Promise<ApiKeyData | null> {
+    const apiKeyData = await this.apiKeyRepository.findOne({ key });
+    return apiKeyData;
+  }
+
+  async isKeyValid(apiKey: string): Promise<boolean> {
+    return this.apiKeyRepository.apiKeyExists([apiKey]);
   }
 
   async exists(apiKeyIds: string[]): Promise<boolean> {
@@ -51,7 +59,7 @@ export class ApiKeyService {
   private async generateUniqueApiKey(): Promise<string> {
     const apiKey = generateAPIKey();
     // check to make sure that there is no duplication of apiKey
-    const apiKeysExists = await this.apiKeyExists([apiKey]);
+    const apiKeysExists = await this.isKeyValid(apiKey);
     if (apiKeysExists) {
       return this.generateUniqueApiKey();
     }
