@@ -1,5 +1,5 @@
+import React from 'react';
 import {
-  Button,
   IconButton,
   Input,
   InputGroup,
@@ -7,9 +7,8 @@ import {
 } from '@chakra-ui/react';
 import LeftBubble from 'components/shared/elements/LeftBubble';
 import RightBubble from 'components/shared/elements/RightBubble';
-import PaperPlane from 'components/shared/icons/PaperPlane';
-import Trash from 'components/shared/icons/Trash';
-import React from 'react';
+import PaperPlane from 'components/shared/icons/SendSvg';
+import Trash from 'components/shared/icons/TrashSvg';
 
 const Chat = () => {
   return (

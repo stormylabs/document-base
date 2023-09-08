@@ -1,16 +1,16 @@
 import React from 'react';
 
-import Navigation from '../shared/elements/Navigation';
+import BotInfo from './BotInfo';
 import Header from 'components/shared/elements/Header';
 
-const SideBar = () => {
+const Sidebar = () => {
   return (
     <div className="hidden md:!flex flex-col flex-shrink h-full gap-10 max-w-[280px]">
       <Header />
-      <Navigation />
+      <BotInfo />
       <div className="flex-1" />
     </div>
   );
 };
 
-export default SideBar;
+export default Sidebar;

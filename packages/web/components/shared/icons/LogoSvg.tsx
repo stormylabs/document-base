@@ -1,10 +1,7 @@
 import * as React from 'react';
 import { SVGProps } from 'react';
 
-const LogoDocumentBase = ({
-  width = 27,
-  height = 18,
-}: SVGProps<SVGSVGElement>) => (
+const LogoSvg = ({ width = 27, height = 18 }: SVGProps<SVGSVGElement>) => (
   <svg
     width="41"
     height="41"
@@ -45,4 +42,4 @@ const LogoDocumentBase = ({
     />
   </svg>
 );
-export default LogoDocumentBase;
+export default LogoSvg;

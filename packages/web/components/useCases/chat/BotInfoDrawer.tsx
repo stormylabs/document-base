@@ -6,13 +6,12 @@ import {
   DrawerHeader,
   DrawerOverlay,
   IconButton,
-  Stack,
   useDisclosure,
 } from '@chakra-ui/react';
-import Navigation from 'components/shared/elements/Navigation';
 import React from 'react';
-import MenuSvg from '../icons/MenuSvg';
-import Header from './Header';
+import Navigation from 'components/useCases/chat/BotInfo';
+import MenuSvg from 'components/shared/icons/MenuSvg';
+import Header from 'components/shared/elements/Header';
 
 const HeaderDrawer = () => {
   const { isOpen, onClose, onOpen } = useDisclosure();

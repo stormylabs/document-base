@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SVGProps } from 'react';
 
-const PaperPlane = (props: SVGProps<SVGSVGElement>) => (
+const SendSvg = (props: SVGProps<SVGSVGElement>) => (
   <svg
     width="24"
     height="24"
@@ -18,4 +18,4 @@ const PaperPlane = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
-export default PaperPlane;
+export default SendSvg;

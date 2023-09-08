@@ -1,5 +1,5 @@
 import React from 'react';
-import LogoDocumentBase from '../icons/Logo';
+import LogoDocumentBase from '../icons/LogoSvg';
 
 const Header = () => {
   return (

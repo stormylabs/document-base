@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { SVGProps } from 'react';
 
-const Trash = (props: SVGProps<SVGSVGElement>) => (
+const TrashSvg = (props: SVGProps<SVGSVGElement>) => (
   <svg
     width="24"
     height="24"
@@ -18,4 +18,4 @@ const Trash = (props: SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
-export default Trash;
+export default TrashSvg;
