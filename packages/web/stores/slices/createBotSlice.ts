@@ -10,13 +10,13 @@ export interface Bot {
 
 export interface CreateBotSlice {
   bot: Bot;
-  getBotInfo: () => void;
+  getBotInfo: (botId: string) => void;
 }
 
 export const createBotSlice: StateCreator<CreateBotSlice> = (set) => ({
   bot: {},
-  getBotInfo: async () => {
-    const response = await getBotInfo(process.env.NEXT_PUBLIC_BOT_ID || '');
+  getBotInfo: async (botId: string) => {
+    const response = await getBotInfo(botId);
 
     set({ bot: response?.data?.bot });
   },

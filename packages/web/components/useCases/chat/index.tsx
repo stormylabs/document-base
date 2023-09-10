@@ -9,6 +9,7 @@ import LeftBubble from 'components/shared/elements/LeftBubble';
 import RightBubble from 'components/shared/elements/RightBubble';
 import PaperPlane from 'components/shared/icons/SendSvg';
 import Trash from 'components/shared/icons/TrashSvg';
+import Welcome from './Welcome';
 
 const Chat = () => {
   return (
@@ -19,10 +20,10 @@ const Chat = () => {
       </div>
 
       <div className="flex-1 flex flex-col px-6 pt-10 md:!pt-20 gap-5 overflow-scroll pb-20 no-scrollbar">
-        <RightBubble text="Hello!" />
-        <LeftBubble />
+        <RightBubble content="Hello!" />
+        <LeftBubble content={<Welcome />} />
         <RightBubble
-          text="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean
+          content="Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aenean
           commodo ligula eget dolor. Aenean massa. Cum sociis natoque penatibus
           et magnis dis parturient montes, nascetur ridiculus mus. Donec quam
           felis, ultricies nec, pellentesque eu, pretium quis, sem. Nulla
