@@ -22,7 +22,7 @@ const LeftBubble = ({ content, source = [] }: LeftBubbleProps) => {
             <AccordionItem className="inline-flex flex-col gap-4 mb-4 !border-none">
               <AccordionButton className="hover:!bg-transparent flex flex-row gap-2">
                 <div>
-                  <div className="text-left">{content}</div>
+                  <div className="text-left break-words">{content}</div>
                   <div className="flex flex-row gap-2 items-center justify-center">
                     <div>Sources</div>
                     <div className="h-[1px] bg-[#DBE3EE] w-full" />
@@ -36,9 +36,9 @@ const LeftBubble = ({ content, source = [] }: LeftBubbleProps) => {
                 {source.map((message, idx) => (
                   <div
                     key={idx}
-                    className="px-3 py-[6px] rounded-[12px] bg-dc-cloud-dark"
+                    className="px-3 py-[6px] rounded-[12px] bg-dc-cloud-dark break-all"
                   >
-                    {message}
+                    {idx + 1}. {message}
                   </div>
                 ))}
               </AccordionPanel>

@@ -9,7 +9,7 @@ const RightBubble = ({ content }: Props) => {
     <div className="flex justify-end">
       <div className="inline-flex p-3 flex-col border bg-dc-cloud rounded-xl border-dc-cloud-dark max-w-[595px]">
         {/* Bubble Content */}
-        <div className="inline-flex flex-col gap-3">{content}</div>
+        <div className="inline-flex flex-col gap-3 break-words">{content}</div>
       </div>
     </div>
   );
