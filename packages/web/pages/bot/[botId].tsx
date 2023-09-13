@@ -3,17 +3,21 @@ import BotInfoDrawer from 'components/useCases/chat/BotInfoDrawer';
 import BotInfoSidebar from 'components/useCases/chat/BotInfoSidebar';
 import { NextPageContext } from 'next';
 import { useEffect } from 'react';
+import { getBotInfo } from 'services/bot';
 import { useAppStore } from 'stores';
+import { Bot } from 'stores/slices/createBotSlice';
 
 type BotProps = {
   botId: string;
+  bot: Bot;
 };
 
 export function Bot(props: BotProps) {
-  const { getBotInfo } = useAppStore();
+  const { setBotInfo } = useAppStore();
+
   useEffect(() => {
-    if (props?.botId) {
-      getBotInfo(props?.botId);
+    if (props?.bot?._id) {
+      setBotInfo(props.bot || {});
     }
   }, []);
 
@@ -27,12 +31,25 @@ export function Bot(props: BotProps) {
 }
 
 export async function getServerSideProps(ctx: NextPageContext) {
-  const { botId } = ctx?.query || {};
-  return {
-    props: {
-      botId,
-    },
-  };
+  const { botId } = ctx?.query || { botId: '' };
+
+  try {
+    const response = await getBotInfo(botId as string);
+
+    return {
+      props: {
+        botId,
+        bot: response.data.bot,
+      },
+    };
+  } catch (error) {
+    return {
+      redirect: {
+        destination: process.env.NEXT_PUBLIC_EXTERNAL_WEB_URL,
+        permanent: true,
+      },
+    };
+  }
 }
 
 export default Bot;

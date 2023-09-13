@@ -12,6 +12,15 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: false,
   },
+  async redirects() {
+    return [
+      {
+        source: '/',
+        destination: process.env.NEXT_PUBLIC_EXTERNAL_WEB_URL,
+        permanent: true,
+      },
+    ];
+  },
 };
 
 const plugins = [

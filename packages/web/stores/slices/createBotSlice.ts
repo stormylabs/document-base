@@ -16,21 +16,29 @@ export interface SendMessage {
 export interface CreateBotSlice {
   bot: Bot;
   getBotInfo: (botId: string) => void;
-
+  setBotInfo: (bot: Bot) => void;
   sending: boolean;
   message: string;
   source: string[];
   conversationHistory: string[];
   sendMessage: (botId: string, data: SendMessage) => void;
   resetConversationHistory: () => void;
+  error: '';
 }
 
 export const createBotSlice: StateCreator<CreateBotSlice> = (set) => ({
   bot: {},
   getBotInfo: async (botId: string) => {
-    const response = await getBotInfo(botId);
+    try {
+      const response = await getBotInfo(botId);
 
-    set({ bot: response?.data?.bot });
+      set({ bot: response?.data?.bot });
+    } catch (error: any) {
+      set({ error: error?.response?.data.message });
+    }
+  },
+  setBotInfo: (bot: Bot) => {
+    set({ bot });
   },
 
   sending: false,
@@ -62,4 +70,5 @@ export const createBotSlice: StateCreator<CreateBotSlice> = (set) => ({
   resetConversationHistory: () => {
     set({ conversationHistory: [] });
   },
+  error: '',
 });
