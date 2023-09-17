@@ -1,7 +1,7 @@
 import type { GetServerSideProps, NextPage } from 'next';
 import getEnv from 'config/getEnv';
 
-export const Custom404: NextPage = () => null;
+export const Home: NextPage = () => null;
 
 // ! [NOTE] not work for output export
 export const getServerSideProps: GetServerSideProps = async () => {
@@ -14,4 +14,4 @@ export const getServerSideProps: GetServerSideProps = async () => {
   };
 };
 
-export default Custom404;
+export default Home;

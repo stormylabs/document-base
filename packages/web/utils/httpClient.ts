@@ -1,9 +1,13 @@
 import axios from 'axios';
 
+import getEnv from 'config/getEnv';
+
+const env = getEnv();
+
 const instance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
+  baseURL: env.apiBaseUrl,
 });
 
-instance.defaults.headers['x-api-key'] = process.env.NEXT_PUBLIC_X_API_KEY!;
+instance.defaults.headers['x-api-key'] = env.xApiKey;
 
 export default instance;

@@ -6,6 +6,7 @@ import { useEffect } from 'react';
 import { getBotInfo } from 'services/bot';
 import { useAppStore } from 'stores';
 import { Bot } from 'stores/slices/createBotSlice';
+import getEnv from 'config/getEnv';
 
 type BotProps = {
   botId: string;
@@ -33,6 +34,8 @@ export function Bot(props: BotProps) {
 export async function getServerSideProps(ctx: NextPageContext) {
   const { botId } = ctx?.query || { botId: '' };
 
+  const env = getEnv();
+
   try {
     const response = await getBotInfo(botId as string);
 
@@ -45,7 +48,7 @@ export async function getServerSideProps(ctx: NextPageContext) {
   } catch (error) {
     return {
       redirect: {
-        destination: process.env.NEXT_PUBLIC_EXTERNAL_WEB_URL,
+        destination: env.externalWebUrl,
         permanent: true,
       },
     };

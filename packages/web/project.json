@@ -9,7 +9,9 @@
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
-        "outputPath": "dist/packages/web"
+        "target": "node",
+        "outputPath": "dist/packages/web",
+        "generatePackageJson": true
       },
       "configurations": {
         "development": {
@@ -62,6 +64,14 @@
       "options": {
         "lintFilePatterns": ["packages/web/**/*.{ts,tsx,js,jsx}"]
       }
+    },
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build -f packages/web/Dockerfile . -t web"
+    },
+    "docker-push": {
+      "dependsOn": ["docker-build"],
+      "command": "docker push"
     }
   },
   "tags": []
