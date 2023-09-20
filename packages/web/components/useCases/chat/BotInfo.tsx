@@ -7,9 +7,10 @@ const BotInfo = () => {
 
   const baseUrl = useMemo(() => {
     if (bot?.documents && bot?.documents.length) {
-      return new URL(bot?.documents[0].sourceName).hostname;
+      return new URL(bot?.documents[0].sourceName);
     }
-    return '-';
+
+    return null;
   }, [bot]);
 
   return (
@@ -21,9 +22,17 @@ const BotInfo = () => {
         <div>{bot.name}</div>
         <div>
           Base url:{' '}
-          <Link href={baseUrl} target="_blank" className="hover:underline">
-            {baseUrl}
-          </Link>
+          {baseUrl?.origin ? (
+            <Link
+              href={baseUrl?.origin}
+              target="_blank"
+              className="hover:underline"
+            >
+              {baseUrl?.hostname}
+            </Link>
+          ) : (
+            '-'
+          )}
         </div>
       </div>
 
