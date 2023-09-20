@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import React, { useMemo } from 'react';
 import { useAppStore } from 'stores';
 
@@ -18,7 +19,12 @@ const BotInfo = () => {
           Bot Information
         </div>
         <div>{bot.name}</div>
-        <div>Base url: {baseUrl}</div>
+        <div>
+          Base url:{' '}
+          <Link href={baseUrl} target="_blank" className="hover:underline">
+            {baseUrl}
+          </Link>
+        </div>
       </div>
 
       <div className="flex flex-col gap-4">

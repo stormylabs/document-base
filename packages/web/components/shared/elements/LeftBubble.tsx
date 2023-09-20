@@ -28,7 +28,7 @@ const LeftBubble = ({ content, source = [] }: LeftBubbleProps) => {
                 </div>
 
                 <div className="flex flex-row gap-2 w-full !mt-2">
-                  <div className="text-sm">Sources</div>
+                  <div className="text-base">Sources</div>
                   <div className="border-b border-[#DBE3EE] w-ful flex-1 self-center" />
                 </div>
               </AccordionButton>
@@ -38,7 +38,7 @@ const LeftBubble = ({ content, source = [] }: LeftBubbleProps) => {
                 {source.map((sourceLink, idx) => (
                   <div
                     key={idx}
-                    className="px-3 py-[6px] rounded-[12px] bg-dc-cloud-dark inline-flex gap-1"
+                    className="tex-sm px-3 py-[6px] rounded-[12px] bg-dc-cloud-dark inline-flex gap-1"
                   >
                     <div>{idx + 1}.</div>
                     <Link
