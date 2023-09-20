@@ -38,11 +38,11 @@ const LeftBubble = ({ content, source = [] }: LeftBubbleProps) => {
                 {source.map((sourceLink, idx) => (
                   <div
                     key={idx}
-                    className="tex-sm px-3 py-[6px] rounded-[12px] bg-dc-cloud-dark inline-flex gap-1"
+                    className="px-3 py-[6px] rounded-[12px] bg-dc-cloud-dark inline-flex gap-1"
                   >
-                    <div>{idx + 1}.</div>
+                    <div className="text-sm">{idx + 1}.</div>
                     <Link
-                      className="break-all hover:underline"
+                      className="text-sm break-all hover:underline"
                       href={sourceLink}
                       target="_blank"
                     >
