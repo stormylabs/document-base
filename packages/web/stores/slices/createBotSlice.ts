@@ -1,11 +1,20 @@
 import { getBotInfo, sendMessage } from 'services/bot';
 import { StateCreator } from 'zustand';
 
+export interface Document {
+  characters: number;
+  sourceName: string;
+  tokens: number;
+  type: string;
+  _id: string;
+}
+
 export interface Bot {
   _id?: string;
   name?: string;
   fallbackMessage?: string;
   prompt?: string;
+  documents?: Document[];
 }
 
 export interface SendMessage {
