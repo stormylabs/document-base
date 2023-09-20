@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useAppStore } from 'stores';
 
 const BotInfo = () => {
   const { bot } = useAppStore();
+
+  const baseUrl = useMemo(() => {
+    if (bot?.documents && bot?.documents.length) {
+      return new URL(bot?.documents[0].sourceName).hostname;
+    }
+    return '-';
+  }, [bot]);
+
   return (
     <>
       <div className="flex flex-col gap-4">
@@ -10,7 +18,7 @@ const BotInfo = () => {
           Bot Information
         </div>
         <div>{bot.name}</div>
-        <div>Base url: chatdaddy.tech</div>
+        <div>Base url: {baseUrl}</div>
       </div>
 
       <div className="flex flex-col gap-4">
