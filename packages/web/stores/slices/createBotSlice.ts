@@ -73,7 +73,7 @@ export const createBotSlice: StateCreator<CreateBotSlice> = (set) => ({
         ...state.conversationHistory,
         `assistant: ${response.data.message}`,
       ],
-      source: [...state.source, ...response.data.sources],
+      source: response.data.sources,
     }));
   },
   resetConversationHistory: () => {

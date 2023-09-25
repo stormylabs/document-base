@@ -1,3 +1,4 @@
+/* eslint-disable react/no-children-prop */
 import {
   Accordion,
   AccordionButton,
@@ -7,9 +8,10 @@ import {
 } from '@chakra-ui/react';
 import Link from 'next/link';
 import React from 'react';
+import ReactMarkdown from 'react-markdown';
 
 type LeftBubbleProps = {
-  content: string | React.ReactNode;
+  content: string;
   source: string[];
 };
 
@@ -23,7 +25,9 @@ const LeftBubble = ({ content, source = [] }: LeftBubbleProps) => {
             <AccordionItem className="inline-flex flex-col gap-2 !border-none">
               <AccordionButton className="hover:!bg-transparent !p-0 flex flex-col justify-start items-baseline">
                 <div className="flex flex-row gap-2">
-                  <div className="text-left break-words">{content}</div>
+                  <div className="text-left break-words">
+                    <ReactMarkdown children={content} />
+                  </div>
                   <AccordionIcon className="self-start" />
                 </div>
 
