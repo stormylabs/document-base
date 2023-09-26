@@ -1,5 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
-import UnexpectedError, { NotFoundError } from '@/shared/core/AppError';
+import UnexpectedError, {
+  ConflictError,
+  NotFoundError,
+} from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
 import { UserService } from '@/module/user/services/user.service';
 import UseCaseError from '@/shared/core/UseCaseError';
@@ -30,6 +33,18 @@ export default class InviteUserToOrganizationUseCase {
 
       // get user by email
       const user = await this.userService.findUserByEmail(email);
+
+      // check whether the user is already a member
+      const org = await this.orgService.findOrgByUserId(user._id);
+      if (org && Object.keys(org).length) {
+        if (org._id === orgId) return right(Result.ok());
+
+        return left(
+          new ConflictError(
+            'User already associated with another organization!',
+          ),
+        );
+      }
 
       this.logger.log(`Add user to organization`);
       await this.orgService.upsertMembers(orgId, [user._id]);

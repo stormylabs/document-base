@@ -17,6 +17,11 @@ export class OrganizationService {
     return org;
   }
 
+  async findOrgByUserId(userId: string): Promise<OrganizationData | null> {
+    const org = await this.orgRepository.findOrgByUserId(userId);
+    return org;
+  }
+
   async delete(orgId: string): Promise<OrganizationData> {
     const exists = await this.exists([orgId]);
     if (!exists) throw new Error('Organization does not exist.');

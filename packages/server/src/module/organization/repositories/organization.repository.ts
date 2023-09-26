@@ -29,6 +29,17 @@ export class OrganizationRepository {
     return orgs.map((org) => org.toJSON() as OrganizationData);
   }
 
+  async findOrgByUserId(userId: string): Promise<OrganizationData> {
+    const org = await this.orgModel
+      .findOne({
+        members: { $in: [userId] },
+      })
+      .populate('members')
+      .exec();
+
+    return org?.toJSON() as OrganizationData;
+  }
+
   async exists(orgIds: string[]): Promise<boolean> {
     const count = await this.orgModel
       .countDocuments({ _id: { $in: orgIds }, deletedAt: null })

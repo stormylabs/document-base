@@ -7,8 +7,11 @@ import {
 } from './schemas/organization.schema';
 import { OrganizationRepository } from './repositories/organization.repository';
 import { OrganizationService } from './services/organization.service';
-import InviteUserToOrganizationUseCase from './useCases/InviteUserToOrganisation';
+import InviteUserToOrganizationUseCase from './useCases/InviteUserToOrganization';
 import { UserModule } from '../user/user.module';
+import { OrganizationGuard } from '@/shared/guards/OrganizationGuard.guard';
+import { AuthModule } from '../auth/auth.module';
+import { OrganizationController } from './controllers/organization.controller';
 
 @Module({
   imports: [
@@ -20,12 +23,14 @@ import { UserModule } from '../user/user.module';
     ]),
     ConfigModule,
     UserModule,
+    AuthModule,
   ],
-  controllers: [],
+  controllers: [OrganizationController],
   providers: [
     OrganizationRepository,
     OrganizationService,
     InviteUserToOrganizationUseCase,
+    OrganizationGuard,
   ],
   exports: [OrganizationService],
 })
