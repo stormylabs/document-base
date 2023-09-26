@@ -19,6 +19,7 @@ export enum Resource {
   ExtractFileJob = 'Extract file job',
   User = 'User',
   ApiKey = 'ApiKey',
+  Organization = 'Organization',
 }
 
 export enum JobStatus {

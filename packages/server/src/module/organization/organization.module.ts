@@ -5,6 +5,10 @@ import {
   Organization,
   OrganizationSchema,
 } from './schemas/organization.schema';
+import { OrganizationRepository } from './repositories/organization.repository';
+import { OrganizationService } from './services/organization.service';
+import InviteUserToOrganizationUseCase from './useCases/InviteUserToOrganisation';
+import { UserModule } from '../user/user.module';
 
 @Module({
   imports: [
@@ -15,9 +19,14 @@ import {
       },
     ]),
     ConfigModule,
+    UserModule,
   ],
   controllers: [],
-  providers: [],
-  exports: [],
+  providers: [
+    OrganizationRepository,
+    OrganizationService,
+    InviteUserToOrganizationUseCase,
+  ],
+  exports: [OrganizationService],
 })
 export class OrganizationModule {}

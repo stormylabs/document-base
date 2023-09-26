@@ -28,6 +28,18 @@ export class UserRepository {
     return users.map((user) => user.toJSON() as UserData);
   }
 
+  async findUserByEmail(email: string): Promise<UserData> {
+    const user = await this.userModel
+      .findOne({
+        email: {
+          $in: email,
+        },
+      })
+      .exec();
+
+    return user.toJSON() as UserData;
+  }
+
   async exists(userIds: string[]): Promise<boolean> {
     const count = await this.userModel
       .countDocuments({ _id: { $in: userIds }, deletedAt: null })
