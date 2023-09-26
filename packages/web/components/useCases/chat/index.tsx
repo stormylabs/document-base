@@ -44,9 +44,12 @@ const Chat = () => {
         {conversationHistory.map((msg, idx) => (
           <Fragment key={idx}>
             {msg.split(':')[0] === 'user' ? (
-              <RightBubble content={msg.split(':')[1]} />
+              <RightBubble content={msg.split('user:')[1]} />
             ) : (
-              <LeftBubble content={msg.split(':')[1]} source={source} />
+              <LeftBubble
+                content={msg.split('assistant:')[1]}
+                source={source}
+              />
             )}
           </Fragment>
         ))}
