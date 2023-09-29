@@ -3,9 +3,9 @@ name: Server - Deploy to Amazon ECS Production
 on:
   push:
     branches:
-      - "main"
+      - 'main'
     paths:
-      - "packages/server/**"
+      - 'packages/server/**'
   workflow_dispatch:
 
 env:
@@ -21,17 +21,31 @@ env:
     # containerDefinitions section of your task definition
 
 permissions:
+  actions: write
+  checks: write
+  deployments: write
   contents: read
 
 jobs:
   deploy:
-    name: Deploy to Production
+    name: Deploy
     runs-on: ubuntu-latest
     environment: production
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v3
+
+      - run: |
+          echo "BASE: ${{ env.NX_BASE }}"
+          echo "HEAD: ${{ env.NX_HEAD }}"
+
+      - name: Install Dependencies
+        run: npm install
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
@@ -50,11 +64,11 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          # Build a docker container and
-          # push it to ECR so that it can
-          # be deployed to ECS.
-          docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG ./packages/server
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          # Build a docker container and tag
+          npx nx run server:docker-build -- -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+
+          # Push docker image to ECR so that it can be deployed to ECS.
+          npx nx run server:docker-push -- $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Fill in the new image ID in the Amazon ECS task definition
