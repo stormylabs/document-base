@@ -4,6 +4,7 @@ import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
+import { DocumentDocument } from './document.schema';
 
 export type DocIndexJobDocument = HydratedDocument<DocIndexJob>;
 
@@ -20,8 +21,8 @@ export class DocIndexJob extends Document {
   })
   status: JobStatus;
 
-  @Prop({ type: Number, default: 0 })
-  indexed: number;
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Document' }] })
+  documents: DocumentDocument[];
 
   @Prop({ type: Boolean, default: false, required: true })
   locked: boolean;

@@ -30,6 +30,9 @@ export class CrawlJob extends Document {
   })
   status: JobStatus;
 
+  @Prop({ type: Boolean, default: false, required: true })
+  locked: boolean;
+
   @Prop({ type: Types.ObjectId, ref: 'Bot' })
   bot: BotDocument;
 

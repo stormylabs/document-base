@@ -1,23 +1,33 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
+  HttpStatus,
   Logger,
   Param,
+  ParseFilePipeBuilder,
   Patch,
   Post,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiConflictResponse,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiSecurity,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
-import { errorHandler } from 'src/shared/http';
+import { errorHandler } from '@/shared/http';
 import CreateBotUseCase from '../useCases/bot/CreateBot';
 import CreateBotDTO, {
   CreateBotResponseDTO,
@@ -43,9 +53,29 @@ import {
   CrawlWebsitesByBotResponseDTO,
 } from '../useCases/bot/CrawlWebsitesByBotUseCase/dto';
 import { GetBotInfoResponseDTO } from '../useCases/bot/GetBotInfo/dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import ExtractFilesByByBotDTO, {
+  ExtractFilesByBotResponseDTO,
+} from '../useCases/bot/ExtractFilesByBotUseCase/dto';
+import ExtractFilesByBotUseCase from '../useCases/bot/ExtractFilesByBotUseCase';
+
+import { CustomUploadFileMimeTypeValidator } from '@/shared/validators/file-mimetype.validator';
+import { ParseFilePipe } from '@nestjs/common';
+import { CustomFileCountValidationPipe } from '@/shared/validators/file-count.pipe';
+import { DeleteBotResponseDTO } from '../useCases/bot/DeleteBot/dto';
+import DeleteBotUseCase from '../useCases/bot/DeleteBot';
+import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
+import { AuthRequest } from '@/shared/interfaces';
+import { BotOwnershipGuard } from '../useCases/bot/BotOwnershipGuard';
+
+const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
+const MAX_FILE_COUNT = 10;
+const MIN_FILE_COUNT = 1;
 
 @ApiTags('bot')
 @Controller('bot')
+@ApiSecurity('x-api-key')
+@UseGuards(ApiKeyGuard)
 export class BotController {
   private readonly logger = new Logger(BotController.name);
   constructor(
@@ -55,6 +85,8 @@ export class BotController {
     private messageBotUseCase: MessageBotUseCase,
     private getBotInfoUseCase: GetBotInfoUseCase,
     private crawlWebsitesByBotUseCase: CrawlWebsitesByBotUseCase,
+    private extractFilesByBotUseCase: ExtractFilesByBotUseCase,
+    private deleteBotUseCase: DeleteBotUseCase,
   ) {}
 
   @Post()
@@ -66,10 +98,13 @@ export class BotController {
     description: 'Created bot info',
     type: CreateBotResponseDTO,
   })
-  async createBot(@Body() body: CreateBotDTO) {
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  async createBot(@Req() req: AuthRequest, @Body() body: CreateBotDTO) {
     const { name } = body;
     this.logger.log(`[POST] Start creating bot`);
-    const result = await this.createBotUseCase.exec(name);
+    const result = await this.createBotUseCase.exec(name, req.user._id);
 
     if (result.isLeft()) {
       const error = result.value;
@@ -82,6 +117,7 @@ export class BotController {
   }
 
   @Get(':id')
+  @UseGuards(BotOwnershipGuard)
   @ApiOperation({
     summary: 'Gets bot info by bot ID.',
   })
@@ -91,6 +127,9 @@ export class BotController {
   })
   @ApiNotFoundResponse({
     description: 'Bot not found',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   async getBotInfo(@Param() { id }: IdParams) {
     this.logger.log(`[GET] Start getting bot`);
@@ -105,6 +144,7 @@ export class BotController {
   }
 
   @Patch(':id')
+  @UseGuards(BotOwnershipGuard)
   @ApiBody({ type: UpdateBotInfoDTO })
   @ApiOkResponse({
     description: 'Bot info',
@@ -115,6 +155,9 @@ export class BotController {
   })
   @ApiNotFoundResponse({
     description: 'Bot not found',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   async updateBot(@Param() { id }: IdParams, @Body() body: UpdateBotInfoDTO) {
     this.logger.log(`[PATCH] Start updating bot`);
@@ -132,6 +175,7 @@ export class BotController {
   }
 
   @Post('/train/:id')
+  @UseGuards(BotOwnershipGuard)
   @ApiBody({ type: SaveDocsAndTrainBotDTO })
   @ApiOperation({
     summary: 'Saves documents to bot and train bot.',
@@ -147,13 +191,21 @@ export class BotController {
     description:
       'If there are unfinished web crawl jobs or train jobs, this error will be returned.',
   })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
   async saveAndTrainBot(
     @Param() { id }: IdParams,
     @Body() body: SaveDocsAndTrainBotDTO,
+    @Req() req: AuthRequest,
   ) {
     this.logger.log(`[POST] Start indexing documents`);
     const { documentIds } = body;
-    const result = await this.saveDocsAndTrainBotUseCase.exec(id, documentIds);
+    const result = await this.saveDocsAndTrainBotUseCase.exec(
+      req.user._id,
+      id,
+      documentIds,
+    );
 
     if (result.isLeft()) {
       const error = result.value;
@@ -167,6 +219,7 @@ export class BotController {
   }
 
   @Post('/crawl/:id')
+  @UseGuards(BotOwnershipGuard)
   @ApiBody({ type: CrawlWebsitesByBotDTO })
   @ApiOperation({
     summary: 'Crawl websites by bot.',
@@ -181,6 +234,9 @@ export class BotController {
   @ApiConflictResponse({
     description:
       'If there are unfinished web crawl jobs or train jobs, this error will be returned.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
   })
   async crawlWebsitesByBot(
     @Param() { id }: IdParams,
@@ -202,6 +258,7 @@ export class BotController {
   }
 
   @Post('/message/:id')
+  @UseGuards(BotOwnershipGuard)
   @ApiBody({ type: MessageBotDTO })
   @ApiOperation({
     summary: 'Sends messages to bot, and get bot response.',
@@ -217,10 +274,18 @@ export class BotController {
     description:
       'If there are unfinished train jobs, this error will be returned.',
   })
-  async messageBot(@Param() { id }: IdParams, @Body() body: MessageBotDTO) {
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  async messageBot(
+    @Param() { id }: IdParams,
+    @Body() body: MessageBotDTO,
+    @Req() req: AuthRequest,
+  ) {
     const { message, conversationHistory } = body;
     this.logger.log(`[POST] Start messaging bot`);
     const result = await this.messageBotUseCase.exec(
+      req.user._id,
       id,
       message,
       conversationHistory,
@@ -230,6 +295,98 @@ export class BotController {
       const error = result.value;
       this.logger.error(
         `[POST] message bot error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Post('/extract/:id')
+  @UseGuards(BotOwnershipGuard)
+  @ApiBody({ type: ExtractFilesByByBotDTO })
+  @ApiOperation({
+    summary: 'Extract files by bot.',
+  })
+  @ApiConsumes('multipart/form-data', 'application/json')
+  @UseInterceptors(FilesInterceptor('files'))
+  @ApiOkResponse({
+    description: 'Extract Files By Bot',
+    type: ExtractFilesByBotResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Bot not found',
+  })
+  @ApiConflictResponse({
+    description:
+      'If there are unfinished train jobs, this error will be returned.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  async extractFilesByBot(
+    @Param() { id }: IdParams,
+    @UploadedFiles(
+      new CustomFileCountValidationPipe({
+        minCount: MIN_FILE_COUNT,
+        maxCount: MAX_FILE_COUNT,
+      }),
+      new ParseFilePipeBuilder()
+        .addValidator(
+          new CustomUploadFileMimeTypeValidator({
+            fileExtensions: ALLOWED_UPLOADS_EXT_TYPES,
+          }),
+        )
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: true,
+        }),
+      new ParseFilePipe({
+        validators: [],
+      }),
+    )
+    files: Array<Express.Multer.File>,
+  ) {
+    this.logger.log(`[POST] Start uploading and extracting files`);
+
+    const result = await this.extractFilesByBotUseCase.exec(id, files);
+
+    if (result.isLeft()) {
+      const error = result.value;
+
+      this.logger.error(
+        `[POST] extract files error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Delete('/:id')
+  @UseGuards(BotOwnershipGuard)
+  @ApiOperation({
+    summary: 'Delete bot by bot ID',
+  })
+  @ApiConsumes('application/json')
+  @ApiOkResponse({
+    description: 'Delete bot by bot ID',
+    type: DeleteBotResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Bot not found',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  async deleteBot(@Param() { id }: IdParams) {
+    this.logger.log(`[DELETE] Start deleting bot`);
+
+    const result = await this.deleteBotUseCase.exec(id);
+
+    if (result.isLeft()) {
+      const error = result.value;
+
+      this.logger.error(
+        `[DELETE] Delete bot error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

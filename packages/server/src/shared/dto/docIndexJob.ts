@@ -21,10 +21,10 @@ export class DocIndexJobResponse {
   status?: JobStatus;
 
   @ApiProperty({
-    description: 'Train Job indexed document count',
-    type: Number,
+    description: 'Document IDs',
+    type: [String],
   })
-  indexed?: number;
+  documents?: string[];
 
   @ApiProperty({
     description: 'Train Job Created Date',

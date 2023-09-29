@@ -35,6 +35,23 @@ import { CrawlJobRepository } from './repositories/crawlJob.repository';
 import { DocIndexJobRepository } from './repositories/docIndexJob.repository';
 import SaveDocsAndTrainBotUseCase from './useCases/bot/SaveDocsAndTrainBot';
 import CrawlWebsitesByBotUseCase from './useCases/bot/CrawlWebsitesByBotUseCase';
+import { S3Module } from '../s3/s3.module';
+import ExtractFilesByBotUseCase from './useCases/bot/ExtractFilesByBotUseCase';
+import ExtractFileUseCase from './useCases/jobs/ExtractFile';
+import { ExtractFileJobService } from './services/extractFileJob.service';
+import { ExtractFileJobRepository } from './repositories/extractFileJob.repository';
+import {
+  ExtractFileJob,
+  ExtractFileJobSchema,
+} from './schemas/extractFileJob.schema';
+import CreateExtractFileJobUseCase from './useCases/jobs/CreateExtractFileJob';
+import GetExtractFileJobStatusUseCase from './useCases/jobs/GetExtractFileJobStatus';
+import DeleteBotUseCase from './useCases/bot/DeleteBot';
+import AbortCrawlJobUseCase from './useCases/jobs/AbortCrawlJob';
+import AbortExtractFileJobUseCase from './useCases/jobs/AbortExtractFIleJob';
+import AbortDocIndexJobUseCase from './useCases/jobs/AbortDocIndexJob';
+import { AuthModule } from '../auth/auth.module';
+import { UsageModule } from '../usage/usage.module';
 
 @Module({
   imports: [
@@ -55,12 +72,19 @@ import CrawlWebsitesByBotUseCase from './useCases/bot/CrawlWebsitesByBotUseCase'
         name: DocIndexJob.name,
         schema: DocIndexJobSchema,
       },
+      {
+        name: ExtractFileJob.name,
+        schema: ExtractFileJobSchema,
+      },
     ]),
     PineconeModule.register(),
     ConfigModule,
     LangChainModule,
     SqsProducerModule,
     SqsConsumerModule,
+    S3Module,
+    AuthModule,
+    UsageModule,
   ],
   controllers: [BotController, DataController],
   providers: [
@@ -74,7 +98,6 @@ import CrawlWebsitesByBotUseCase from './useCases/bot/CrawlWebsitesByBotUseCase'
     CrawlWebsiteUseCase,
     MessageBotUseCase,
     PineconeClientService,
-    CrawlWebsiteUseCase,
     CreateCrawlJobUseCase,
     GetCrawlJobStatusUseCase,
     CrawlJobService,
@@ -89,7 +112,22 @@ import CrawlWebsitesByBotUseCase from './useCases/bot/CrawlWebsitesByBotUseCase'
     GetDocIndexJobStatusUseCase,
     MarkJobsAsFinishedUseCase,
     CrawlWebsitesByBotUseCase,
+    ExtractFileUseCase,
+    ExtractFilesByBotUseCase,
+    ExtractFileJobService,
+    ExtractFileJobRepository,
+    CreateExtractFileJobUseCase,
+    GetExtractFileJobStatusUseCase,
+    DeleteBotUseCase,
+    AbortCrawlJobUseCase,
+    AbortExtractFileJobUseCase,
+    AbortDocIndexJobUseCase,
   ],
-  exports: [BotService, CrawlWebsiteUseCase, IndexDocumentUseCase],
+  exports: [
+    BotService,
+    CrawlWebsiteUseCase,
+    ExtractFileUseCase,
+    IndexDocumentUseCase,
+  ],
 })
 export class BotModule {}

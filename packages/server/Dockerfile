@@ -1,32 +1,17 @@
-###################
-# BUILD FOR PRODUCTION
-###################
+# build
 
-FROM node:18-alpine As build
+FROM node:18-alpine As deploy
 
 WORKDIR /usr/src/app
 
-COPY --chown=node:node package.json yarn.lock ./
+RUN addgroup --system server && \
+          adduser --system -G server server
 
-RUN yarn install
+COPY dist/packages/server server
+RUN chown -R server:server .
 
-COPY --chown=node:node . .
-
-RUN yarn build
-
-RUN yarn install --production --cache-folder ./ycache && rm -rf ./ycache
-
-USER node
-
-###################
-# PRODUCTION
-###################
-
-FROM node:18-alpine As production
-
-COPY --chown=node:node --from=build /usr/src/app/node_modules ./node_modules
-COPY --chown=node:node --from=build /usr/src/app/dist ./dist
+RUN npm --prefix server --omit=dev -f install
 
 EXPOSE 3000
 
-CMD [ "node", "dist/main.js" ]
+CMD [ "node", "server" ]

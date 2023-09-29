@@ -2,8 +2,11 @@
 **/dist
 **/node_modules/
 **/.next
-
+coverage
 
 **.env
-
-yarn.lock
+.env
+.env.development
+.env.staging
+.env.test
+.env.production

@@ -1,0 +1,43 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Fonts */
+@import '../styles/fonts.css';
+
+html {
+  -webkit-text-size-adjust: 100%;
+  font-family: "Lato",'Montserrat', sans-serif;
+  scroll-behavior: smooth;
+  
+
+
+}
+
+body {
+  background-color: white;
+  font-family: "Lato",'Montserrat', sans-serif;
+
+}
+
+html,
+body,
+body > div:first-child,
+div#__next,
+div#__next > div, main {
+  font-family: "Lato",'Montserrat', sans-serif;
+
+  @apply !h-full;
+}
+
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.no-scrollbar {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+

@@ -1,35 +1,26 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  UnfinishedDocIndexJobsError,
-  BotNotFoundError,
+  NotFoundError,
+  UnfinishedJobsError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
 import { templates } from '@/shared/constants/template';
 import { LangChainService } from '@/module/langChain/services/langChain.service';
-import { Metadata } from 'aws-sdk/clients/appstream';
 import { BotService } from '@/module/bot/services/bot.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { MessageBotResponseDTO } from './dto';
-import { ChainValues } from 'langchain/schema';
-import {
-  LangChainCallError,
-  LangChainGetEmbeddingError,
-  LangChainSummarizeError,
-} from '@/shared/core/LangChainError';
-import { PineconeGetMatchesError } from '@/shared/core/PineconeError';
-import { QueryResponse } from '@pinecone-database/pinecone/dist/pinecone-generated-ts-fetch';
+import { PineconeStore } from 'langchain/vectorstores/pinecone';
+import { ConversationalRetrievalQAChain } from 'langchain/chains';
+import { BufferMemory, ChatMessageHistory } from 'langchain/memory';
+import { PromptTemplate } from 'langchain';
+import { AIChatMessage, HumanChatMessage } from 'langchain/schema';
+import UseCaseError from '@/shared/core/UseCaseError';
+import { JobType, Resource } from '@/shared/interfaces';
+import { ResourceUsageService } from '@/module/usage/services/resourceUsage.service';
+import { BillableResource } from '@/shared/interfaces/usage';
 
-type Response = Either<
-  | UnexpectedError
-  | UnfinishedDocIndexJobsError
-  | BotNotFoundError
-  | LangChainCallError
-  | LangChainGetEmbeddingError
-  | PineconeGetMatchesError
-  | LangChainSummarizeError,
-  Result<MessageBotResponseDTO>
->;
+type Response = Either<Result<UseCaseError>, Result<MessageBotResponseDTO>>;
 
 @Injectable()
 export default class MessageBotUseCase {
@@ -39,9 +30,11 @@ export default class MessageBotUseCase {
     private readonly pineconeService: PineconeClientService,
     private readonly langChainService: LangChainService,
     private readonly docIndexJobService: DocIndexJobService,
+    private readonly resourceUsageService: ResourceUsageService,
   ) {}
 
   public async exec(
+    userId: string,
     botId: string,
     message: string,
     conversationHistory: string[],
@@ -51,7 +44,7 @@ export default class MessageBotUseCase {
 
       const bot = await this.botService.findById(botId);
 
-      if (!bot) return left(new BotNotFoundError());
+      if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
 
       const unfinishedJobs = await this.docIndexJobService.findUnfinishedJobs(
         botId,
@@ -59,117 +52,86 @@ export default class MessageBotUseCase {
 
       if (unfinishedJobs.length > 0) {
         return left(
-          new UnfinishedDocIndexJobsError(unfinishedJobs.map((job) => job._id)),
-        );
-      }
-
-      this.logger.log(`User's message: ${message}`);
-
-      const inquiryChain = this.langChainService.createInquiryChain(
-        templates.inquiryTemplate,
-        ['userPrompt', 'conversationHistory'],
-      );
-
-      let inquiryChainResult: ChainValues;
-
-      try {
-        inquiryChainResult = await inquiryChain.call({
-          userPrompt: message,
-          conversationHistory,
-        });
-      } catch (e) {
-        return left(new LangChainCallError(e.message));
-      }
-
-      const inquiry = inquiryChainResult.text;
-
-      this.logger.log(
-        `Summarized inquiry with conversation history: ${inquiry}`,
-      );
-
-      let embeddings: number[];
-      try {
-        embeddings = await this.langChainService.embedQuery(inquiry);
-      } catch (e) {
-        return left(new LangChainGetEmbeddingError(e.message));
-      }
-
-      this.logger.log('Created embeddings from inquiry');
-
-      let matches: Array<QueryResponse & { metadata: Metadata }>;
-      try {
-        matches = await this.pineconeService.getMatches(embeddings, {
-          botId,
-        });
-      } catch (e) {
-        return left(new PineconeGetMatchesError(e.message));
-      }
-
-      this.logger.log(`Matched embeddings from inquiry: ${matches.length}`);
-
-      const sourceNames =
-        matches &&
-        Array.from(
-          new Set(
-            matches.map((match) => {
-              const metadata = match.metadata as Metadata;
-              const { sourceName } = metadata;
-              return sourceName;
-            }),
+          new UnfinishedJobsError(
+            unfinishedJobs.map((job) => job._id),
+            JobType.DocIndex,
           ),
         );
+      }
 
-      const matchedFullText =
-        matches &&
-        Array.from(
-          matches.reduce((map, match) => {
-            const metadata = match.metadata as Metadata;
-            const { text, sourceName } = metadata;
-            if (!map.has(sourceName)) {
-              map.set(sourceName, text);
-            }
-            return map;
-          }, new Map()),
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        ).map(([_, text]) => text);
-
-      const chatChain = this.langChainService.createChatInquiryChain(
-        templates.qaTemplate,
-        [
-          'summaries',
-          'question',
-          'conversationHistory',
-          'urls',
-          'fallbackMessage',
-        ],
+      const vectorStore = await PineconeStore.fromExistingIndex(
+        this.langChainService.embedder,
+        { pineconeIndex: this.pineconeService.index },
       );
 
-      const combinedFullText = matchedFullText.join('\n');
+      const model = this.langChainService.chat16k;
+      const llm = this.langChainService.llm;
 
-      let summary: string;
-      try {
-        summary = await this.langChainService.summarizeLongDocument(
-          combinedFullText,
-          inquiry,
-        );
-      } catch (e) {
-        return left(new LangChainSummarizeError(e.message));
-      }
+      const template = `${bot.prompt}\n Always attempt to answer the question with the information provided, and only include information relevant to the question. Fallback Message: "${bot.fallbackMessage}". ${templates.qaTemplate}`;
 
-      let results: ChainValues;
+      const k = 5;
 
-      try {
-        results = await chatChain.call({
-          summaries: summary,
-          question: inquiry,
-          conversationHistory,
-          urls: sourceNames,
-          fallbackMessage: bot.fallbackMessage,
-        });
-      } catch (e) {
-        return left(new LangChainCallError(e.message));
-      }
-      return right(Result.ok({ message: results.text }));
+      const prompt = new PromptTemplate({
+        template,
+        inputVariables: ['question', 'context'],
+      });
+
+      const ch = new ChatMessageHistory(
+        conversationHistory.map((x) => {
+          if (x.slice(0, 4) === 'user') return new HumanChatMessage(x.slice(5));
+          return new AIChatMessage(x.slice(10));
+        }),
+      );
+      this.logger.log(`Creating conversational retrieval chain`);
+
+      const chain = ConversationalRetrievalQAChain.fromLLM(
+        model,
+        vectorStore.asRetriever(k, {
+          botId: bot._id,
+        }),
+        {
+          verbose: true,
+          questionGeneratorChainOptions: {
+            llm: llm,
+            template: templates.inquiryTemplate,
+          },
+          qaChainOptions: {
+            type: 'stuff',
+            prompt,
+          },
+          memory: new BufferMemory({
+            memoryKey: 'chat_history',
+            inputKey: 'question', // The key for the input to the chain
+            outputKey: 'text', // The key for the final conversational output of the chain
+            returnMessages: true, // If using with a chat model (e.g. gpt-3.5 or gpt-4)
+            chatHistory: ch,
+          }),
+          returnSourceDocuments: true,
+        },
+      );
+
+      this.logger.log(`Calling conversational retrieval chain`);
+
+      const response = await chain.call({
+        chat_history: ch,
+        question: message,
+      });
+
+      const urls = [
+        ...new Set<string>(
+          response.sourceDocuments.map((doc) => doc.metadata.sourceName),
+        ),
+      ];
+
+      this.logger.log(`Logging message usage`);
+
+      await this.resourceUsageService.onResourceUsed({
+        botId,
+        userId,
+        resource: BillableResource.Message,
+      });
+
+      return right(Result.ok({ message: response.text, sources: urls }));
     } catch (err) {
       return left(new UnexpectedError(err));
     }

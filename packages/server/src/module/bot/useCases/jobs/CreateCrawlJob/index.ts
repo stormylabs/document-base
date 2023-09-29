@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  BotNotFoundError,
+  NotFoundError,
   SQSSendMessageError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
@@ -8,13 +8,14 @@ import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '@/module/bot/services/bot.service';
 import { CrawlJobMessage } from '@/shared/interfaces/crawlJob';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
-import { JobStatus } from '@/shared/interfaces';
+import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { DocumentService } from '@/module/bot/services/document.service';
 import { DocumentType } from '@/shared/interfaces/document';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
+import UseCaseError from '@/shared/core/UseCaseError';
 
 type Response = Either<
-  UnexpectedError | SQSSendMessageError | BotNotFoundError,
+  Result<UseCaseError>,
   Result<{ jobId: string; status: JobStatus }>
 >;
 
@@ -35,8 +36,17 @@ export default class CreateCrawlJobUseCase {
     try {
       this.logger.log(`Start creating crawl job`);
 
-      const botExists = await this.botService.exists([botId]);
-      if (!botExists) return left(new BotNotFoundError());
+      const bot = await this.botService.findById(botId);
+      if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
+
+      const urlDocs = bot.documents.filter(
+        (doc) => doc.type === DocumentType.Url,
+      );
+
+      await this.botService.removeDocuments(
+        botId,
+        urlDocs.map((doc) => doc._id),
+      );
 
       const crawlJob = await this.crawlJobService.create({
         botId,
@@ -60,11 +70,6 @@ export default class CreateCrawlJobUseCase {
 
       this.logger.log(`Sent ${payloads.length} messages to the queue`);
 
-      // to keep track of the number of documents sent to the queue
-      const documentIds = payloads.map((payload) => payload.documentId);
-      await this.crawlJobService.upsertDocuments(jobId, documentIds);
-      this.logger.log('documents upserted to crawl job');
-
       this.logger.log(`Crawl job is created successfully`);
       return right(Result.ok({ jobId, status }));
     } catch (err) {
@@ -75,7 +80,7 @@ export default class CreateCrawlJobUseCase {
   async sendMessages(jobId: string, payloads: CrawlJobMessage[]) {
     await this.sqsMessageService.sendMessages<CrawlJobMessage>(
       jobId,
-      'web-crawl',
+      JobType.WebCrawl,
       payloads,
     );
   }

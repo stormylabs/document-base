@@ -19,15 +19,28 @@ export default class UpdateBotInfoDTO {
   @ApiProperty({
     description: 'Fallback message',
     minLength: 1,
-    maxLength: 400,
+    maxLength: 1000,
     required: false,
     type: String,
   })
   @IsString()
-  @MaxLength(400)
+  @MaxLength(1000)
   @MinLength(1)
   @IsOptional()
   fallbackMessage?: string;
+
+  @ApiProperty({
+    description: 'Prompt',
+    minLength: 1,
+    maxLength: 1000,
+    required: false,
+    type: String,
+  })
+  @IsString()
+  @MaxLength(1000)
+  @MinLength(1)
+  @IsOptional()
+  prompt?: string;
 }
 
 export class UpdateBotResponse extends PartialType(
@@ -37,6 +50,7 @@ export class UpdateBotResponse extends PartialType(
     'createdAt',
     'deletedAt',
     'fallbackMessage',
+    'prompt',
   ] as const),
 ) {
   _id: string;
@@ -44,10 +58,10 @@ export class UpdateBotResponse extends PartialType(
   createdAt: Date;
   deletedAt: Date;
   fallbackMessage: string;
+  prompt: string;
 
   @ApiProperty({
     type: () => [String],
-    isArray: true,
   })
   documents: string[];
 }

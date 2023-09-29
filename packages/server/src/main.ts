@@ -6,6 +6,7 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { NormalizeQueryParamsValidationPipe } from './shared/NormalizeQueryParamsValidationPipe';
 import { ValidationPipe } from '@nestjs/common';
+import { BotModule } from './module/bot/bot.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,14 +24,22 @@ async function bootstrap() {
 
   const NODE_ENV = config.get<string>('NODE_ENV');
 
-  const options = new DocumentBuilder()
-    .setTitle('DocumentBase API')
-    .setDescription('API documentations of Document Base')
-    .setVersion('1.0')
-    .build();
+  if (NODE_ENV !== 'production') {
+    const options = new DocumentBuilder()
+      .setTitle('DocumentBase API')
+      .setDescription('API documentations of Document Base')
+      .setVersion('1.1.0-beta')
+      .addApiKey(
+        { type: 'apiKey', name: 'x-api-key', in: 'header' },
+        'x-api-key',
+      )
+      .build();
 
-  const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('api/v1/docs', app, document);
+    const document = SwaggerModule.createDocument(app, options, {
+      include: [BotModule],
+    });
+    SwaggerModule.setup('api/v1/docs', app, document);
+  }
 
   await app.listen(3000);
 }

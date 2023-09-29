@@ -2,6 +2,8 @@ import { Vector } from '@pinecone-database/pinecone';
 import { encode } from 'gpt-3-encoder';
 import { camelCase, isDate, isObject, isArray, transform } from 'lodash';
 import { TOKEN_LIMIT } from '../constants';
+import * as path from 'path';
+import * as parse from 'url-parse';
 
 export const camelize = (obj: any) =>
   transform(obj, (acc, value, key, target) => {
@@ -46,3 +48,18 @@ export function chunkSubstr(text: string) {
 
   return chunks;
 }
+
+export const extractExtensionFromUrl = (url: string) => {
+  const parsedUrl = parse(encodeURI(url));
+  const extension = path.extname(parsedUrl.pathname);
+  return extension;
+};
+
+export const isValidUrl = (str: string) => {
+  try {
+    new URL(str);
+    return true;
+  } catch (_) {
+    return false;
+  }
+};

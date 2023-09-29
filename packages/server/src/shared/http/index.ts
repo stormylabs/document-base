@@ -2,23 +2,44 @@ import {
   NotFoundException,
   InternalServerErrorException,
   ConflictException,
+  BadRequestException,
+  UnauthorizedException,
 } from '@nestjs/common';
-import { Result } from '../core/Result';
-import UseCaseError from '../core/UseCaseError';
+import {
+  InvalidInputError,
+  UnfinishedJobsError,
+  ConflictError,
+  AbortJobError,
+  NotFoundError,
+  LockedJobError,
+  UnauthorizedError,
+} from '../core/AppError';
 
-export const errorHandler = (error: Result<UseCaseError>) => {
+export const errorHandler = (
+  error:
+    | NotFoundError
+    | InvalidInputError
+    | UnfinishedJobsError
+    | ConflictError
+    | LockedJobError
+    | AbortJobError
+    | UnauthorizedError,
+) => {
   switch (error.constructor.name) {
     case 'NotFoundError':
-    case 'BotNotFoundError':
-    case 'CrawlJobNotFoundError':
-    case 'DocumentNotFoundError':
-    case 'DocIndexJobNotFoundError':
       throw new NotFoundException(error.errorValue().message);
 
-    case 'UnfinishedCrawlJobsError':
-    case 'UnfinishedDocIndexJobsError':
+    case 'InvalidInputError':
+      throw new BadRequestException(error.errorValue().message);
+
+    case 'UnfinishedJobsError':
     case 'ConflictError':
+    case 'AbortJobError':
+    case 'LockedJobError':
       throw new ConflictException(error.errorValue().message);
+
+    case 'UnauthorizedError':
+      throw new UnauthorizedException(error.errorValue().message);
 
     default:
       throw new InternalServerErrorException();

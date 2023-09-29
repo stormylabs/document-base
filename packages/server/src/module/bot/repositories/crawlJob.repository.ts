@@ -82,7 +82,7 @@ export class CrawlJobRepository {
 
   async update(
     crawlJobId: string,
-    data: Partial<{ status: JobStatus; deletedAt: Date }>,
+    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>,
   ): Promise<CrawlJobData | null> {
     const id = new Types.ObjectId(crawlJobId);
     const now = new Date();
@@ -96,14 +96,53 @@ export class CrawlJobRepository {
     return crawlJob.toJSON() as CrawlJobData;
   }
 
-  async incrementLimit(crawlJobId: string) {
+  async bulkUpdate(
+    jobIds: string[],
+    data: Partial<{ status: JobStatus; locked: boolean }>,
+  ): Promise<CrawlJobData[] | null> {
+    const ids = jobIds.map((id) => new Types.ObjectId(id));
+    const now = new Date();
+
+    const bulkUpdateJobs = ids.map((jobId) => ({
+      updateOne: {
+        filter: { _id: jobId },
+        update: {
+          ...data,
+          updatedAt: now,
+        },
+        upsert: false,
+      },
+    }));
+
+    await this.crawlJobModel.bulkWrite(bulkUpdateJobs);
+
+    const updatedCrawlJob = await this.crawlJobModel
+      .find({ _id: { $in: ids } })
+      .exec();
+
+    return updatedCrawlJob.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
+  }
+
+  async acquireLock(crawlJobId: string) {
     const id = new Types.ObjectId(crawlJobId);
-    const crawlJob = await this.crawlJobModel.findByIdAndUpdate(
-      id,
-      { $inc: { count: 1 } },
+    const crawlJob = await this.crawlJobModel.findOneAndUpdate(
+      { _id: id, locked: false },
+      { $set: { locked: true } },
       { new: true },
     );
-    return crawlJob.toJSON() as CrawlJobData;
+    if (!crawlJob) return false;
+    return true;
+  }
+
+  async releaseLock(crawlJobId: string) {
+    const id = new Types.ObjectId(crawlJobId);
+    const crawlJob = await this.crawlJobModel.findOneAndUpdate(
+      { _id: id, locked: true },
+      { $set: { locked: false } },
+      { new: true },
+    );
+    if (!crawlJob) return false;
+    return true;
   }
 
   async upsertDocuments(crawlJobId: string, documentIds: string[]) {

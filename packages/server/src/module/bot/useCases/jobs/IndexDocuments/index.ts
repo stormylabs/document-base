@@ -1,36 +1,22 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  BotNotFoundError,
-  DocIndexJobNotFoundError,
-  DocumentNotFoundError,
-  LockedDocIndexJobError,
+  LockedJobError,
+  NotFoundError,
 } from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { Document as LCDocument } from 'langchain/document';
-import {
-  sliceIntoChunks,
-  truncateStringByBytes,
-} from '@/shared/utils/web-utils';
 import { PineconeClientService } from '@/module/pinecone/pinecone.service';
-import { Vector } from '@pinecone-database/pinecone';
-import { JobStatus } from '@/shared/interfaces';
+import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { BotService } from '@/module/bot/services/bot.service';
 import { LangChainService } from '@/module/langChain/services/langChain.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
-import {
-  LangChainGetVectorsError,
-  LangChainSplitDocsError,
-} from '@/shared/core/LangChainError';
-import { PineconeUpsertError } from '@/shared/core/PineconeError';
+import { LangChainSplitDocsError } from '@/shared/core/LangChainError';
 import { DocumentService } from '@/module/bot/services/document.service';
+import { PineconeStore } from 'langchain/vectorstores/pinecone';
+import UseCaseError from '@/shared/core/UseCaseError';
 
 type Response = Either<
-  | DocIndexJobNotFoundError
-  | BotNotFoundError
-  | UnexpectedError
-  | LangChainSplitDocsError
-  | LangChainGetVectorsError
-  | PineconeUpsertError,
+  Result<UseCaseError>,
   Result<{
     jobId: string;
     botId: string;
@@ -61,24 +47,24 @@ export default class IndexDocumentUseCase {
       const lockAcquired = await this.docIndexJobService.acquireLock(jobId);
 
       if (!lockAcquired) {
-        return left(new LockedDocIndexJobError(jobId));
-      }
-
-      const bot = await this.botService.findById(botId);
-      if (!bot) {
-        return left(new BotNotFoundError());
+        return left(new LockedJobError([jobId], JobType.DocIndex));
       }
 
       const document = await this.documentService.findById(documentId);
       if (!document) {
-        return left(new DocumentNotFoundError());
+        return left(new NotFoundError(Resource.Document, [jobId]));
       }
 
       const docIndexJob = await this.docIndexJobService.findById(jobId);
       if (!docIndexJob) {
-        return left(new DocIndexJobNotFoundError());
+        return left(new NotFoundError(Resource.DocIndexJob, [jobId]));
       }
-      if (docIndexJob.status === JobStatus.Finished) {
+
+      if (
+        docIndexJob.status === JobStatus.Finished ||
+        docIndexJob.status === JobStatus.Aborted
+      ) {
+        this.logger.log(`Doc Index job is ${docIndexJob.status}`);
         return right(Result.ok());
       }
 
@@ -86,67 +72,45 @@ export default class IndexDocumentUseCase {
         await this.docIndexJobService.updateStatus(jobId, JobStatus.Running);
       }
 
+      const bot = await this.botService.findById(botId);
+      if (!bot) {
+        return left(new NotFoundError(Resource.Bot, [botId]));
+      }
+
       this.logger.log(`Start splitting document: ${document.sourceName}`);
 
       let docs: LCDocument<Record<string, any>>[];
       try {
-        docs = await this.langChainService.splitDocuments([
-          new LCDocument({
-            pageContent: document.content,
-            metadata: {
-              botId,
-              sourceName: document.sourceName,
-              text: truncateStringByBytes(document.content, 36000),
-            },
-          }),
-        ]);
+        docs = await this.langChainService.splitDocuments(
+          [
+            new LCDocument({
+              pageContent: document.content,
+              metadata: {
+                botId,
+                sourceName: document.sourceName,
+              },
+            }),
+          ],
+          document.title,
+          document.sourceName,
+        );
       } catch (e) {
         return left(new LangChainSplitDocsError(e));
       }
 
       this.logger.log(`Split document successfully: ${docs.length} chunks`);
 
-      let vectors: Vector[];
-      try {
-        vectors = await Promise.all(
-          docs.flat().map((doc) =>
-            this.langChainService.getVectors(document._id, doc, {
-              botId: doc.metadata.botId,
-              sourceName: doc.metadata.sourceName,
-              text: doc.metadata.text,
-            }),
-          ),
-        );
-      } catch (e) {
-        return left(new LangChainGetVectorsError(e));
-      }
-
-      this.logger.log(`Get embeddings successfully: ${vectors.length} vectors`);
-
-      const chunks = sliceIntoChunks(vectors, 10);
-      const index = this.pineconeService.index;
-
-      this.logger.log(`Start indexing ${chunks.length} chunks`);
-
-      try {
-        await Promise.all(
-          chunks.map((chunk) =>
-            index.upsert({
-              upsertRequest: {
-                vectors: chunk as Vector[],
-                namespace: '',
-              },
-            }),
-          ),
-        );
-      } catch (e) {
-        return left(new PineconeUpsertError(e));
-      }
+      await PineconeStore.fromDocuments(docs, this.langChainService.embedder, {
+        pineconeIndex: this.pineconeService.index,
+      });
 
       this.logger.log(`Indexing is done`);
-      const updatedJob = await this.docIndexJobService.incrementIndexed(jobId);
 
-      if (updatedJob.indexed === bot.documents.length) {
+      const updatedJob = await this.docIndexJobService.upsertDocuments(jobId, [
+        documentId,
+      ]);
+
+      if (updatedJob.documents.length === bot.documents.length) {
         await this.docIndexJobService.updateStatus(jobId, JobStatus.Finished);
         return right(Result.ok());
       }

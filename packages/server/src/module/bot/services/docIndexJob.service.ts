@@ -45,13 +45,31 @@ export class DocIndexJobService {
   async updateStatus(
     docIndexJobId: string,
     status: JobStatus,
+    locked?: boolean,
   ): Promise<DocIndexJobData> {
     const exists = await this.exists([docIndexJobId]);
     if (!exists) throw new Error('DocIndex job does not exist.');
     const updatedBot = await this.docIndexJobRepository.update(docIndexJobId, {
       status,
+      locked,
     });
     return updatedBot;
+  }
+
+  async bulkUpdateStatus(
+    jobsIds: string[],
+    status: JobStatus,
+    locked: boolean,
+  ): Promise<DocIndexJobData[]> {
+    const updatedDocIndexJobs = await this.docIndexJobRepository.bulkUpdate(
+      jobsIds,
+      {
+        status,
+        locked,
+      },
+    );
+
+    return updatedDocIndexJobs;
   }
 
   async delete(docIndexJobId: string): Promise<DocIndexJobData> {
@@ -82,9 +100,18 @@ export class DocIndexJobService {
     return this.docIndexJobRepository.releaseLock(docIndexJobId);
   }
 
-  async incrementIndexed(docIndexJobId: string) {
+  async upsertDocuments(docIndexJobId: string, documentIds: string[]) {
     const exists = await this.exists([docIndexJobId]);
     if (!exists) throw new Error('DocIndex job does not exist.');
-    return this.docIndexJobRepository.incrementIndexed(docIndexJobId);
+    return this.docIndexJobRepository.upsertDocuments(
+      docIndexJobId,
+      documentIds,
+    );
+  }
+
+  async removeDocument(docIndexJobId: string, documentId: string) {
+    const exists = await this.exists([docIndexJobId]);
+    if (!exists) throw new Error('DocIndex job does not exist.');
+    return this.docIndexJobRepository.removeDocument(docIndexJobId, documentId);
   }
 }

@@ -5,6 +5,8 @@ import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { DocumentResponse } from '@/shared/dto/document';
 import { DocIndexJobResponse } from '@/shared/dto/docIndexJob';
 import { BotResponse } from '@/shared/dto/bot';
+import { ExtractFileJobResponse } from '@/shared/dto/extractFileJob';
+import { UserResponse } from '@/shared/dto/user';
 
 class GetBotDocResponse extends PartialType(
   PickType(DocumentResponse, ['_id', 'sourceName', 'type'] as const),
@@ -17,6 +19,11 @@ class GetBotDocResponse extends PartialType(
     required: true,
   })
   tokens: number;
+  @ApiProperty({
+    type: Number,
+    required: true,
+  })
+  characters: number;
 }
 
 class GetBotCrawlJobResponse extends PartialType(
@@ -27,7 +34,7 @@ class GetBotCrawlJobResponse extends PartialType(
   createdAt: Date;
 }
 
-class GetBotDocIndexJobResponse extends PartialType(
+class GetBotTrainJobResponse extends PartialType(
   PickType(DocIndexJobResponse, ['_id', 'status', 'createdAt'] as const),
 ) {
   _id: string;
@@ -35,12 +42,30 @@ class GetBotDocIndexJobResponse extends PartialType(
   createdAt: Date;
 }
 
+class GetBotExtractFileJobResponse extends PartialType(
+  PickType(ExtractFileJobResponse, ['_id', 'status', 'createdAt'] as const),
+) {
+  _id: string;
+  status: JobStatus;
+  createdAt: Date;
+}
+
 class GetBotResponse extends PartialType(
-  PickType(BotResponse, ['_id', 'name', 'createdAt'] as const),
+  PickType(BotResponse, [
+    '_id',
+    'name',
+    'createdAt',
+    'fallbackMessage',
+    'prompt',
+    'user',
+  ] as const),
 ) {
   _id: string;
   name: string;
+  user: UserResponse;
   createdAt: Date;
+  fallbackMessage: string;
+  prompt: string;
 
   @ApiProperty({
     type: () => [GetBotDocResponse],
@@ -49,16 +74,22 @@ class GetBotResponse extends PartialType(
   documents: GetBotDocResponse[];
 
   @ApiProperty({
-    type: () => [GetBotDocIndexJobResponse],
+    type: () => [GetBotTrainJobResponse],
     required: true,
   })
-  trainJobs: GetBotDocIndexJobResponse[];
+  trainJobs: GetBotTrainJobResponse[];
 
   @ApiProperty({
     type: () => [GetBotCrawlJobResponse],
     required: true,
   })
   crawlJobs: GetBotCrawlJobResponse[];
+
+  @ApiProperty({
+    type: () => [GetBotExtractFileJobResponse],
+    required: true,
+  })
+  extractFileJobs: GetBotExtractFileJobResponse[];
 }
 
 export class GetBotInfoResponseDTO {

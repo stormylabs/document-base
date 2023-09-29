@@ -3,7 +3,8 @@ import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { DocumentDocument } from './document.schema';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
-import { DEFAULT_FALLBACK_MSG } from '@/shared/constants';
+import { DEFAULT_FALLBACK_MSG, DEFAULT_PROMPT } from '@/shared/constants';
+import { UserDocument } from '@/module/user/schemas/user.schema';
 
 export type BotDocument = HydratedDocument<Bot>;
 
@@ -21,11 +22,17 @@ export class Bot extends Document {
   @Prop({ type: String, default: DEFAULT_FALLBACK_MSG })
   fallbackMessage: string;
 
+  @Prop({ type: String, default: DEFAULT_PROMPT })
+  prompt: string;
+
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 
   @Prop({ type: Date })
   deletedAt: Date;
+
+  @Prop({ type: Types.ObjectId, ref: 'User' })
+  user: UserDocument;
 }
 
 export const BotSchema = SchemaFactory.createForClass(Bot);

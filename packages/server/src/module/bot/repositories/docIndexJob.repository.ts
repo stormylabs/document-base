@@ -54,7 +54,9 @@ export class DocIndexJobRepository {
         },
       })
       .exec();
-    return docIndexJobs.map((crawlJob) => crawlJob.toJSON() as DocIndexJobData);
+    return docIndexJobs.map(
+      (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData,
+    );
   }
 
   async findUnfinishedJobs(botId: string): Promise<DocIndexJobData[]> {
@@ -65,7 +67,9 @@ export class DocIndexJobRepository {
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
       })
       .exec();
-    return docIndexJobs.map((crawlJob) => crawlJob.toJSON() as DocIndexJobData);
+    return docIndexJobs.map(
+      (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData,
+    );
   }
 
   async exists(docIndexJobIds: string[]): Promise<boolean> {
@@ -92,7 +96,7 @@ export class DocIndexJobRepository {
 
   async update(
     docIndexJobId: string,
-    data: Partial<{ status: JobStatus; deletedAt: Date }>,
+    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>,
   ): Promise<DocIndexJobData | null> {
     const id = new Types.ObjectId(docIndexJobId);
     const now = new Date();
@@ -104,6 +108,35 @@ export class DocIndexJobRepository {
       },
     );
     return docIndexJob.toJSON() as DocIndexJobData;
+  }
+
+  async bulkUpdate(
+    jobIds: string[],
+    data: Partial<{ status: JobStatus; locked: boolean }>,
+  ): Promise<DocIndexJobData[] | null> {
+    const ids = jobIds.map((id) => new Types.ObjectId(id));
+    const now = new Date();
+
+    const bulkUpdateJobs = ids.map((jobId) => ({
+      updateOne: {
+        filter: { _id: jobId },
+        update: {
+          ...data,
+          updatedAt: now,
+        },
+        upsert: false,
+      },
+    }));
+
+    await this.docIndexJobModel.bulkWrite(bulkUpdateJobs);
+
+    const updatedDocIndexJobs = await this.docIndexJobModel
+      .find({ _id: { $in: ids } })
+      .exec();
+
+    return updatedDocIndexJobs.map(
+      (crawlJob) => crawlJob.toJSON() as DocIndexJobData,
+    );
   }
 
   async incrementIndexed(docIndexJobId: string) {
@@ -137,5 +170,37 @@ export class DocIndexJobRepository {
     );
     if (!docIndexJob) return false;
     return true;
+  }
+
+  async upsertDocuments(docIndexJobId: string, documentIds: string[]) {
+    const docObjectIds = documentIds.map((id) => new Types.ObjectId(id));
+    const id = new Types.ObjectId(docIndexJobId);
+    const now = new Date();
+    const docIndexJob = await this.docIndexJobModel.findByIdAndUpdate(
+      id,
+      {
+        $addToSet: { documents: { $each: docObjectIds } },
+        $set: { updatedAt: now },
+      },
+
+      { new: true },
+    );
+    return docIndexJob.toJSON() as DocIndexJobData;
+  }
+
+  async removeDocument(docIndexJobId: string, documentId: string) {
+    const docIndexObjId = new Types.ObjectId(docIndexJobId);
+    const docObjId = new Types.ObjectId(documentId);
+    const now = new Date();
+    const docIndexJob = await this.docIndexJobModel.findByIdAndUpdate(
+      docIndexObjId,
+      {
+        $pull: { documents: docObjId },
+        $set: { updatedAt: now },
+      },
+
+      { new: true },
+    );
+    return docIndexJob.toJSON() as DocIndexJobData;
   }
 }

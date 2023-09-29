@@ -4,7 +4,7 @@ export interface DocIndexJobData {
   _id: string;
   bot: string;
   status: JobStatus;
-  indexed: number;
+  documents: string[];
   locked: boolean;
   createdAt: Date;
   updatedAt: Date;
