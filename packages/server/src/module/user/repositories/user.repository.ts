@@ -28,15 +28,14 @@ export class UserRepository {
     return users.map((user) => user.toJSON() as UserData);
   }
 
-  async findUserByEmail(email: string): Promise<UserData> {
+  async findUserByEmail(email: string): Promise<UserData | null> {
     const user = await this.userModel
       .findOne({
-        email: {
-          $in: email,
-        },
+        email,
       })
       .exec();
 
+    if (!user) return null;
     return user.toJSON() as UserData;
   }
 

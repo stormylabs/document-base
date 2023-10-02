@@ -45,14 +45,7 @@ import GetOrganizationUseCase from './useCases/GetOrganization';
     InviteMemberToOrganizationUseCase,
     CreateOrganizationUseCase,
     GetOrganizationUseCase,
-    {
-      provide: APP_GUARD,
-      useClass: ApiKeyGuard,
-    },
-    {
-      provide: APP_GUARD,
-      useClass: OrganizationRoleGuard,
-    },
+    OrganizationRoleGuard,
   ],
   exports: [OrganizationService, MemberService],
 })

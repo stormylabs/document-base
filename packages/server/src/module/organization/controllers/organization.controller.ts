@@ -6,6 +6,7 @@ import {
   Param,
   Post,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -33,10 +34,13 @@ import CreateOrganizationDTO, {
 import CreateOrganizationUseCase from '../useCases/CreateOrganization';
 import { GetOrganizationResponseDto } from '../useCases/GetOrganization/dto';
 import GetOrganizationUseCase from '../useCases/GetOrganization';
+import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
+import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
 
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
 @Controller('organization')
+@UseGuards(ApiKeyGuard, OrganizationRoleGuard)
 export class OrganizationController {
   private readonly logger = new Logger(OrganizationController.name);
   constructor(

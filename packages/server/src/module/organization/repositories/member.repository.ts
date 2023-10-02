@@ -51,6 +51,7 @@ export class MemberRepository {
       .populate('organization')
       .exec();
 
+    if (!member) return null;
     return member?.toJSON() as MemberData;
   }
 
