@@ -8,7 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import GetUsageByBotIdUseCase from '../useCases/GetUsageByBotId';
-import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
+import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import {
   ApiOkResponse,
   ApiOperation,

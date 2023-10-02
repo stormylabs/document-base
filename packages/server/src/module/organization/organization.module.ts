@@ -7,11 +7,16 @@ import {
 } from './schemas/organization.schema';
 import { OrganizationRepository } from './repositories/organization.repository';
 import { OrganizationService } from './services/organization.service';
-import InviteUserToOrganizationUseCase from './useCases/InviteUserToOrganization';
+import InviteMemberToOrganizationUseCase from './useCases/InviteMemberToOrganization';
 import { UserModule } from '../user/user.module';
-import { OrganizationGuard } from '@/shared/guards/OrganizationGuard.guard';
 import { AuthModule } from '../auth/auth.module';
 import { OrganizationController } from './controllers/organization.controller';
+import { Member, MemberSchema } from './schemas/member.schema';
+import { MemberRepository } from './repositories/member.repository';
+import { MemberService } from './services/member.service';
+import { APP_GUARD } from '@nestjs/core';
+import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
+import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 
 @Module({
   imports: [
@@ -19,6 +24,10 @@ import { OrganizationController } from './controllers/organization.controller';
       {
         name: Organization.name,
         schema: OrganizationSchema,
+      },
+      {
+        name: Member.name,
+        schema: MemberSchema,
       },
     ]),
     ConfigModule,
@@ -29,9 +38,18 @@ import { OrganizationController } from './controllers/organization.controller';
   providers: [
     OrganizationRepository,
     OrganizationService,
-    InviteUserToOrganizationUseCase,
-    OrganizationGuard,
+    MemberRepository,
+    MemberService,
+    InviteMemberToOrganizationUseCase,
+    {
+      provide: APP_GUARD,
+      useClass: ApiKeyGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: OrganizationRoleGuard,
+    },
   ],
-  exports: [OrganizationService],
+  exports: [OrganizationService, MemberService],
 })
 export class OrganizationModule {}

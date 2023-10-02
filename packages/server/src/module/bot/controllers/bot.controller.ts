@@ -64,7 +64,7 @@ import { ParseFilePipe } from '@nestjs/common';
 import { CustomFileCountValidationPipe } from '@/shared/validators/file-count.pipe';
 import { DeleteBotResponseDTO } from '../useCases/bot/DeleteBot/dto';
 import DeleteBotUseCase from '../useCases/bot/DeleteBot';
-import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
+import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import { AuthRequest } from '@/shared/interfaces';
 import { BotOwnershipGuard } from '../useCases/bot/BotOwnershipGuard';
 

@@ -24,6 +24,10 @@ async function bootstrap() {
 
   const NODE_ENV = config.get<string>('NODE_ENV');
 
+  const isLocal = NODE_ENV === 'local';
+
+  console.log({ NODE_ENV });
+
   if (NODE_ENV !== 'production') {
     const options = new DocumentBuilder()
       .setTitle('DocumentBase API')
@@ -35,9 +39,13 @@ async function bootstrap() {
       )
       .build();
 
-    const document = SwaggerModule.createDocument(app, options, {
-      include: [BotModule],
-    });
+    const document = SwaggerModule.createDocument(
+      app,
+      options,
+      !isLocal && {
+        include: [BotModule],
+      },
+    );
     SwaggerModule.setup('api/v1/docs', app, document);
   }
 

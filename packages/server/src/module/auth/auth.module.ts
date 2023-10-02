@@ -1,4 +1,4 @@
-import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
+import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';

@@ -30,7 +30,7 @@ import { AbortExtractFileJobResponseDTO } from '../useCases/jobs/AbortExtractFIl
 import AbortExtractFileJobUseCase from '../useCases/jobs/AbortExtractFIleJob';
 import AbortDocIndexJobUseCase from '../useCases/jobs/AbortDocIndexJob';
 import { AbortTrainJobResponseDTO } from '../useCases/jobs/AbortDocIndexJob/dto';
-import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
+import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import { JobOwnershipGuard } from '../useCases/jobs/JobOwnershipGuard';
 
 @ApiTags('data')

@@ -3,9 +3,10 @@ import {
   Controller,
   HttpStatus,
   Logger,
+  Param,
   Post,
+  Req,
   Res,
-  UseGuards,
 } from '@nestjs/common';
 import {
   ApiBody,
@@ -19,24 +20,26 @@ import { Response } from 'express';
 
 import { errorHandler } from '@/shared/http';
 
-import InviteUserToOrganizationDTO from '../useCases/InviteUserToOrganization/dto';
-import InviteUserToOrganizationUseCase from '../useCases/InviteUserToOrganization';
-import { ApiKeyGuard } from '@/shared/guards/ApiKeyGuard.guard';
-import { OrganizationGuard } from '@/shared/guards/OrganizationGuard.guard';
+import InviteMemberToOrganizationDTO from '../useCases/InviteMemberToOrganization/dto';
+import InviteMemberToOrganizationUseCase from '../useCases/InviteMemberToOrganization';
+import { AccessLevel } from '@/shared/interfaces/accessLevel';
+import { RoleAccessLevel } from '@/shared/decorators/RoleAccessLevel.decorator';
+import { RequestWithUser } from '@/shared/interfaces/requestWithUser';
+import { left } from '@/shared/core/Result';
+import { UnauthorizedError } from '@/shared/core/AppError';
+import { OrgIdParams } from '@/shared/dto/organization';
 
-@UseGuards(ApiKeyGuard)
-@UseGuards(OrganizationGuard)
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
 @Controller('organization')
 export class OrganizationController {
   private readonly logger = new Logger(OrganizationController.name);
   constructor(
-    private inviteUserToOrgUseCase: InviteUserToOrganizationUseCase,
+    private inviteUserToOrgUseCase: InviteMemberToOrganizationUseCase,
   ) {}
 
-  @Post()
-  @ApiBody({ type: InviteUserToOrganizationDTO })
+  @Post(':orgId/invite')
+  @ApiBody({ type: InviteMemberToOrganizationDTO })
   @ApiOperation({
     summary: 'Invite user to organization',
   })
@@ -46,17 +49,25 @@ export class OrganizationController {
   @ApiConflictResponse({
     description: 'Email already exists.',
   })
+  @RoleAccessLevel(AccessLevel.ADMIN)
   async inviteUserToOrg(
-    @Body() body: InviteUserToOrganizationDTO,
+    @Body() body: InviteMemberToOrganizationDTO,
     @Res() res: Response,
+    @Req() req: RequestWithUser,
+    @Param() param: OrgIdParams,
   ) {
-    const { email, organizationId } = body;
+    const { email } = body;
     this.logger.log(`[POST] Start invite user to organization`);
 
-    const result = await this.inviteUserToOrgUseCase.exec(
-      organizationId,
-      email,
-    );
+    console.log(req?.user?.member?.organization?._id, param.orgId);
+
+    // * check org ownership
+    if (req?.user?.member?.organization?._id !== param.orgId) {
+      res.status(HttpStatus.UNAUTHORIZED).send();
+      return left(new UnauthorizedError());
+    }
+
+    const result = await this.inviteUserToOrgUseCase.exec(param.orgId, email);
 
     if (result.isLeft()) {
       const error = result.value;
@@ -65,6 +76,7 @@ export class OrganizationController {
           error.errorValue().message
         }`,
       );
+
       return errorHandler(error);
     }
 

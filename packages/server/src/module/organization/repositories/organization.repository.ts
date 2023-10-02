@@ -29,17 +29,6 @@ export class OrganizationRepository {
     return orgs.map((org) => org.toJSON() as OrganizationData);
   }
 
-  async findOrgByUserId(userId: string): Promise<OrganizationData> {
-    const org = await this.orgModel
-      .findOne({
-        members: { $in: [userId] },
-      })
-      .populate('members')
-      .exec();
-
-    return org?.toJSON() as OrganizationData;
-  }
-
   async exists(orgIds: string[]): Promise<boolean> {
     const count = await this.orgModel
       .countDocuments({ _id: { $in: orgIds }, deletedAt: null })
@@ -61,22 +50,6 @@ export class OrganizationRepository {
   async delete(orgId: string): Promise<OrganizationData> {
     const id = new Types.ObjectId(orgId);
     const org = await this.orgModel.findByIdAndDelete(id).exec();
-    return org.toJSON() as OrganizationData;
-  }
-
-  async upsertMembers(
-    orgId: string,
-    memberIds: string[],
-  ): Promise<OrganizationData> {
-    const id = new Types.ObjectId(orgId);
-    const org = await this.orgModel
-      .findByIdAndUpdate(
-        id,
-        { $addToSet: { members: { $each: memberIds } } },
-        { new: true },
-      )
-      .populate('members')
-      .exec();
     return org.toJSON() as OrganizationData;
   }
 }

@@ -8,36 +8,35 @@ import { UserService } from '@/module/user/services/user.service';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { OrganizationService } from '../../services/organization.service';
 import { Resource } from '@/shared/interfaces';
+import { MemberService } from '../../services/member.service';
 
 type Response = Either<Result<UseCaseError>, Result<null>>;
 
 @Injectable()
-export default class InviteUserToOrganizationUseCase {
-  private readonly logger = new Logger(InviteUserToOrganizationUseCase.name);
+export default class InviteMemberToOrganizationUseCase {
+  private readonly logger = new Logger(InviteMemberToOrganizationUseCase.name);
   constructor(
     private readonly orgService: OrganizationService,
     private readonly userService: UserService,
+    private readonly memberService: MemberService,
   ) {}
   public async exec(orgId: string, email: string): Promise<Response> {
     try {
       this.logger.log(`Start add user to organization user`);
 
-      // check email
-      const emailExists = await this.userService.emailExists([email]);
-      if (!emailExists) return left(new NotFoundError(Resource.User, [email]));
+      // get user by email and check
+      const user = await this.userService.findUserByEmail(email);
+      if (!user) return left(new NotFoundError(Resource.User, [email]));
 
       // check orgId
       const orgExists = await this.orgService.exists([orgId]);
       if (!orgExists)
         return left(new NotFoundError(Resource.Organization, [orgId]));
 
-      // get user by email
-      const user = await this.userService.findUserByEmail(email);
-
       // check whether the user is already a member
-      const org = await this.orgService.findOrgByUserId(user._id);
-      if (org && Object.keys(org).length) {
-        if (org._id === orgId) return right(Result.ok());
+      const orgMember = await this.memberService.findMemberByUserId(user._id);
+      if (orgMember && Object.keys(orgMember).length) {
+        if (orgMember?.organization?._id === orgId) return right(Result.ok());
 
         return left(
           new ConflictError(
@@ -46,8 +45,11 @@ export default class InviteUserToOrganizationUseCase {
         );
       }
 
-      this.logger.log(`Add user to organization`);
-      await this.orgService.upsertMembers(orgId, [user._id]);
+      this.logger.log(`Add user to organization member`);
+      await this.memberService.create({
+        userId: user._id,
+        organizationId: orgId,
+      });
 
       return right(Result.ok());
     } catch (err) {
