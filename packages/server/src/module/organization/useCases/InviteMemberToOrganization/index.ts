@@ -35,14 +35,12 @@ export default class InviteMemberToOrganizationUseCase {
 
       // check whether the user is already a member
       const orgMember = await this.memberService.findMemberByUserId(user._id);
-      if (orgMember && Object.keys(orgMember).length) {
-        if (orgMember?.organization?._id === orgId) return right(Result.ok());
-
-        return left(
-          new ConflictError(
-            'User already associated with another organization!',
-          ),
-        );
+      if (
+        orgMember &&
+        Object.keys(orgMember).length &&
+        orgMember?.organization?._id === orgId
+      ) {
+        return right(Result.ok());
       }
 
       this.logger.log(`Add user to organization member`);

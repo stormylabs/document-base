@@ -26,8 +26,6 @@ async function bootstrap() {
 
   const isLocal = NODE_ENV === 'local';
 
-  console.log({ NODE_ENV });
-
   if (NODE_ENV !== 'production') {
     const options = new DocumentBuilder()
       .setTitle('DocumentBase API')
