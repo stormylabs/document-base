@@ -52,7 +52,7 @@ export class OrganizationController {
     description: 'Created organization info',
     type: CreateOrganizationResponseDto,
   })
-  @RoleAccessLevel(AccessLevel.ADMIN)
+  // ? why this endpoint exists? need to create an org before inviting user to the org
   async createOrganization(@Body() body: CreateOrganizationDTO) {
     const { name } = body;
     this.logger.log(`[POST] Start creating organization`);
@@ -88,8 +88,6 @@ export class OrganizationController {
   ) {
     const { email } = body;
     this.logger.log(`[POST] Start invite user to organization`);
-
-    console.log(req?.user?.member?.organization?._id, param.orgId);
 
     // * check org ownership
     if (req?.user?.member?.organization?._id !== param.orgId) {
