@@ -1,4 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { OrganizationResponse } from '@/shared/dto/organization';
+import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { IsEmail, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
 
 export default class InviteMemberToOrganizationDTO {
@@ -16,3 +17,8 @@ export default class InviteMemberToOrganizationDTO {
   @IsNotEmpty()
   email: string;
 }
+
+export class InviteOrganizationResponseDto extends OmitType(
+  OrganizationResponse,
+  ['deletedAt'] as const,
+) {}

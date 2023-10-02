@@ -1,22 +1,22 @@
 import {
   Body,
   Controller,
-  HttpStatus,
+  Get,
   Logger,
   Param,
   Post,
   Req,
-  Res,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
   ApiSecurity,
   ApiTags,
 } from '@nestjs/swagger';
-import { Response } from 'express';
 
 import { errorHandler } from '@/shared/http';
 
@@ -25,13 +25,14 @@ import InviteMemberToOrganizationUseCase from '../useCases/InviteMemberToOrganiz
 import { AccessLevel } from '@/shared/interfaces/accessLevel';
 import { RoleAccessLevel } from '@/shared/decorators/RoleAccessLevel.decorator';
 import { RequestWithUser } from '@/shared/interfaces/requestWithUser';
-import { left } from '@/shared/core/Result';
 import { UnauthorizedError } from '@/shared/core/AppError';
 import { OrgIdParams } from '@/shared/dto/organization';
 import CreateOrganizationDTO, {
   CreateOrganizationResponseDto,
 } from '../useCases/CreateOrganization/dto';
 import CreateOrganizationUseCase from '../useCases/CreateOrganization';
+import { GetOrganizationResponseDto } from '../useCases/GetOrganization/dto';
+import GetOrganizationUseCase from '../useCases/GetOrganization';
 
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
@@ -40,6 +41,7 @@ export class OrganizationController {
   private readonly logger = new Logger(OrganizationController.name);
   constructor(
     private createOrgUseCase: CreateOrganizationUseCase,
+    private getOrgUseCase: GetOrganizationUseCase,
     private inviteUserToOrgUseCase: InviteMemberToOrganizationUseCase,
   ) {}
 
@@ -52,6 +54,7 @@ export class OrganizationController {
     description: 'Created organization info',
     type: CreateOrganizationResponseDto,
   })
+  @RoleAccessLevel([AccessLevel.ADMIN])
   // ? why this endpoint exists? need to create an org before inviting user to the org
   async createOrganization(@Body() body: CreateOrganizationDTO) {
     const { name } = body;
@@ -62,6 +65,45 @@ export class OrganizationController {
       const error = result.value;
       this.logger.error(
         `[POST] create organization error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  @Get(':orgId')
+  @ApiOperation({
+    summary: 'Get organization info by organization ID.',
+  })
+  @ApiOkResponse({
+    description: 'Get organization info',
+    type: GetOrganizationResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Organization not found',
+  })
+  @RoleAccessLevel([
+    AccessLevel.ADMIN,
+    AccessLevel.MEMBER,
+    AccessLevel.READ_ONLY,
+  ])
+  async getOrganization(
+    @Param() { orgId }: OrgIdParams,
+    @Req() { user }: RequestWithUser,
+  ) {
+    this.logger.log(`[GET] Start getting organization info`);
+
+    // check org ownership
+    if (user?.member?.organization?._id !== orgId) {
+      return errorHandler(new UnauthorizedError());
+    }
+
+    const result = await this.getOrgUseCase.exec(orgId);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[GET] get organization error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -79,20 +121,18 @@ export class OrganizationController {
   @ApiConflictResponse({
     description: 'Email already exists.',
   })
-  @RoleAccessLevel(AccessLevel.ADMIN)
+  @RoleAccessLevel([AccessLevel.ADMIN])
   async inviteUserToOrg(
     @Body() body: InviteMemberToOrganizationDTO,
-    @Res() res: Response,
     @Req() req: RequestWithUser,
     @Param() param: OrgIdParams,
   ) {
     const { email } = body;
     this.logger.log(`[POST] Start invite user to organization`);
 
-    // * check org ownership
+    // check org ownership
     if (req?.user?.member?.organization?._id !== param.orgId) {
-      res.status(HttpStatus.UNAUTHORIZED).send();
-      return left(new UnauthorizedError());
+      return errorHandler(new UnauthorizedError());
     }
 
     const result = await this.inviteUserToOrgUseCase.exec(param.orgId, email);
@@ -108,6 +148,6 @@ export class OrganizationController {
       return errorHandler(error);
     }
 
-    res.status(HttpStatus.NO_CONTENT).send();
+    return result.value.getValue();
   }
 }

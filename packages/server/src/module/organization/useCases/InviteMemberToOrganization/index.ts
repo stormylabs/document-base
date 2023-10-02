@@ -9,8 +9,12 @@ import UseCaseError from '@/shared/core/UseCaseError';
 import { OrganizationService } from '../../services/organization.service';
 import { Resource } from '@/shared/interfaces';
 import { MemberService } from '../../services/member.service';
+import { InviteOrganizationResponseDto } from './dto';
 
-type Response = Either<Result<UseCaseError>, Result<null>>;
+type Response = Either<
+  Result<UseCaseError>,
+  Result<InviteOrganizationResponseDto>
+>;
 
 @Injectable()
 export default class InviteMemberToOrganizationUseCase {
@@ -49,7 +53,7 @@ export default class InviteMemberToOrganizationUseCase {
         organizationId: orgId,
       });
 
-      return right(Result.ok());
+      return right(Result.ok(null));
     } catch (err) {
       return left(new UnexpectedError(err));
     }
