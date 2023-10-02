@@ -17,6 +17,7 @@ import { MemberService } from './services/member.service';
 import { APP_GUARD } from '@nestjs/core';
 import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
 import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
+import CreateOrganizationUseCase from './useCases/CreateOrganization';
 
 @Module({
   imports: [
@@ -41,6 +42,7 @@ import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
     MemberRepository,
     MemberService,
     InviteMemberToOrganizationUseCase,
+    CreateOrganizationUseCase,
     {
       provide: APP_GUARD,
       useClass: ApiKeyGuard,

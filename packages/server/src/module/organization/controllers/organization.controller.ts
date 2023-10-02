@@ -28,6 +28,10 @@ import { RequestWithUser } from '@/shared/interfaces/requestWithUser';
 import { left } from '@/shared/core/Result';
 import { UnauthorizedError } from '@/shared/core/AppError';
 import { OrgIdParams } from '@/shared/dto/organization';
+import CreateOrganizationDTO, {
+  CreateOrganizationResponseDto,
+} from '../useCases/CreateOrganization/dto';
+import CreateOrganizationUseCase from '../useCases/CreateOrganization';
 
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
@@ -35,8 +39,34 @@ import { OrgIdParams } from '@/shared/dto/organization';
 export class OrganizationController {
   private readonly logger = new Logger(OrganizationController.name);
   constructor(
+    private createOrgUseCase: CreateOrganizationUseCase,
     private inviteUserToOrgUseCase: InviteMemberToOrganizationUseCase,
   ) {}
+
+  @Post()
+  @ApiBody({ type: CreateOrganizationDTO })
+  @ApiOperation({
+    summary: 'Creates a organization',
+  })
+  @ApiCreatedResponse({
+    description: 'Created organization info',
+    type: CreateOrganizationResponseDto,
+  })
+  @RoleAccessLevel(AccessLevel.ADMIN)
+  async createOrganization(@Body() body: CreateOrganizationDTO) {
+    const { name } = body;
+    this.logger.log(`[POST] Start creating organization`);
+    const result = await this.createOrgUseCase.exec(name);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] create organization error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
 
   @Post(':orgId/invite')
   @ApiBody({ type: InviteMemberToOrganizationDTO })
