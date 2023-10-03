@@ -1,8 +1,9 @@
-import { Injectable } from '@nestjs/common';
+import { AccessLevel } from '@/shared/interfaces/accessLevel';
+import { Injectable, Type } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { MemberData } from 'src/shared/interfaces/member';
-import { Member } from '../schemas/member.schema';
+import { Member, MemberDocument } from '../schemas/member.schema';
 
 @Injectable()
 export class MemberRepository {
@@ -15,11 +16,13 @@ export class MemberRepository {
     memberData: Partial<Omit<MemberData, 'user' | 'organization'>> & {
       userId: string;
       organizationId: string;
+      accessLevel?: AccessLevel;
     },
   ): Promise<MemberData> {
     const member = new this.memberModel({
       user: new Types.ObjectId(memberData.userId),
       organization: new Types.ObjectId(memberData.organizationId),
+      accessLevel: memberData.accessLevel || AccessLevel.ADMIN,
     });
     const saved = await member.save();
     return saved.toJSON() as MemberData;
@@ -41,18 +44,41 @@ export class MemberRepository {
     return members.map((member) => member.toJSON() as MemberData);
   }
 
-  async findMemberByUserId(userId: string): Promise<MemberData> {
-    const user = new Types.ObjectId(userId);
+  async findMemberByUserId(queries: {
+    userId: string;
+    organizationId: string;
+  }): Promise<MemberData> {
+    const finalQueries: {
+      user?: Types.ObjectId;
+      organization?: Types.ObjectId;
+    } = {};
+
+    if (queries?.userId) finalQueries.user = new Types.ObjectId(queries.userId);
+    if (queries?.organizationId)
+      finalQueries.organization = new Types.ObjectId(queries.organizationId);
+
     const member = await this.memberModel
-      .findOne({
-        user,
-      })
+      .findOne(finalQueries)
       .populate('user')
       .populate('organization')
       .exec();
 
     if (!member) return null;
     return member?.toJSON() as MemberData;
+  }
+
+  async findMembersByUserId(userId: string): Promise<MemberData[]> {
+    const user = new Types.ObjectId(userId);
+    const members = await this.memberModel
+      .find({
+        user,
+      })
+      .populate('user')
+      .populate('organization')
+      .exec();
+
+    if (!members) return null;
+    return members.map((member) => member.toJSON() as MemberData);
   }
 
   async exists(memberIds: string[]): Promise<boolean> {

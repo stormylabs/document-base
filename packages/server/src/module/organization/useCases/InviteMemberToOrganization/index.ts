@@ -38,14 +38,12 @@ export default class InviteMemberToOrganizationUseCase {
         return left(new NotFoundError(Resource.Organization, [orgId]));
 
       // check whether the user is already a member
-      const orgMember = await this.memberService.findMemberByUserId(user._id);
-      if (
-        orgMember &&
-        Object.keys(orgMember).length &&
-        orgMember?.organization?._id === orgId
-      ) {
-        return right(Result.ok());
-      }
+      const orgMember = await this.memberService.findMemberByUserId({
+        userId: user._id,
+        organizationId: orgId,
+      });
+
+      if (orgMember) return right(Result.ok());
 
       this.logger.log(`Add user to organization member`);
       await this.memberService.create({

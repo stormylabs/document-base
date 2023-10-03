@@ -40,7 +40,6 @@ import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
 @Controller('organization')
-@UseGuards(ApiKeyGuard, OrganizationRoleGuard)
 export class OrganizationController {
   private readonly logger = new Logger(OrganizationController.name);
   constructor(
@@ -58,12 +57,14 @@ export class OrganizationController {
     description: 'Created organization info',
     type: CreateOrganizationResponseDto,
   })
-  @RoleAccessLevel([AccessLevel.ADMIN])
-  // ? why this endpoint exists? need to create an org before inviting user to the org
-  async createOrganization(@Body() body: CreateOrganizationDTO) {
+  @UseGuards(ApiKeyGuard)
+  async createOrganization(
+    @Body() body: CreateOrganizationDTO,
+    @Req() req: RequestWithUser,
+  ) {
     const { name } = body;
     this.logger.log(`[POST] Start creating organization`);
-    const result = await this.createOrgUseCase.exec(name);
+    const result = await this.createOrgUseCase.exec(name, req?.user?._id);
 
     if (result.isLeft()) {
       const error = result.value;
@@ -91,6 +92,7 @@ export class OrganizationController {
     AccessLevel.MEMBER,
     AccessLevel.READ_ONLY,
   ])
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
   async getOrganization(
     @Param() { orgId }: OrgIdParams,
     @Req() { user }: RequestWithUser,
@@ -126,6 +128,7 @@ export class OrganizationController {
     description: 'Email already exists.',
   })
   @RoleAccessLevel([AccessLevel.ADMIN])
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
   async inviteUserToOrg(
     @Body() body: InviteMemberToOrganizationDTO,
     @Req() req: RequestWithUser,

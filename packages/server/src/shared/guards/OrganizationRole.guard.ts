@@ -7,6 +7,11 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 
+/**
+ * OrganizationRoleGuard
+ *
+ * Guard to protect org route path (checking orgId param)
+ */
 @Injectable()
 export class OrganizationRoleGuard implements CanActivate {
   constructor(
@@ -25,15 +30,26 @@ export class OrganizationRoleGuard implements CanActivate {
       throw new UnauthorizedException('Unauthorized');
     }
 
-    const userMember = await this.memberService.findMemberByUserId(
-      req?.user?._id,
-    );
+    // ? maybe we can put the orgId(selected/active OrgId) to the http header for each request and param orgId validation would be inside the controller
+    const organizationId = req?.params?.orgId;
+    const userId = req?.user?._id;
 
-    // TODO: support user to have more than one org member
-    // maybe we can put the orgId(selected/active OrgId) to the http header for each request
+    const userMember = await this.memberService.findMemberByUserId({
+      userId,
+      organizationId,
+    });
+
+    if (!userMember) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
     req.user.member = userMember;
 
     // * check access level
-    return accessLevels.includes(userMember?.accessLevel);
+    if (!accessLevels.includes(userMember?.accessLevel)) {
+      throw new UnauthorizedException('Unauthorized');
+    }
+
+    return true;
   }
 }
