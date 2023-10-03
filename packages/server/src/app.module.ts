@@ -11,6 +11,7 @@ import { ThrottlerAsyncModule } from './module/throttler/throttler.module';
 import { S3Module } from './module/s3/s3.module';
 import { UserModule } from './module/user/user.module';
 import { AuthModule } from './module/auth/auth.module';
+import { OrganizationModule } from './module/organization/organization.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { AuthModule } from './module/auth/auth.module';
     S3Module,
     UserModule,
     AuthModule,
+    OrganizationModule,
   ],
   controllers: [AppController],
   providers: [Logger],

@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
-import { Document, HydratedDocument, ObjectId } from 'mongoose';
+import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
+import { MemberDocument } from '@/module/organization/schemas/member.schema';
 
 export type UserDocument = HydratedDocument<User>;
 
