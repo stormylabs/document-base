@@ -1,0 +1,880 @@
+{
+	"info": {
+		"_postman_id": "a299c363-b5b5-45d6-b1c1-b8549cbf5f23",
+		"name": "Document Base",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23466988"
+	},
+	"item": [
+		{
+			"name": "Bots",
+			"item": [
+				{
+					"name": "Create Bot",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"hf-capital\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/bot",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"bot"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Bot Info By Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/bot/64e580c1b439d3a512ac03b0",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"bot",
+								"64e580c1b439d3a512ac03b0"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Bot Info",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n     \"name\": \"yuuna-clinic\",\n     \"prompt\": \"Immerse in the role of Yuuna, an outstanding customer representative at Yuuna Clinic. Yuuna Clinic is dedicated in providing diversified and comprehensive medical services, to support people in building prosperous and fruitful lives.\",\n     \"fallbackMessage\": \"唔好意思，我暫時未有資料回答到你嘅問題。已經收到你嘅問題，我地會儘快回覆你！\"\n\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/bot/651068c6aec67cd56194d836",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"bot",
+								"651068c6aec67cd56194d836"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Bot by Id",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/bot/64ae0afda2976f43291550cd",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"bot",
+								"64ae0afda2976f43291550cd"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Message Bot",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"message\": \"how about music?\",\n    \"conversationHistory\": [\n    \n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/bot/message/65106c17aec67cd56194d8c6",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"bot",
+								"message",
+								"65106c17aec67cd56194d8c6"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Crawl Urls",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"urls\": [\n        \"https://capital168.com.cn/\"\n    ],\n    \"limit\": 500\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/bot/crawl/6513b3298a3921252cca6a0b",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"bot",
+								"crawl",
+								"6513b3298a3921252cca6a0b"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Extract Files ",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files",
+									"type": "file",
+									"src": [
+										"/Users/anthonysiu/Downloads/Chatdaddy AI boy Q&A - Sheet1 (3).pdf",
+										"/Users/anthonysiu/Downloads/BHP448 說明書.pdf",
+										"/Users/anthonysiu/Downloads/AI+projects (1).pdf",
+										"/Users/anthonysiu/Downloads/AI+projects.pdf",
+										"/Users/anthonysiu/Downloads/64e87f5dae1c54efc567e0b8_liohay.pdf",
+										"/Users/anthonysiu/Downloads/Invoice-TNT The Next Tech Limited-18 Aug.pdf"
+									]
+								}
+							]
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/bot/extract/64eeb160af13c5cd11235e73",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"bot",
+								"extract",
+								"64eeb160af13c5cd11235e73"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Save and Train Bot",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"documentIds\": [\n            \"651068fceb0a79d4d508d8d3\",\n            \"651068fdeb0a79d4d508d8e5\",\n            \"651068fdeb0a79d4d508d8e8\",\n            \"651068fdeb0a79d4d508d8eb\",\n            \"651068fdeb0a79d4d508d8ee\",\n            \"651068fdeb0a79d4d508d8f1\",\n            \"651068fdeb0a79d4d508d8f4\",\n            \"651068fdeb0a79d4d508d8f7\",\n            \"651068feeb0a79d4d508d8fd\",\n            \"651068feeb0a79d4d508d900\",\n            \"651068feeb0a79d4d508d903\",\n            \"651068feeb0a79d4d508d906\",\n            \"65106919eb0a79d4d508d952\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/bot/train/651068c6aec67cd56194d836",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"bot",
+								"train",
+								"651068c6aec67cd56194d836"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "apikey",
+				"apikey": [
+					{
+						"key": "value",
+						"value": "{{ROOT_API_KEY}}",
+						"type": "string"
+					},
+					{
+						"key": "key",
+						"value": "x-api-key",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Organisation",
+			"item": [
+				{
+					"name": "Create Organization",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"stormy-labs\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/organization",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organization"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Organisation By Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/organization/{{ORG_ID}}",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organization",
+								"{{ORG_ID}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite Member to Organization",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n   \"email\": \"kenny@chatdaddy.tech\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/organization/{{ORG_ID}}/invite",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"organization",
+								"{{ORG_ID}}",
+								"invite"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "apikey",
+				"apikey": [
+					{
+						"key": "value",
+						"value": "{{ROOT_API_KEY}}",
+						"type": "string"
+					},
+					{
+						"key": "key",
+						"value": "x-api-key",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Jobs",
+			"item": [
+				{
+					"name": "Get Crawl Job Status By Id",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/data/crawl/6513b34ceb0a79d4d5093133",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"data",
+								"crawl",
+								"6513b34ceb0a79d4d5093133"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Abort Crawl Job",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/data/crawl/abort/64eeb178af13c5cd11235e79",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"data",
+								"crawl",
+								"abort",
+								"64eeb178af13c5cd11235e79"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Extract Job Status By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/data/extract/64eeb0808f3b961c8048a21c",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"data",
+								"extract",
+								"64eeb0808f3b961c8048a21c"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Abort Extract Job",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/data/extract/abort/64eeb178af13c5cd11235e79",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"data",
+								"extract",
+								"abort",
+								"64eeb178af13c5cd11235e79"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Train Job Status By Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/data/train/64eeae7b2ea63df0cf276cb7",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"data",
+								"train",
+								"64eeae7b2ea63df0cf276cb7"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Abort Train Job",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/data/train/abort/64eeb178af13c5cd11235e79",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"data",
+								"train",
+								"abort",
+								"64eeb178af13c5cd11235e79"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "apikey",
+				"apikey": [
+					{
+						"key": "value",
+						"value": "{{ROOT_API_KEY}}",
+						"type": "string"
+					},
+					{
+						"key": "key",
+						"value": "x-api-key",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Create User",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"singh@chatdaddy.tech\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/a26b81b5-a896-4dea-91cc-5d4dacf3dc74/user",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"a26b81b5-a896-4dea-91cc-5d4dacf3dc74",
+								"user"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/a26b81b5-a896-4dea-91cc-5d4dacf3dc74/user/64f01425eb22a1d439d7dd38",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"a26b81b5-a896-4dea-91cc-5d4dacf3dc74",
+								"user",
+								"64f01425eb22a1d439d7dd38"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Get API Keys by User Id",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/a26b81b5-a896-4dea-91cc-5d4dacf3dc74/auth/64f852553e59c49dcf4629ae/api-keys",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"a26b81b5-a896-4dea-91cc-5d4dacf3dc74",
+								"auth",
+								"64f852553e59c49dcf4629ae",
+								"api-keys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete API Key",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/a26b81b5-a896-4dea-91cc-5d4dacf3dc74/auth/64f852553e59c49dcf4629ae/api-keys/64f857993b2b2ac551801c84",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"a26b81b5-a896-4dea-91cc-5d4dacf3dc74",
+								"auth",
+								"64f852553e59c49dcf4629ae",
+								"api-keys",
+								"64f857993b2b2ac551801c84"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create API Key",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/a26b81b5-a896-4dea-91cc-5d4dacf3dc74/auth/64f852553e59c49dcf4629ae/api-keys",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"a26b81b5-a896-4dea-91cc-5d4dacf3dc74",
+								"auth",
+								"64f852553e59c49dcf4629ae",
+								"api-keys"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "noauth"
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Usage",
+			"item": [
+				{
+					"name": "Get Usage By Bot ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/a26b81b5-a896-4dea-91cc-5d4dacf3dc74/auth/64f01f0c008f0453847325e3/api-keys",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"a26b81b5-a896-4dea-91cc-5d4dacf3dc74",
+								"auth",
+								"64f01f0c008f0453847325e3",
+								"api-keys"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Usage By User ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{SERVER_ENDPOINT}}/api/v1/a26b81b5-a896-4dea-91cc-5d4dacf3dc74/auth/64f01f0c008f0453847325e3/api-keys",
+							"host": [
+								"{{SERVER_ENDPOINT}}"
+							],
+							"path": [
+								"api",
+								"v1",
+								"a26b81b5-a896-4dea-91cc-5d4dacf3dc74",
+								"auth",
+								"64f01f0c008f0453847325e3",
+								"api-keys"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "apikey",
+				"apikey": [
+					{
+						"key": "value",
+						"value": "{{ROOT_API_KEY}}",
+						"type": "string"
+					},
+					{
+						"key": "key",
+						"value": "x-api-key",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "apikey",
+		"apikey": [
+			{
+				"key": "value",
+				"value": "{{ROOT_API_KEY}}",
+				"type": "string"
+			},
+			{
+				"key": "key",
+				"value": "x-api-key",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
