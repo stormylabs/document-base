@@ -1,6 +1,22 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { AccessLevel } from '../interfaces/accessLevel';
 import { MemberResponse } from './member';
+import { UserResponse } from './user';
+
+class OrgMemberResponseDTO extends PartialType(
+  PickType(MemberResponse, [
+    '_id',
+    'user',
+    'createdAt',
+    'accessLevel',
+  ] as const),
+) {
+  _id: string;
+  user: UserResponse;
+  accessLevel: AccessLevel;
+  createdAt: Date;
+}
 
 export class OrganizationResponse {
   @ApiProperty({
@@ -17,9 +33,9 @@ export class OrganizationResponse {
 
   @ApiProperty({
     description: 'Member Documents',
-    type: () => [MemberResponse],
+    type: () => [OrgMemberResponseDTO],
   })
-  documents?: MemberResponse[];
+  members?: OrgMemberResponseDTO[];
 
   @ApiProperty({
     description: 'Org Created Date',

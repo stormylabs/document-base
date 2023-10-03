@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { AccessLevel } from '../interfaces/accessLevel';
 import { OrganizationResponse } from './organization';
 import { UserResponse } from './user';
 
@@ -21,6 +22,12 @@ export class MemberResponse {
     type: () => OrganizationResponse,
   })
   organization: OrganizationResponse;
+
+  @ApiProperty({
+    description: 'Access Level of Member',
+    enum: AccessLevel,
+  })
+  accessLevel: AccessLevel;
 
   @ApiProperty({
     description: 'Member Created Date',

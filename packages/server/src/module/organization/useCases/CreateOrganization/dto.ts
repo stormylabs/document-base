@@ -20,5 +20,5 @@ export default class CreateOrganizationDTO {
 
 export class CreateOrganizationResponseDto extends OmitType(
   OrganizationResponse,
-  ['deletedAt'] as const,
+  ['deletedAt', 'members'] as const,
 ) {}
