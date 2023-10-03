@@ -1,10 +1,9 @@
-import { OrganizationDocument } from '@/module/organization/schemas/organization.schema';
-import { UserDocument } from '@/module/user/schemas/user.schema';
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { OrganizationResponse } from './organization';
 import { UserResponse } from './user';
 
-export class OrganizationResponse {
+export class MemberResponse {
   @ApiProperty({
     description: 'Org ID',
     type: String,
@@ -15,22 +14,28 @@ export class OrganizationResponse {
     description: 'User Documents',
     type: () => UserResponse,
   })
-  user: UserDocument;
+  user: UserResponse;
 
   @ApiProperty({
     description: 'Organization Documents',
     type: () => OrganizationResponse,
   })
-  organization: OrganizationDocument;
+  organization: OrganizationResponse;
 
   @ApiProperty({
-    description: 'Org Created Date',
+    description: 'Member Created Date',
     type: Date,
   })
   createdAt?: Date;
 
   @ApiProperty({
-    description: 'Org Deleted Date',
+    description: 'Member Updated Date',
+    type: Date,
+  })
+  updatedAt?: Date;
+
+  @ApiProperty({
+    description: 'Member Deleted Date',
     type: Date,
   })
   deletedAt?: Date;

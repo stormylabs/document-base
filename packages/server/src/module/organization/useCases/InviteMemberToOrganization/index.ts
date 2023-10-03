@@ -10,6 +10,7 @@ import { OrganizationService } from '../../services/organization.service';
 import { Resource } from '@/shared/interfaces';
 import { MemberService } from '../../services/member.service';
 import { InviteOrganizationResponseDto } from './dto';
+import { AccessLevel } from '@/shared/interfaces/accessLevel';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -43,12 +44,18 @@ export default class InviteMemberToOrganizationUseCase {
         organizationId: orgId,
       });
 
-      if (orgMember) return right(Result.ok());
+      if (orgMember)
+        return left(
+          new ConflictError(
+            `user: ${email} has already been added to organization: ${orgId}`,
+          ),
+        );
 
       this.logger.log(`Add user to organization member`);
       await this.memberService.create({
         userId: user._id,
         organizationId: orgId,
+        accessLevel: AccessLevel.MEMBER,
       });
 
       return right(Result.ok(null));

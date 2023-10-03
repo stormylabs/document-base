@@ -29,8 +29,16 @@ export class MemberService {
     return member;
   }
 
-  async findMembersByUserId(userId: string): Promise<MemberData[]> {
-    const members = await this.memberRepository.findMembersByUserId(userId);
+  /**
+   * getMemberOfOrganization
+   *
+   * Get all member of organization
+   *
+   * @param orgId
+   * @returns
+   */
+  async getMemberOfOrganization(orgId: string): Promise<MemberData[]> {
+    const members = await this.memberRepository.findMembersByOrgId(orgId);
     return members;
   }
 

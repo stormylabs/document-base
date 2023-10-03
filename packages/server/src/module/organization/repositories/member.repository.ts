@@ -67,14 +67,13 @@ export class MemberRepository {
     return member?.toJSON() as MemberData;
   }
 
-  async findMembersByUserId(userId: string): Promise<MemberData[]> {
-    const user = new Types.ObjectId(userId);
+  async findMembersByOrgId(orgId: string): Promise<MemberData[]> {
+    const organization = new Types.ObjectId(orgId);
     const members = await this.memberModel
       .find({
-        user,
+        organization,
       })
       .populate('user')
-      .populate('organization')
       .exec();
 
     if (!members) return null;

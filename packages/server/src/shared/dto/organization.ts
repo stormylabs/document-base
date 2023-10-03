@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { MemberResponse } from './member';
 
 export class OrganizationResponse {
   @ApiProperty({
@@ -13,6 +14,12 @@ export class OrganizationResponse {
     type: String,
   })
   name?: string;
+
+  @ApiProperty({
+    description: 'Member Documents',
+    type: () => [MemberResponse],
+  })
+  documents?: MemberResponse[];
 
   @ApiProperty({
     description: 'Org Created Date',
