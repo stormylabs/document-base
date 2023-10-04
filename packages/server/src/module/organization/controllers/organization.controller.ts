@@ -143,7 +143,6 @@ export class OrganizationController {
 
     // check org ownership
     if (req?.user?.member?.organization?._id !== param.orgId) {
-      this.logger.error('[POST] invite user to organization error');
       return errorHandler(new UnauthorizedError());
     }
 
@@ -163,7 +162,8 @@ export class OrganizationController {
     return result.value.getValue();
   }
 
-  @Post(':org/engagement')
+  // Add engagement to organization Endpoint
+  @Post(':orgId/engagement')
   @ApiBody({ type: AddEngagementToOrganizationDTO })
   @ApiOperation({
     summary: 'Add engagement to organization',
@@ -175,13 +175,14 @@ export class OrganizationController {
   @ApiConflictResponse({
     description: 'Engagement already exists.',
   })
-  @RoleAccessLevel([AccessLevel.ADMIN])
-  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
+  // @RoleAccessLevel([AccessLevel.ADMIN])
+  // @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
   async addEngagementToOrg(
     @Body() body: AddEngagementToOrganizationDTO,
     @Req() req: RequestWithUser,
     @Param() param: OrgIdParams,
   ) {
+    console.log(body);
     const {
       name,
       budgetPerInteraction,
@@ -193,12 +194,13 @@ export class OrganizationController {
       knowledgeIds,
       outcome,
     } = body;
-    this.logger.log(`[POST] Start add engagement to organization`);
+    console.log(`[POST] Start add engagement to organization`);
 
     // check org ownership
-    if (req?.user?.member?.organization?._id !== param.orgId) {
-      return errorHandler(new UnauthorizedError());
-    }
+    // if (req?.user?.member?.organization?._id !== param.orgId) {
+    //   this.logger.error('[POST] invite user to organization error');
+    //   return errorHandler(new UnauthorizedError());
+    // }
 
     const result = await this.AddEngagementOrganizationUseCase.exec(
       name,

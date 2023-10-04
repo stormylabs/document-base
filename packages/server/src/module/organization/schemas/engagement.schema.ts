@@ -14,7 +14,7 @@ export class Engagement extends Document {
   name: string;
 
   @Prop({ type: String })
-  organisationId: string;
+  organizationId: string;
 
   @Prop({ type: Number })
   budgetPerInteraction: number;

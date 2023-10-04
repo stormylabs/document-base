@@ -1,25 +1,13 @@
-import { OrganizationResponse } from '@/shared/dto/organization';
+import { EngagementResponse } from '@/shared/dto/engagement';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsNotEmpty, MaxLength, MinLength } from 'class-validator';
-
-// Example of Request DTO
-// {
-// 	name: string;
-// 	budgetPerInteraction: number;
-// 	executesAt: Date;
-// 	endsAt: Date;
-// 	templateId: Template
-// 	contactIds: string[];
-// 	channels: EngagementChannel[];
-// 	knowledgeIds: string[];
-// 	outcome: InteractionEventType;
-// 	... // to be extended
-// }
-
-type InteractionEventType =
-  | 'CustomerMessageReceived'
-  | 'APIExecuted'
-  | 'PluginExecuted';
+import {
+  IsArray,
+  IsNotEmpty,
+  IsNumber,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
 
 export default class AddEngagementToOrganizationDTO {
   @ApiProperty({
@@ -43,6 +31,9 @@ export default class AddEngagementToOrganizationDTO {
     example: 100,
     type: Number,
   })
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(0)
   budgetPerInteraction: number;
 
   @ApiProperty({
@@ -51,6 +42,7 @@ export default class AddEngagementToOrganizationDTO {
     example: '2022-01-01T00:00:00Z',
     type: Date,
   })
+  @IsNotEmpty()
   executesAt: Date;
 
   @ApiProperty({
@@ -59,6 +51,7 @@ export default class AddEngagementToOrganizationDTO {
     example: '2022-01-31T23:59:59Z',
     type: Date,
   })
+  @IsNotEmpty()
   endsAt: Date;
 
   @ApiProperty({
@@ -67,6 +60,7 @@ export default class AddEngagementToOrganizationDTO {
     example: 'templateId',
     type: String,
   })
+  @IsNotEmpty()
   templateId: string;
 
   @ApiProperty({
@@ -75,14 +69,18 @@ export default class AddEngagementToOrganizationDTO {
     example: ['contactId1', 'contactId2'],
     type: [String],
   })
+  @IsNotEmpty()
+  @IsArray()
   contactIds: string[];
 
   @ApiProperty({
     description: 'Engagement Channels',
-    required: true,
     example: ['channel1', 'channel2'],
     type: [String],
+    required: false,
   })
+  @IsNotEmpty()
+  @IsArray()
   channels: string[];
 
   @ApiProperty({
@@ -91,6 +89,8 @@ export default class AddEngagementToOrganizationDTO {
     example: ['knowledgeId1', 'knowledgeId2'],
     type: [String],
   })
+  @IsArray()
+  @IsNotEmpty()
   knowledgeIds: string[];
 
   @ApiProperty({
@@ -99,10 +99,11 @@ export default class AddEngagementToOrganizationDTO {
     example: 'outcome',
     type: String,
   })
-  outcome: InteractionEventType;
+  @IsNotEmpty()
+  outcome: string;
 }
 
 export class AddEngagementOrganizationResponseDTO extends OmitType(
-  OrganizationResponse,
+  EngagementResponse,
   ['deletedAt'] as const,
 ) {}

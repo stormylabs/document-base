@@ -2,86 +2,66 @@ import { AccessLevel } from '@/shared/interfaces/accessLevel';
 import { Injectable, Type } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { MemberData } from 'src/shared/interfaces/member';
 import { Engagement } from '../schemas/engagement.schema';
+import { EngagementData } from '@/shared/interfaces/engagement';
 
 @Injectable()
 export class EngagementRepository {
   constructor(
     @InjectModel(Engagement.name)
-    private readonly memberModel: Model<Engagement>,
+    private readonly engagementModel: Model<Engagement>,
   ) {}
 
   async create(
-    memberData: Partial<Omit<MemberData, 'user' | 'organization'>> & {
-      userId: string;
-      organizationId: string;
-      accessLevel?: AccessLevel;
-    },
-  ): Promise<MemberData> {
-    const member = new this.memberModel({
-      user: new Types.ObjectId(memberData.userId),
-      organization: new Types.ObjectId(memberData.organizationId),
-      accessLevel: memberData.accessLevel || AccessLevel.ADMIN,
+    engagementData: Partial<
+      Omit<EngagementData, '_id' | 'created_at' | 'deleted_at' | 'updated_at'>
+    >,
+  ): Promise<EngagementData> {
+    const engagement = new this.engagementModel({
+      name: engagementData.name,
+      organization: new Types.ObjectId(engagementData.organizationId),
+      budgetPerInteraction: engagementData.budgetPerInteraction,
+      executesAt: engagementData.executesAt,
+      endsAt: engagementData.endsAt,
+      template: new Types.ObjectId(engagementData.templateId),
+      contacts: engagementData.contactIds.map((id) => new Types.ObjectId(id)),
+      channels: engagementData.channels,
+      knowledge: engagementData.knowledgeIds.map(
+        (id) => new Types.ObjectId(id),
+      ),
+      outcome: engagementData.outcome,
     });
-    const saved = await member.save();
-    return saved.toJSON() as MemberData;
+    const saved = await engagement.save();
+    return saved.toJSON() as EngagementData;
   }
 
-  async findById(memberId: string): Promise<MemberData | null> {
+  async findEngagementByOrgId(orgId: string): Promise<EngagementData[]> {
+    const engagements = await this.engagementModel
+      .find({ organization: new Types.ObjectId(orgId) })
+      .exec();
+    return engagements.map(
+      (engagement) => engagement.toJSON() as EngagementData,
+    ) as EngagementData[];
+  }
+
+  async findById(memberId: string): Promise<EngagementData | null> {
     const id = new Types.ObjectId(memberId);
-    const member = await this.memberModel
+    const engagement = await this.engagementModel
       .findById(id)
       .populate('user')
       .populate('organization')
       .exec();
-    if (!member || member.deletedAt) return null;
-    return member.toJSON() as MemberData;
+    if (!engagement || engagement.deletedAt) return null;
+    return engagement.toJSON() as EngagementData;
   }
 
-  async findAll(): Promise<MemberData[]> {
-    const members = await this.memberModel.find().exec();
-    return members.map((member) => member.toJSON() as MemberData);
-  }
-
-  async findMemberByUserId(queries: {
-    userId: string;
-    organizationId: string;
-  }): Promise<MemberData> {
-    const finalQueries: {
-      user?: Types.ObjectId;
-      organization?: Types.ObjectId;
-    } = {};
-
-    if (queries?.userId) finalQueries.user = new Types.ObjectId(queries.userId);
-    if (queries?.organizationId)
-      finalQueries.organization = new Types.ObjectId(queries.organizationId);
-
-    const member = await this.memberModel
-      .findOne(finalQueries)
-      .populate('user')
-      .populate('organization')
-      .exec();
-
-    if (!member) return null;
-    return member?.toJSON() as MemberData;
-  }
-
-  async findMembersByOrgId(orgId: string): Promise<MemberData[]> {
-    const organization = new Types.ObjectId(orgId);
-    const members = await this.memberModel
-      .find({
-        organization,
-      })
-      .populate('user')
-      .exec();
-
-    if (!members) return null;
-    return members.map((member) => member.toJSON() as MemberData);
+  async findAll(): Promise<EngagementData[]> {
+    const members = await this.engagementModel.find().exec();
+    return members.map((engagement) => engagement.toJSON() as EngagementData);
   }
 
   async exists(memberIds: string[]): Promise<boolean> {
-    const count = await this.memberModel
+    const count = await this.engagementModel
       .countDocuments({ _id: { $in: memberIds }, deletedAt: null })
       .exec();
     return count === memberIds.length;
@@ -89,18 +69,18 @@ export class EngagementRepository {
 
   async update(
     memberId: string,
-    data: Partial<Omit<MemberData, 'createdAt' | '_id'>>,
-  ): Promise<MemberData | null> {
+    data: Partial<Omit<EngagementData, 'createdAt' | '_id'>>,
+  ): Promise<EngagementData | null> {
     const id = new Types.ObjectId(memberId);
-    const member = await this.memberModel
+    const engagement = await this.engagementModel
       .findByIdAndUpdate(id, { $set: data }, { new: true })
       .exec();
-    return member.toJSON() as MemberData;
+    return engagement.toJSON() as EngagementData;
   }
 
-  async delete(memberId: string): Promise<MemberData> {
+  async delete(memberId: string): Promise<EngagementData> {
     const id = new Types.ObjectId(memberId);
-    const member = await this.memberModel.findByIdAndDelete(id).exec();
-    return member.toJSON() as MemberData;
+    const engagement = await this.engagementModel.findByIdAndDelete(id).exec();
+    return engagement.toJSON() as EngagementData;
   }
 }

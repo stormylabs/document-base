@@ -5,6 +5,7 @@ import { AddEngagementOrganizationResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { OrganizationService } from '../../services/organization.service';
 import { EngagementService } from '../../services/engagement.service';
+import { EngagementData } from '@/shared/interfaces/engagement';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -14,10 +15,7 @@ type Response = Either<
 @Injectable()
 export default class AddEngagementOrganizationUseCase {
   private readonly logger = new Logger(AddEngagementOrganizationUseCase.name);
-  constructor(
-    private readonly orgService: OrganizationService,
-    private readonly knowledgeService: EngagementService,
-  ) {}
+  constructor(private readonly engagementService: EngagementService) {}
   public async exec(
     name,
     organizationId,
@@ -45,7 +43,23 @@ export default class AddEngagementOrganizationUseCase {
     try {
       this.logger.log(`Start creating organization`);
 
-      return null;
+      await this.engagementService.create({
+        name,
+        organizationId,
+        budgetPerInteraction,
+        executesAt,
+        endsAt,
+        templateId,
+        contactIds,
+        channels,
+        knowledgeIds,
+        outcome,
+        createdAt: new Date(),
+        deletedAt: null,
+        updatedAt: new Date(),
+      });
+
+      return right(Result.ok({}));
     } catch (err) {
       return left(new UnexpectedError(err));
     }

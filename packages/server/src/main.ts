@@ -37,13 +37,7 @@ async function bootstrap() {
       )
       .build();
 
-    const document = SwaggerModule.createDocument(
-      app,
-      options,
-      !isLocal && {
-        include: [BotModule],
-      },
-    );
+    const document = SwaggerModule.createDocument(app, options, {});
     SwaggerModule.setup('api/v1/docs', app, document);
   }
 

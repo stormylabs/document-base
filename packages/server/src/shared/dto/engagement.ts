@@ -1,62 +1,87 @@
-import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
-import { AccessLevel } from '../interfaces/accessLevel';
-import { MemberResponse } from './member';
-import { UserResponse } from './user';
+import { ApiProperty } from '@nestjs/swagger';
 
-class OrgMemberResponseDTO extends PartialType(
-  PickType(MemberResponse, [
-    '_id',
-    'user',
-    'createdAt',
-    'accessLevel',
-  ] as const),
-) {
-  _id: string;
-  user: UserResponse;
-  accessLevel: AccessLevel;
-  createdAt: Date;
-}
-
-export class OrganizationResponse {
+export class EngagementResponse {
   @ApiProperty({
-    description: 'Org ID',
+    description: 'Engagement ID',
     type: String,
   })
   _id?: string;
 
   @ApiProperty({
-    description: 'Org Name',
+    description: 'Engagement Name',
     type: String,
   })
   name?: string;
 
   @ApiProperty({
-    description: 'Member Documents',
-    type: () => [OrgMemberResponseDTO],
+    description: 'Organisation ID',
+    type: String,
   })
-  members?: OrgMemberResponseDTO[];
+  organizationId?: string;
 
   @ApiProperty({
-    description: 'Org Created Date',
+    description: 'Budget per Interaction',
+    type: Number,
+  })
+  budgetPerInteraction?: number;
+
+  @ApiProperty({
+    description: 'Execution Date',
+    type: Date,
+  })
+  executesAt?: Date;
+
+  @ApiProperty({
+    description: 'End Date',
+    type: Date,
+  })
+  endsAt?: Date;
+
+  @ApiProperty({
+    description: 'Template ID',
+    type: String,
+  })
+  templateId?: string;
+
+  @ApiProperty({
+    description: 'Contact IDs',
+    type: [String],
+  })
+  contactIds?: string[];
+
+  @ApiProperty({
+    description: 'Channels',
+    type: [String],
+  })
+  channels?: string[];
+
+  @ApiProperty({
+    description: 'Knowledge IDs',
+    type: [String],
+  })
+  knowledgeIds?: string[];
+
+  @ApiProperty({
+    description: 'Outcome',
+    type: String,
+  })
+  outcome?: string;
+
+  @ApiProperty({
+    description: 'Created Date',
     type: Date,
   })
   createdAt?: Date;
 
   @ApiProperty({
-    description: 'Org Deleted Date',
+    description: 'Deleted Date',
     type: Date,
   })
   deletedAt?: Date;
-}
 
-export class OrgIdParams {
   @ApiProperty({
-    name: 'orgId',
-    type: String,
-    description: 'Organization ID',
+    description: 'Updated Date',
+    type: Date,
   })
-  @IsString()
-  @IsNotEmpty()
-  orgId: string;
+  updatedAt?: Date;
 }

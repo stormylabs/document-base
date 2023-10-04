@@ -1,9 +1,7 @@
-import { OrganizationData } from './organization';
-
-export class Engagement {
+export class EngagementData {
   _id: string;
   name: string;
-  organisationId: string;
+  organizationId: string;
   budgetPerInteraction: number;
   executesAt: Date;
   endsAt: Date;
