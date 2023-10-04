@@ -22,6 +22,7 @@ import GetOrganizationUseCase from './useCases/GetOrganization';
 import AddEngagementOrganizationUseCase from './useCases/AddEngagementToOrganization';
 import { Engagement, EngagementSchema } from './schemas/engagement.schema';
 import { EngagementService } from './services/engagement.service';
+import { EngagementRepository } from './repositories/engagement.repository';
 
 @Module({
   imports: [
@@ -53,6 +54,8 @@ import { EngagementService } from './services/engagement.service';
     CreateOrganizationUseCase,
     GetOrganizationUseCase,
     OrganizationRoleGuard,
+    EngagementService,
+    EngagementRepository,
     AddEngagementOrganizationUseCase,
   ],
   exports: [OrganizationService, MemberService, EngagementService],

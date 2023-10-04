@@ -3,7 +3,7 @@ import { OrganizationData } from './organization';
 export class Engagement {
   _id: string;
   name: string;
-  organisation: OrganizationData;
+  organisationId: string;
   budgetPerInteraction: number;
   executesAt: Date;
   endsAt: Date;
@@ -11,7 +11,7 @@ export class Engagement {
   contactIds: string[];
   channels: string[];
   knowledgeIds: string[];
-  outcome: InteractionEventType;
+  outcome: string;
   createdAt: Date;
   deletedAt: Date;
   updatedAt: Date;

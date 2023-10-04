@@ -45,7 +45,7 @@ export default class AddEngagementOrganizationUseCase {
     try {
       this.logger.log(`Start creating organization`);
 
-      // return right();
+      return null;
     } catch (err) {
       return left(new UnexpectedError(err));
     }

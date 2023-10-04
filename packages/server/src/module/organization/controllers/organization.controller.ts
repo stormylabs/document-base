@@ -143,6 +143,7 @@ export class OrganizationController {
 
     // check org ownership
     if (req?.user?.member?.organization?._id !== param.orgId) {
+      this.logger.error('[POST] invite user to organization error');
       return errorHandler(new UnauthorizedError());
     }
 
