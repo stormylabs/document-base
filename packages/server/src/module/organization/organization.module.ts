@@ -19,6 +19,9 @@ import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
 import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import CreateOrganizationUseCase from './useCases/CreateOrganization';
 import GetOrganizationUseCase from './useCases/GetOrganization';
+import AddEngagementOrganizationUseCase from './useCases/AddEngagementToOrganization';
+import { Knowledge, KnowledgeSchema } from './schemas/knowlege.schema';
+import { KnowledgeService } from './services/knowledge.service';
 
 @Module({
   imports: [
@@ -30,6 +33,10 @@ import GetOrganizationUseCase from './useCases/GetOrganization';
       {
         name: Member.name,
         schema: MemberSchema,
+      },
+      {
+        name: Knowledge.name,
+        schema: KnowledgeSchema,
       },
     ]),
     ConfigModule,
@@ -46,7 +53,8 @@ import GetOrganizationUseCase from './useCases/GetOrganization';
     CreateOrganizationUseCase,
     GetOrganizationUseCase,
     OrganizationRoleGuard,
+    AddEngagementOrganizationUseCase,
   ],
-  exports: [OrganizationService, MemberService],
+  exports: [OrganizationService, MemberService, KnowledgeService],
 })
 export class OrganizationModule {}

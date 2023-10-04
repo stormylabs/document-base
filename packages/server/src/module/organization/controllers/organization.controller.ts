@@ -36,6 +36,9 @@ import { GetOrganizationResponseDto } from '../useCases/GetOrganization/dto';
 import GetOrganizationUseCase from '../useCases/GetOrganization';
 import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
+import { AddEngagementOrganizationResponseDTO } from '../useCases/AddEngagementToOrganization/dto';
+import AddEngagementToOrganizationDTO from '../useCases/AddEngagementToOrganization';
+import AddEngagementOrganizationUseCase from '../useCases/AddEngagementToOrganization';
 
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
@@ -46,6 +49,7 @@ export class OrganizationController {
     private createOrgUseCase: CreateOrganizationUseCase,
     private getOrgUseCase: GetOrganizationUseCase,
     private inviteUserToOrgUseCase: InviteMemberToOrganizationUseCase,
+    private AddEngagementOrganizationUseCase: AddEngagementOrganizationUseCase,
   ) {}
 
   @Post()
@@ -148,6 +152,68 @@ export class OrganizationController {
       const error = result.value;
       this.logger.error(
         `[POST] invite user to organization error ${
+          error.errorValue().message
+        }`,
+      );
+
+      return errorHandler(error);
+    }
+
+    return result.value.getValue();
+  }
+
+  @Post(':org/engagement')
+  @ApiBody({ type: AddEngagementToOrganizationDTO })
+  @ApiOperation({
+    summary: 'Add engagement to organization',
+  })
+  @ApiCreatedResponse({
+    description: 'Engagement added to organization',
+    type: AddEngagementOrganizationResponseDTO,
+  })
+  @ApiConflictResponse({
+    description: 'Engagement already exists.',
+  })
+  @RoleAccessLevel([AccessLevel.ADMIN])
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
+  async addEngagementToOrg(
+    @Body() body: AddEngagementToOrganizationDTO,
+    @Req() req: RequestWithUser,
+    @Param() param: OrgIdParams,
+  ) {
+    const {
+      name,
+      budgetPerIntraction,
+      endsAT,
+      templateId,
+      contactIds,
+      channels,
+      knowledgeIds,
+      outcome,
+    } = body;
+    this.logger.log(`[POST] Start add engagement to organization`);
+
+    // check org ownership
+    if (req?.user?.member?.organization?._id !== param.orgId) {
+      return errorHandler(new UnauthorizedError());
+    }
+
+    const result = await this.AddEngagementOrganizationUseCase.exec(
+      param.orgId,
+      name,
+      budgetPerIntraction,
+      endsAT,
+      templateId,
+      contactIds,
+      channels,
+      knowledgeIds,
+      outcome,
+    );
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] add engagement to organization error ${
           error.errorValue().message
         }`,
       );
