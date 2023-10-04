@@ -77,7 +77,7 @@ export class AuthController {
   })
   async deleteApiKey(
     @Param() { userId, apiKeyId }: RevealAPIKeyParams,
-    @Res() @Res() res: Response,
+    @Res() res: Response,
   ) {
     this.logger.log(`[DELETE] Start deleting API Key`);
     const result = await this.deleteApiKeyUseCase.exec({

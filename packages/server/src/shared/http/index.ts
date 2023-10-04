@@ -36,6 +36,7 @@ export const errorHandler = (
     case 'ConflictError':
     case 'AbortJobError':
     case 'LockedJobError':
+    case 'UserExistsError':
       throw new ConflictException(error.errorValue().message);
 
     case 'UnauthorizedError':
