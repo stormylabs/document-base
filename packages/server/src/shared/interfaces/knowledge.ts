@@ -10,4 +10,5 @@ export class KnowledgeBase {
   document: Document; // reuse the flow for document creation e.g. pdf, word, website
   createdAt: Date;
   deletedAt: Date;
+  updatedAt: Date;
 }

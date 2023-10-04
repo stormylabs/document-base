@@ -3,14 +3,13 @@ import { Injectable, Type } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { MemberData } from 'src/shared/interfaces/member';
-import { Knowledge } from '../schemas/knowlege.schema';
-
+import { Engagement } from '../schemas/engagement.schema';
 
 @Injectable()
-export class KnowledgeRepository {
+export class EngagementRepository {
   constructor(
-    @InjectModel(Knowledge.name)
-    private readonly memberModel: Model<Knowledge>,
+    @InjectModel(Engagement.name)
+    private readonly memberModel: Model<Engagement>,
   ) {}
 
   async create(

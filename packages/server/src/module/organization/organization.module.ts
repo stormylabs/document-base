@@ -20,8 +20,8 @@ import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import CreateOrganizationUseCase from './useCases/CreateOrganization';
 import GetOrganizationUseCase from './useCases/GetOrganization';
 import AddEngagementOrganizationUseCase from './useCases/AddEngagementToOrganization';
-import { Knowledge, KnowledgeSchema } from './schemas/knowlege.schema';
-import { KnowledgeService } from './services/knowledge.service';
+import { Engagement, EngagementSchema } from './schemas/engagement.schema';
+import { EngagementService } from './services/engagement.service';
 
 @Module({
   imports: [
@@ -35,8 +35,8 @@ import { KnowledgeService } from './services/knowledge.service';
         schema: MemberSchema,
       },
       {
-        name: Knowledge.name,
-        schema: KnowledgeSchema,
+        name: Engagement.name,
+        schema: EngagementSchema,
       },
     ]),
     ConfigModule,
@@ -55,6 +55,6 @@ import { KnowledgeService } from './services/knowledge.service';
     OrganizationRoleGuard,
     AddEngagementOrganizationUseCase,
   ],
-  exports: [OrganizationService, MemberService, KnowledgeService],
+  exports: [OrganizationService, MemberService, EngagementService],
 })
 export class OrganizationModule {}

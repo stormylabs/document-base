@@ -1,6 +1,6 @@
 import { OrganizationResponse } from '@/shared/dto/organization';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, MaxLength, MinLength } from 'class-validator';
+import { IsNotEmpty, MaxLength, MinLength } from 'class-validator';
 
 // Example of Request DTO
 // {
@@ -88,7 +88,7 @@ export default class AddEngagementToOrganizationDTO {
   @ApiProperty({
     description: 'Knowledge Base IDs',
     required: true,
-    example: ['knowledgeBaseId1', 'knowledgeBaseId2'],
+    example: ['knowledgeId1', 'knowledgeId2'],
     type: [String],
   })
   knowledgeIds: string[];

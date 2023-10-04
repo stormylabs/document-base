@@ -4,7 +4,7 @@ import { Either, Result, left, right } from '@/shared/core/Result';
 import { AddEngagementOrganizationResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { OrganizationService } from '../../services/organization.service';
-import { MemberService } from '../../services/member.service';
+import { EngagementService } from '../../services/engagement.service';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -16,18 +16,32 @@ export default class AddEngagementOrganizationUseCase {
   private readonly logger = new Logger(AddEngagementOrganizationUseCase.name);
   constructor(
     private readonly orgService: OrganizationService,
-    private readonly memberService: MemberService,
+    private readonly knowledgeService: EngagementService,
   ) {}
   public async exec(
     name,
-    budgetPerIntraction,
-    endsAT,
+    organizationId,
+    budgetPerInteraction,
+    executesAt,
+    endsAt,
     templateId,
     contactIds,
     channels,
     knowledgeIds,
     outcome,
   ): Promise<Response> {
+    console.log({
+      name,
+      organizationId,
+      budgetPerInteraction,
+      executesAt,
+      endsAt,
+      templateId,
+      contactIds,
+      channels,
+      knowledgeIds,
+      outcome,
+    });
     try {
       this.logger.log(`Start creating organization`);
 

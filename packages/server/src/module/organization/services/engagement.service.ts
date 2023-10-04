@@ -2,11 +2,11 @@ import { Injectable } from '@nestjs/common';
 import { MemberData } from '@/shared/interfaces/member';
 
 import { AccessLevel } from '@/shared/interfaces/accessLevel';
-import { KnowledgeRepository } from '../repositories/knowledge.repository';
+import { EngagementRepository } from '../repositories/engagement.repository';
 
 @Injectable()
-export class KnowledgeService {
-  constructor(private memberRepository: KnowledgeRepository) {}
+export class EngagementService {
+  constructor(private memberRepository: EngagementRepository) {}
 
   async create(memberData: {
     userId: string;

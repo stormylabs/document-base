@@ -5,7 +5,7 @@ import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 import { KnowledgeType } from '@/shared/interfaces/knowledgeType';
 import { OrganizationData } from '@/shared/interfaces/organization';
 
-// Interfacwe for Knowledge
+// Interfacwe for Engagement
 // class KnowledgeBase {
 //     _id: string;
 //     name: string;
@@ -17,10 +17,10 @@ import { OrganizationData } from '@/shared/interfaces/organization';
 //     deletedAt: Date;
 // }
 
-export type KnowledgeDocument = HydratedDocument<Knowledge>;
+export type EngagementDocument = HydratedDocument<Engagement>;
 
-@Schema({ collection: 'Knowledge' })
-export class Knowledge extends Document {
+@Schema({ collection: 'Engagement' })
+export class Engagement extends Document {
   @Transform(({ value }) => value.toString())
   _id: string;
 
@@ -49,6 +49,6 @@ export class Knowledge extends Document {
   deletedAt: Date;
 }
 
-export const KnowledgeSchema = SchemaFactory.createForClass(Knowledge);
-KnowledgeSchema.index({ accessLevel: 1 });
-KnowledgeSchema.set('toJSON', toJSONOverride);
+export const EngagementSchema = SchemaFactory.createForClass(Engagement);
+EngagementSchema.index({ accessLevel: 1 });
+EngagementSchema.set('toJSON', toJSONOverride);

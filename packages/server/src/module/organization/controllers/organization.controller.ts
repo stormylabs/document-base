@@ -37,7 +37,7 @@ import GetOrganizationUseCase from '../useCases/GetOrganization';
 import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
 import { AddEngagementOrganizationResponseDTO } from '../useCases/AddEngagementToOrganization/dto';
-import AddEngagementToOrganizationDTO from '../useCases/AddEngagementToOrganization';
+import AddEngagementToOrganizationDTO from '../useCases/AddEngagementToOrganization/dto';
 import AddEngagementOrganizationUseCase from '../useCases/AddEngagementToOrganization';
 
 @ApiSecurity('x-api-key')
@@ -183,8 +183,9 @@ export class OrganizationController {
   ) {
     const {
       name,
-      budgetPerIntraction,
-      endsAT,
+      budgetPerInteraction,
+      executesAt,
+      endsAt,
       templateId,
       contactIds,
       channels,
@@ -199,10 +200,11 @@ export class OrganizationController {
     }
 
     const result = await this.AddEngagementOrganizationUseCase.exec(
-      param.orgId,
       name,
-      budgetPerIntraction,
-      endsAT,
+      param.orgId,
+      budgetPerInteraction,
+      executesAt,
+      endsAt,
       templateId,
       contactIds,
       channels,
