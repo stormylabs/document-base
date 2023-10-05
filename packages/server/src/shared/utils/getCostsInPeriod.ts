@@ -9,15 +9,24 @@ import {
   BillableResource,
 } from '../interfaces/usage';
 
-export const getCostsFromUsage = (
+export const getCostsInPeriod = (
   botUsage: BotUsageData[],
   resourceUsage: ResourceUsageData[],
   start: Date,
+  end: Date,
 ) => {
   const botCost = botUsage.reduce((acc, usage) => {
-    const periodStart = usage.createdAt > start ? usage.createdAt : start;
-    const periodEnd = usage.deletedAt || new Date();
-    const timeElapsed = (periodEnd.getTime() - periodStart.getTime()) / 1000;
+    const now = new Date();
+    const activePeriodStart =
+      start >= usage.createdAt ? start : usage.createdAt;
+    let activePeriodEnd = end;
+    if (usage.deletedAt) {
+      activePeriodEnd = end >= usage.deletedAt ? usage.deletedAt : end;
+    } else {
+      activePeriodEnd = end >= now ? now : end;
+    }
+    const timeElapsed =
+      (activePeriodEnd.getTime() - activePeriodStart.getTime()) / 1000;
     return acc + timeElapsed * COST_PER_BOT_PER_SECOND;
   }, 0);
   const resourceCost = resourceUsage.reduce((acc, usage) => {

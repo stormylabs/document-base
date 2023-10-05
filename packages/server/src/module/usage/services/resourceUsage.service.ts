@@ -28,12 +28,12 @@ export class ResourceUsageService {
     return this.resourceUsageRepository.exists(resourceUsageIds);
   }
 
-  async findUsagesByUserId(
+  async findUsagesInPeriodByUserId(
     userId: string,
     from: Date,
     to: Date,
   ): Promise<ResourceUsageData[]> {
-    const usages = await this.resourceUsageRepository.find({
+    const usages = await this.resourceUsageRepository.findUsagesInPeriod({
       userId,
       from,
       to,
@@ -41,15 +41,15 @@ export class ResourceUsageService {
     return usages;
   }
 
-  async findUsagesByBotIdUserId(
+  async findUsagesInPeriodByBotIdUserId(
     botId: string,
     userId: string,
     from: Date,
     to: Date,
   ): Promise<ResourceUsageData[]> {
-    const usages = await this.resourceUsageRepository.find({
-      userId,
+    const usages = await this.resourceUsageRepository.findUsagesInPeriod({
       botId,
+      userId,
       from,
       to,
     });

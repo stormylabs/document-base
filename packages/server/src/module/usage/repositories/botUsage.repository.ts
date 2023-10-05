@@ -43,24 +43,20 @@ export class BotUsageRepository {
     return usage.toJSON() as BotUsageData;
   }
 
-  async find(data: {
-    userId?: string;
+  async findUsagesInPeriod(data: {
     botId?: string;
-    to?: Date;
-  }): Promise<BotUsageData[]> {
-    let query = {};
-    if (data.to) {
-      query = {
-        $or: [{ deletedAt: null }, { deletedAt: { $lte: data.to } }],
-      };
-    } else {
-      query = {
-        deletedAt: null,
-      };
-    }
-    if (data.userId) query['user'] = new Types.ObjectId(data.userId);
+    userId: string;
+    from: Date;
+    to: Date;
+  }) {
+    const query = {
+      user: new Types.ObjectId(data.userId),
+      $or: [
+        { deletedAt: null, createdAt: { $lte: data.to } },
+        { deletedAt: { $gte: data.from }, createdAt: { $lte: data.to } },
+      ],
+    };
     if (data.botId) query['bot'] = new Types.ObjectId(data.botId);
-
     const usages = await this.botUsageModel.find(query).exec();
     return usages.map((usage) => usage.toJSON() as BotUsageData);
   }
