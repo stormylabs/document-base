@@ -9,6 +9,7 @@ import { getCostsInPeriod } from '@/shared/utils/getCostsInPeriod';
 import keyBy from 'lodash/keyBy';
 import { encode } from 'gpt-3-encoder';
 import { BotService } from '@/module/bot/services/bot.service';
+import { BotData } from '@/shared/interfaces/bot';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -44,7 +45,7 @@ export default class GetUsageByBotIdUseCase {
 
       const bots = await this.botService.findByBotIds(botIds);
 
-      const keyedBots = keyBy(bots, '_id');
+      const keyedBots: Record<string, BotData> = keyBy(bots, '_id');
 
       const botUsageWithTokens = botUsages.map((usage) => {
         const { documents } = keyedBots[usage.bot];
