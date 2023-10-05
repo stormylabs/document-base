@@ -6,6 +6,9 @@ import { ResourceUsageService } from '@/module/usage/services/resourceUsage.serv
 import { BotUsageService } from '../../services/botUsage.service';
 import { GetUsageByBotIdResponseDTO } from './dto';
 import { getCostsInPeriod } from '@/shared/utils/getCostsInPeriod';
+import keyBy from 'lodash/keyBy';
+import { encode } from 'gpt-3-encoder';
+import { BotService } from '@/module/bot/services/bot.service';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -18,6 +21,7 @@ export default class GetUsageByBotIdUseCase {
   constructor(
     private readonly botUsageService: BotUsageService,
     private readonly resourceUsageService: ResourceUsageService,
+    private readonly botService: BotService,
   ) {}
   public async exec(
     userId: string,
@@ -36,6 +40,24 @@ export default class GetUsageByBotIdUseCase {
           to,
         );
 
+      const botIds = botUsages.map((usage) => usage.bot);
+
+      const bots = await this.botService.findByBotIds(botIds);
+
+      const keyedBots = keyBy(bots, '_id');
+
+      const botUsageWithTokens = botUsages.map((usage) => {
+        const { documents } = keyedBots[usage.bot];
+        const tokens = documents.reduce(
+          (acc, doc) => (acc + doc.content ? encode(doc.content) : 0),
+          0,
+        );
+        return {
+          ...usage,
+          tokens,
+        };
+      });
+
       const resourceUsages =
         await this.resourceUsageService.findUsagesInPeriodByBotIdUserId(
           botId,
@@ -48,7 +70,8 @@ export default class GetUsageByBotIdUseCase {
         bot: botCost,
         resource: resourceCost,
         total,
-      } = getCostsInPeriod(botUsages, resourceUsages, from, to);
+        tokens,
+      } = getCostsInPeriod(botUsageWithTokens, resourceUsages, from, to);
 
       this.logger.log(`Got usages by bot id successfully`);
 
@@ -60,6 +83,7 @@ export default class GetUsageByBotIdUseCase {
             costs: parseFloat(resourceCost.toFixed(3)),
           },
           total: parseFloat(total.toFixed(3)),
+          tokens,
         }),
       );
     } catch (err) {

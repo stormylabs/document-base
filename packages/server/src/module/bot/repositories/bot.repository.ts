@@ -36,6 +36,17 @@ export class BotRepository {
     return bot.toJSON() as BotData;
   }
 
+  async findByBotIds(botIds: string[]) {
+    const queryIds = botIds.map((id) => new Types.ObjectId(id));
+    const bots = await this.botModel
+      .find({
+        _id: { $in: queryIds },
+      })
+      .populate('documents')
+      .exec();
+    return bots.map((bot) => bot.toJSON() as BotData);
+  }
+
   async findById(botId: string): Promise<BotData | null> {
     const id = new Types.ObjectId(botId);
     const bot = await this.botModel

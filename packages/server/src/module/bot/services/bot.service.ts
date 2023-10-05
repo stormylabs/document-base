@@ -85,4 +85,9 @@ export class BotService {
     if (!exists) throw new Error('Bot does not exist.');
     return this.botRepository.update(botId, { documents: [] });
   }
+
+  async findByBotIds(botIds: string[]): Promise<BotData[]> {
+    const bots = await this.botRepository.findByBotIds(botIds);
+    return bots;
+  }
 }

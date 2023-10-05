@@ -1,5 +1,5 @@
 import {
-  COST_PER_BOT_PER_SECOND,
+  COST_PER_TOKEN_PER_BOT_PER_SECOND,
   COST_PER_MESSAGE,
   COST_PER_TRAINING,
 } from '../constants/costs';
@@ -10,11 +10,12 @@ import {
 } from '../interfaces/usage';
 
 export const getCostsInPeriod = (
-  botUsage: BotUsageData[],
+  botUsage: Array<BotUsageData & { tokens: number }>,
   resourceUsage: ResourceUsageData[],
   start: Date,
   end: Date,
 ) => {
+  let tokens = 0;
   const botCost = botUsage.reduce((acc, usage) => {
     const now = new Date();
     const activePeriodStart =
@@ -27,7 +28,9 @@ export const getCostsInPeriod = (
     }
     const timeElapsed =
       (activePeriodEnd.getTime() - activePeriodStart.getTime()) / 1000;
-    return acc + timeElapsed * COST_PER_BOT_PER_SECOND;
+
+    tokens += usage.tokens;
+    return acc + timeElapsed * COST_PER_TOKEN_PER_BOT_PER_SECOND * usage.tokens;
   }, 0);
   const resourceCost = resourceUsage.reduce((acc, usage) => {
     if (usage.resource === BillableResource.Message) {
@@ -40,5 +43,6 @@ export const getCostsInPeriod = (
     bot: botCost,
     resource: resourceCost,
     total: botCost + resourceCost,
+    tokens,
   };
 };

@@ -6,6 +6,9 @@ import { ResourceUsageService } from '@/module/usage/services/resourceUsage.serv
 import { BotUsageService } from '../../services/botUsage.service';
 import { GetUsageByUserIdResponseDTO } from './dto';
 import { getCostsInPeriod } from '@/shared/utils/getCostsInPeriod';
+import { BotService } from '@/module/bot/services/bot.service';
+import { keyBy } from 'lodash';
+import { encode } from 'gpt-3-encoder';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -18,6 +21,7 @@ export default class GetUsageByUserIdUseCase {
   constructor(
     private readonly botUsageService: BotUsageService,
     private readonly resourceUsageService: ResourceUsageService,
+    private readonly botService: BotService,
   ) {}
   public async exec(userId: string, from: Date, to: Date): Promise<Response> {
     try {
@@ -28,6 +32,24 @@ export default class GetUsageByUserIdUseCase {
         from,
         to,
       );
+
+      const botIds = botUsages.map((usage) => usage.bot);
+
+      const bots = await this.botService.findByBotIds(botIds);
+
+      const keyedBots = keyBy(bots, '_id');
+
+      const botUsageWithTokens = botUsages.map((usage) => {
+        const { documents } = keyedBots[usage.bot];
+        const tokens = documents.reduce(
+          (acc, doc) => (acc + doc.content ? encode(doc.content) : 0),
+          0,
+        );
+        return {
+          ...usage,
+          tokens,
+        };
+      });
 
       const resourceUsages =
         await this.resourceUsageService.findUsagesInPeriodByUserId(
@@ -40,7 +62,8 @@ export default class GetUsageByUserIdUseCase {
         bot: botCost,
         resource: resourceCost,
         total,
-      } = getCostsInPeriod(botUsages, resourceUsages, from, to);
+        tokens,
+      } = getCostsInPeriod(botUsageWithTokens, resourceUsages, from, to);
 
       this.logger.log(`Got usages by user id successfully`);
 
@@ -52,9 +75,11 @@ export default class GetUsageByUserIdUseCase {
             costs: parseFloat(resourceCost.toFixed(3)),
           },
           total: parseFloat(total.toFixed(3)),
+          tokens,
         }),
       );
     } catch (err) {
+      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import {
@@ -14,6 +14,7 @@ import { BotUsage, BotUsageSchema } from './schemas/botUsage.schema';
 import { AuthModule } from '../auth/auth.module';
 import GetUsageByBotIdUseCase from './useCases/GetUsageByBotId';
 import GetUsageByUserIdUseCase from './useCases/GetUsageByUserId';
+import { BotModule } from '../bot/bot.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import GetUsageByUserIdUseCase from './useCases/GetUsageByUserId';
     ]),
     ConfigModule,
     AuthModule,
+    forwardRef(() => BotModule),
   ],
   controllers: [UsageController],
   providers: [
