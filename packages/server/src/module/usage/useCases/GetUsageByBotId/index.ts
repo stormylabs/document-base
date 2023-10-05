@@ -49,7 +49,7 @@ export default class GetUsageByBotIdUseCase {
       const botUsageWithTokens = botUsages.map((usage) => {
         const { documents } = keyedBots[usage.bot];
         const tokens = documents.reduce(
-          (acc, doc) => (acc + doc.content ? encode(doc.content) : 0),
+          (acc, doc) => acc + (doc.content ? encode(doc.content).length : 0),
           0,
         );
         return {
