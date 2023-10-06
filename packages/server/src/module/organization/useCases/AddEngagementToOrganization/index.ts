@@ -40,9 +40,9 @@ export default class AddEngagementOrganizationUseCase {
       outcome,
     });
     try {
-      this.logger.log(`Start creating organization`);
+      this.logger.log(`Start creating Engagement`);
 
-      const engagement: EngagementData = await this.engagementService.create({
+      await this.engagementService.create({
         name,
         organizationId,
         budgetPerInteraction,
@@ -58,7 +58,7 @@ export default class AddEngagementOrganizationUseCase {
         updatedAt: new Date(),
       });
 
-      return right(Result.ok(engagement));
+      return right(Result.ok(null));
     } catch (err) {
       return left(new UnexpectedError(err));
     }
