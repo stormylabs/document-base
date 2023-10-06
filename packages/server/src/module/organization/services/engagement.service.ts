@@ -19,7 +19,9 @@ export class EngagementService {
     return createdEngagemenet;
   }
 
-  async findById(engagementId: string): Promise<EngagementData | null> {
+  async findEngagementById(
+    engagementId: string,
+  ): Promise<EngagementData | null> {
     const engagement = await this.engagementRepository.findById(engagementId);
     return engagement;
   }

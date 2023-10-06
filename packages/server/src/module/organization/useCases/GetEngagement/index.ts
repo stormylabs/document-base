@@ -19,7 +19,9 @@ export default class GetEngagementUseCase {
     try {
       this.logger.log(`Start getting engagement`);
 
-      const engagement = await this.engagementService.findById(engagementId);
+      const engagement = await this.engagementService.findEngagementById(
+        engagementId,
+      );
 
       if (!engagement) {
         return left(new NotFoundError(Resource.Engagement, [engagementId]));
