@@ -14,15 +14,14 @@ import { OrganizationController } from './controllers/organization.controller';
 import { Member, MemberSchema } from './schemas/member.schema';
 import { MemberRepository } from './repositories/member.repository';
 import { MemberService } from './services/member.service';
-import { APP_GUARD } from '@nestjs/core';
 import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
-import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import CreateOrganizationUseCase from './useCases/CreateOrganization';
 import GetOrganizationUseCase from './useCases/GetOrganization';
 import AddEngagementOrganizationUseCase from './useCases/AddEngagementToOrganization';
 import { Engagement, EngagementSchema } from './schemas/engagement.schema';
 import { EngagementService } from './services/engagement.service';
 import { EngagementRepository } from './repositories/engagement.repository';
+import GetEngagementUseCase from './useCases/GetEngagement';
 
 @Module({
   imports: [
@@ -57,6 +56,7 @@ import { EngagementRepository } from './repositories/engagement.repository';
     EngagementService,
     EngagementRepository,
     AddEngagementOrganizationUseCase,
+    GetEngagementUseCase,
   ],
   exports: [OrganizationService, MemberService, EngagementService],
 })

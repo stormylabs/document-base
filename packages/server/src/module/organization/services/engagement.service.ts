@@ -19,36 +19,31 @@ export class EngagementService {
     return createdEngagemenet;
   }
 
-  async findById(memberId: string): Promise<EngagementData | null> {
-    const member = await this.engagementRepository.findById(memberId);
-    return member;
+  async findById(engagementId: string): Promise<EngagementData | null> {
+    const engagement = await this.engagementRepository.findById(engagementId);
+    return engagement;
   }
 
-  /**
-   * getMemberOfOrganization
-   *
-   * Get all member of organization
-   *
-   * @param orgId
-   * @returns
-   */
   async getEngagementOfOrganization(orgId: string): Promise<EngagementData[]> {
-    const members = await this.engagementRepository.findEngagementByOrgId(
+    const engagements = await this.engagementRepository.findEngagementByOrgId(
       orgId,
     );
-    return members;
+    return engagements;
   }
 
-  async delete(memberId: string): Promise<EngagementData> {
-    const exists = await this.exists([memberId]);
+  async delete(engagementId: string): Promise<EngagementData> {
+    const exists = await this.exists([engagementId]);
     if (!exists) throw new Error('Knowledge does not exist.');
-    const updatedOrg = await this.engagementRepository.update(memberId, {
-      deletedAt: new Date(),
-    });
-    return updatedOrg;
+    const updatedEngagement = await this.engagementRepository.update(
+      engagementId,
+      {
+        deletedAt: new Date(),
+      },
+    );
+    return updatedEngagement;
   }
 
-  async exists(memberIds: string[]): Promise<boolean> {
-    return this.engagementRepository.exists(memberIds);
+  async exists(engagementId: string[]): Promise<boolean> {
+    return this.engagementRepository.exists(engagementId);
   }
 }

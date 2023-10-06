@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export class EngagementResponse {
   @ApiProperty({
@@ -84,4 +85,23 @@ export class EngagementResponse {
     type: Date,
   })
   updatedAt?: Date;
+}
+
+export class EngagemnetIdParams {
+  @ApiProperty({
+    name: 'orgId',
+    type: String,
+    description: 'Organization ID',
+  })
+  @IsString()
+  @IsNotEmpty()
+  orgId: string;
+  @ApiProperty({
+    name: 'engagementId',
+    type: String,
+    description: 'Engagement ID',
+  })
+  @IsString()
+  @IsNotEmpty()
+  engagementId: string;
 }

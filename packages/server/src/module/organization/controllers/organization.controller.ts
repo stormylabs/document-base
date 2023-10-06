@@ -39,6 +39,8 @@ import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
 import { AddEngagementOrganizationResponseDTO } from '../useCases/AddEngagementToOrganization/dto';
 import AddEngagementToOrganizationDTO from '../useCases/AddEngagementToOrganization/dto';
 import AddEngagementOrganizationUseCase from '../useCases/AddEngagementToOrganization';
+import { EngagemnetIdParams } from '@/shared/dto/engagement';
+import GetEngagementUseCase from '../useCases/GetEngagement';
 
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
@@ -49,7 +51,8 @@ export class OrganizationController {
     private createOrgUseCase: CreateOrganizationUseCase,
     private getOrgUseCase: GetOrganizationUseCase,
     private inviteUserToOrgUseCase: InviteMemberToOrganizationUseCase,
-    private AddEngagementOrganizationUseCase: AddEngagementOrganizationUseCase,
+    private addEngagementOrganizationUseCase: AddEngagementOrganizationUseCase,
+    private getEngagementUseCase: GetEngagementUseCase,
   ) {}
 
   @Post()
@@ -175,8 +178,8 @@ export class OrganizationController {
   @ApiConflictResponse({
     description: 'Engagement already exists.',
   })
-  // @RoleAccessLevel([AccessLevel.ADMIN])
-  // @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
+  @RoleAccessLevel([AccessLevel.ADMIN])
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
   async addEngagementToOrg(
     @Body() body: AddEngagementToOrganizationDTO,
     @Req() req: RequestWithUser,
@@ -202,7 +205,7 @@ export class OrganizationController {
     //   return errorHandler(new UnauthorizedError());
     // }
 
-    const result = await this.AddEngagementOrganizationUseCase.exec(
+    const result = await this.addEngagementOrganizationUseCase.exec(
       name,
       param.orgId,
       budgetPerInteraction,
@@ -226,6 +229,47 @@ export class OrganizationController {
       return errorHandler(error);
     }
 
+    return result.value.getValue();
+  }
+
+  // Get engagement by engagement ID Endpoint
+  @Get(':orgId/engagement/:engagementId')
+  @ApiOperation({
+    summary: 'Get engagement info by engagement ID.',
+  })
+  @ApiOkResponse({
+    description: 'Get engagement info',
+    type: GetOrganizationResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Engagement not found',
+  })
+  @RoleAccessLevel([
+    AccessLevel.ADMIN,
+    AccessLevel.MEMBER,
+    AccessLevel.READ_ONLY,
+  ])
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
+  async getEngagement(
+    @Param() { engagementId }: EngagemnetIdParams,
+    @Req() { user }: RequestWithUser,
+  ) {
+    this.logger.log(`[GET] Start getting engagement info`);
+
+    // check org ownership
+    // if (user?.member?.organization?._id !== orgId) {
+    //   return errorHandler(new UnauthorizedError());
+    // }
+
+    const result = await this.getEngagementUseCase.exec(engagementId);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[GET] get engagement error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
     return result.value.getValue();
   }
 }

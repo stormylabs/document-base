@@ -54,7 +54,7 @@ export default class AddEngagementOrganizationUseCase {
         knowledgeIds,
         outcome,
         createdAt: new Date(),
-        deletedAt: new Date(),
+        deletedAt: null,
         updatedAt: new Date(),
       });
 

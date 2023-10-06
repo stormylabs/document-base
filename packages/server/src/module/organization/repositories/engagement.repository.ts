@@ -35,20 +35,15 @@ export class EngagementRepository {
 
   async findEngagementByOrgId(orgId: string): Promise<EngagementData[]> {
     const engagements = await this.engagementModel
-      .find({ organization: new Types.ObjectId(orgId) })
+      .find({ organizationId: new Types.ObjectId(orgId) })
       .exec();
     return engagements.map(
       (engagement) => engagement.toJSON() as EngagementData,
     ) as EngagementData[];
   }
 
-  async findById(memberId: string): Promise<EngagementData | null> {
-    const id = new Types.ObjectId(memberId);
-    const engagement = await this.engagementModel
-      .findById(id)
-      .populate('user')
-      .populate('organization')
-      .exec();
+  async findById(engagementId: string): Promise<EngagementData | null> {
+    const engagement = await this.engagementModel.findById(engagementId).exec();
     if (!engagement || engagement.deletedAt) return null;
     return engagement.toJSON() as EngagementData;
   }
