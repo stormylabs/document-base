@@ -3,7 +3,6 @@ import UnexpectedError from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
 import { AddEngagementOrganizationResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
-import { OrganizationService } from '../../services/organization.service';
 import { EngagementService } from '../../services/engagement.service';
 import { EngagementData } from '@/shared/interfaces/engagement';
 
@@ -43,23 +42,23 @@ export default class AddEngagementOrganizationUseCase {
     try {
       this.logger.log(`Start creating organization`);
 
-      await this.engagementService.create({
+      const engagement: EngagementData = await this.engagementService.create({
         name,
         organizationId,
         budgetPerInteraction,
-        executesAt,
-        endsAt,
+        executesAt: new Date(executesAt),
+        endsAt: new Date(endsAt),
         templateId,
         contactIds,
         channels,
         knowledgeIds,
         outcome,
         createdAt: new Date(),
-        deletedAt: null,
+        deletedAt: new Date(),
         updatedAt: new Date(),
       });
 
-      return right(Result.ok({}));
+      return right(Result.ok(engagement));
     } catch (err) {
       return left(new UnexpectedError(err));
     }

@@ -9,15 +9,14 @@ export class EngagementService {
   constructor(private engagementRepository: EngagementRepository) {}
 
   async create(
-    engagementData: Omit<
-      EngagementData,
-      '_id' | 'created_at' | 'deleted_at' | 'updated_at'
-    >,
+    engagementData: Omit<EngagementData, '_id'>,
   ): Promise<EngagementData> {
-    const createdMember = await this.engagementRepository.create(
+    console.log(`Start creating organization`, engagementData);
+    const createdEngagemenet = await this.engagementRepository.create(
       engagementData,
     );
-    return createdMember;
+    console.log(`createdEngagemenet`, createdEngagemenet);
+    return createdEngagemenet;
   }
 
   async findById(memberId: string): Promise<EngagementData | null> {

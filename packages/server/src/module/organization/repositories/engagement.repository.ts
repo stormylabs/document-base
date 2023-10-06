@@ -1,4 +1,3 @@
-import { AccessLevel } from '@/shared/interfaces/accessLevel';
 import { Injectable, Type } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
@@ -13,23 +12,22 @@ export class EngagementRepository {
   ) {}
 
   async create(
-    engagementData: Partial<
-      Omit<EngagementData, '_id' | 'created_at' | 'deleted_at' | 'updated_at'>
-    >,
+    engagementData: Partial<Omit<EngagementData, '_id'>>,
   ): Promise<EngagementData> {
     const engagement = new this.engagementModel({
       name: engagementData.name,
-      organization: new Types.ObjectId(engagementData.organizationId),
+      organization: engagementData.organizationId,
       budgetPerInteraction: engagementData.budgetPerInteraction,
       executesAt: engagementData.executesAt,
       endsAt: engagementData.endsAt,
-      template: new Types.ObjectId(engagementData.templateId),
-      contacts: engagementData.contactIds.map((id) => new Types.ObjectId(id)),
+      template: engagementData.templateId,
+      contacts: engagementData.contactIds,
       channels: engagementData.channels,
-      knowledge: engagementData.knowledgeIds.map(
-        (id) => new Types.ObjectId(id),
-      ),
+      knowledge: engagementData.knowledgeIds,
       outcome: engagementData.outcome,
+      createdAt: engagementData.createdAt,
+      deletedAt: engagementData.deletedAt,
+      updatedAt: engagementData.updatedAt,
     });
     const saved = await engagement.save();
     return saved.toJSON() as EngagementData;
