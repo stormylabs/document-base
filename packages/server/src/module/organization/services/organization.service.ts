@@ -29,4 +29,37 @@ export class OrganizationService {
   async exists(orgIds: string[]): Promise<boolean> {
     return this.orgRepository.exists(orgIds);
   }
+
+  async upsertDocument(
+    orgId: string,
+    documentId: string,
+  ): Promise<OrganizationData> {
+    const exists = await this.exists([orgId]);
+    if (!exists) throw new Error('Organization does not exist.');
+    return this.orgRepository.upsertDocuments(orgId, [documentId]);
+  }
+
+  async upsertDocuments(
+    orgId: string,
+    documentIds: string[],
+  ): Promise<OrganizationData> {
+    const exists = await this.exists([orgId]);
+    if (!exists) throw new Error('Organization does not exist.');
+    return this.orgRepository.upsertDocuments(orgId, documentIds);
+  }
+
+  async removeDocuments(
+    orgId: string,
+    documentIds: string[],
+  ): Promise<OrganizationData> {
+    const exists = await this.exists([orgId]);
+    if (!exists) throw new Error('Organization does not exist.');
+    return this.orgRepository.removeDocuments(orgId, documentIds);
+  }
+
+  async removeAllDocuments(orgId: string): Promise<OrganizationData> {
+    const exists = await this.exists([orgId]);
+    if (!exists) throw new Error('organization does not exist.');
+    return this.orgRepository.update(orgId, { documents: [] });
+  }
 }

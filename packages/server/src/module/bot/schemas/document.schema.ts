@@ -1,3 +1,5 @@
+// ! consider to splitting the document into its own separate modules because it is no longer owned by the bot
+
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import {

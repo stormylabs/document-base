@@ -14,11 +14,19 @@ import { OrganizationController } from './controllers/organization.controller';
 import { Member, MemberSchema } from './schemas/member.schema';
 import { MemberRepository } from './repositories/member.repository';
 import { MemberService } from './services/member.service';
-import { APP_GUARD } from '@nestjs/core';
 import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
-import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import CreateOrganizationUseCase from './useCases/CreateOrganization';
 import GetOrganizationUseCase from './useCases/GetOrganization';
+import { BotModule } from '../bot/bot.module';
+import {
+  CrawlJobOrganization,
+  CrawlJobOrganizationSchema,
+} from './schemas/crawlJob.schema';
+import { CrawlJobOrganizationRepository } from './repositories/crawlJob.repository';
+import { CrawlJobOrganizationService } from './services/crawlJob.service';
+import CreateCrawlJobOrganizationUseCase from './useCases/jobs/CreateCrawlJob';
+import { SqsProducerModule } from '../sqsProducer/sqsProducer.module';
+import { SqsConsumerModule } from '../sqsConsumer/sqsConsumer.module';
 
 @Module({
   imports: [
@@ -31,10 +39,17 @@ import GetOrganizationUseCase from './useCases/GetOrganization';
         name: Member.name,
         schema: MemberSchema,
       },
+      {
+        name: CrawlJobOrganization.name,
+        schema: CrawlJobOrganizationSchema,
+      },
     ]),
     ConfigModule,
     UserModule,
     AuthModule,
+    BotModule, // ? if the document is separated into its own module replace this with import the document module
+    SqsProducerModule,
+    SqsConsumerModule,
   ],
   controllers: [OrganizationController],
   providers: [
@@ -42,9 +57,12 @@ import GetOrganizationUseCase from './useCases/GetOrganization';
     OrganizationService,
     MemberRepository,
     MemberService,
+    CrawlJobOrganizationRepository,
+    CrawlJobOrganizationService,
     InviteMemberToOrganizationUseCase,
     CreateOrganizationUseCase,
     GetOrganizationUseCase,
+    CreateCrawlJobOrganizationUseCase,
     OrganizationRoleGuard,
   ],
   exports: [OrganizationService, MemberService],

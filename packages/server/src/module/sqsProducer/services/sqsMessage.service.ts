@@ -11,6 +11,13 @@ export class SqsMessageService {
     private readonly sqsService: SqsService,
     private readonly config: ConfigService,
   ) {}
+
+  /**
+   * Send Messages
+   * @param id entity id could be orgId or botId
+   * @param job
+   * @param payloads
+   */
   async sendMessages<T>(id: string, job: JobType, payloads: T[]) {
     const messages: Message<T>[] = payloads.map((payload) => ({
       body: payload,

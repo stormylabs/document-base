@@ -7,6 +7,7 @@ export enum Languages {
 
 export enum JobType {
   WebCrawl = 'web-crawl',
+  WebCrawlOrg = 'web-crawl-org',
   DocIndex = 'doc-index',
   FileExtract = 'file-extract',
 }

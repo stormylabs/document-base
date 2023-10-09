@@ -128,6 +128,7 @@ import { UsageModule } from '../usage/usage.module';
     CrawlWebsiteUseCase,
     ExtractFileUseCase,
     IndexDocumentUseCase,
+    DocumentService,
   ],
 })
 export class BotModule {}
