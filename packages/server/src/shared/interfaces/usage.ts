@@ -1,3 +1,5 @@
+import { BotData } from './bot';
+
 export enum BillableResource {
   Message = 'message',
   Training = 'training',
@@ -13,7 +15,7 @@ export interface ResourceUsageData {
 
 export interface BotUsageData {
   _id: string;
-  bot: string;
+  bot: BotData;
   user: string;
   createdAt: Date;
   deletedAt: Date;

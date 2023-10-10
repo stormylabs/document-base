@@ -6,10 +6,6 @@ import { ResourceUsageService } from '@/module/usage/services/resourceUsage.serv
 import { BotUsageService } from '../../services/botUsage.service';
 import { GetUsageByBotIdResponseDTO } from './dto';
 import { getCostsInPeriod } from '@/shared/utils/getCostsInPeriod';
-import keyBy from 'lodash/keyBy';
-import { encode } from 'gpt-3-encoder';
-import { BotService } from '@/module/bot/services/bot.service';
-import { BotData } from '@/shared/interfaces/bot';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -22,7 +18,6 @@ export default class GetUsageByBotIdUseCase {
   constructor(
     private readonly botUsageService: BotUsageService,
     private readonly resourceUsageService: ResourceUsageService,
-    private readonly botService: BotService,
   ) {}
   public async exec(
     userId: string,
@@ -41,24 +36,6 @@ export default class GetUsageByBotIdUseCase {
           to,
         );
 
-      const botIds = botUsages.map((usage) => usage.bot);
-
-      const bots = await this.botService.findByBotIds(botIds);
-
-      const keyedBots: Record<string, BotData> = keyBy(bots, '_id');
-
-      const botUsageWithTokens = botUsages.map((usage) => {
-        const { documents } = keyedBots[usage.bot];
-        const tokens = documents.reduce(
-          (acc, doc) => acc + (doc.content ? encode(doc.content).length : 0),
-          0,
-        );
-        return {
-          ...usage,
-          tokens,
-        };
-      });
-
       const resourceUsages =
         await this.resourceUsageService.findUsagesInPeriodByBotIdUserId(
           botId,
@@ -72,13 +49,19 @@ export default class GetUsageByBotIdUseCase {
         resource: resourceCost,
         total,
         tokens,
-      } = getCostsInPeriod(botUsageWithTokens, resourceUsages, from, to);
+      } = getCostsInPeriod(botUsages, resourceUsages, from, to);
 
       this.logger.log(`Got usages by bot id successfully`);
 
       return right(
         Result.ok({
-          bot: { usages: botUsages, costs: parseFloat(botCost.toFixed(3)) },
+          bot: {
+            usages: botUsages.map((usage) => ({
+              ...usage,
+              bot: usage.bot._id,
+            })),
+            costs: parseFloat(botCost.toFixed(3)),
+          },
           resource: {
             usages: resourceUsages,
             costs: parseFloat(resourceCost.toFixed(3)),

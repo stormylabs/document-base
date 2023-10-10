@@ -134,4 +134,17 @@ export class BotRepository {
       .exec();
     return bot.toJSON() as BotData;
   }
+
+  async findBatch(): Promise<BotData[]> {
+    const bots = await this.botModel
+      .find({ $or: [{ totalTokens: null }, { totalCharacters: null }] })
+      .limit(50)
+      .populate('documents')
+      .exec();
+    return bots.map((bot) => bot.toJSON() as BotData);
+  }
+
+  async count() {
+    return this.botModel.countDocuments().exec();
+  }
 }
