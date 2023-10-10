@@ -20,9 +20,8 @@ export const getCostsInPeriod = (
 ) => {
   let tokens = 0;
   const botCost = botUsage.reduce((acc, usage) => {
-    Logger.log(
-      `calculating bot usage usage: ${usage._id}, bot: ${usage.bot._id}`,
-    );
+    Logger.log(`calculating bot usage: ${usage._id}`);
+    Logger.log(`calculating bot usage bot: ${usage.bot._id}`);
     const now = new Date();
     const activePeriodStart =
       start >= usage.createdAt ? start : usage.createdAt;
