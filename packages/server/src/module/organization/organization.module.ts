@@ -27,6 +27,12 @@ import { CrawlJobOrganizationService } from './services/crawlJob.service';
 import CreateCrawlJobOrganizationUseCase from './useCases/jobs/CreateCrawlJob';
 import { SqsProducerModule } from '../sqsProducer/sqsProducer.module';
 import { SqsConsumerModule } from '../sqsConsumer/sqsConsumer.module';
+import {
+  DocIndexOrgJob,
+  DocIndexOrgJobSchema,
+} from './schemas/docIndexJob.schema';
+import { DocIndexOrgJobRepository } from './repositories/docIndexJob.repository';
+import { DocIndexOrgJobService } from './services/docIndexJob.service';
 
 @Module({
   imports: [
@@ -43,22 +49,31 @@ import { SqsConsumerModule } from '../sqsConsumer/sqsConsumer.module';
         name: CrawlJobOrganization.name,
         schema: CrawlJobOrganizationSchema,
       },
+      {
+        name: DocIndexOrgJob.name,
+        schema: DocIndexOrgJobSchema,
+      },
     ]),
     ConfigModule,
     UserModule,
     AuthModule,
-    BotModule, // ? if the document is separated into its own module replace this with import the document module
+    BotModule, // ? when the document is separated into its own module replace this with import the document module
     SqsProducerModule,
     SqsConsumerModule,
   ],
   controllers: [OrganizationController],
   providers: [
+    // repo and service
     OrganizationRepository,
     OrganizationService,
     MemberRepository,
     MemberService,
     CrawlJobOrganizationRepository,
     CrawlJobOrganizationService,
+    DocIndexOrgJobRepository,
+    DocIndexOrgJobService,
+
+    // use case & other
     InviteMemberToOrganizationUseCase,
     CreateOrganizationUseCase,
     GetOrganizationUseCase,
