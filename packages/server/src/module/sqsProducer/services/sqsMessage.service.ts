@@ -33,6 +33,10 @@ export class SqsMessageService {
       return this.config.get<string>('WEB_CRAWL_QUEUE_NAME');
     }
 
+    if (job === JobType.WebCrawlOrg) {
+      return this.config.get<string>('WEB_CRAWL_ORG_QUEUE_NAME');
+    }
+
     if (job === JobType.FileExtract) {
       return this.config.get<string>('FILE_EXTRACT_QUEUE_NAME');
     }

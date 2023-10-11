@@ -17,11 +17,13 @@ class Crawler {
   url: string;
   spider: Spider | null = {};
   textLengthMinimum = 200;
+  only?: boolean;
   private readonly logger = new Logger(Crawler.name);
 
-  constructor(url: string, textLengthMinimum = 200) {
+  constructor(url: string, textLengthMinimum = 200, only = false) {
     this.url = encodeURI(url);
     this.textLengthMinimum = textLengthMinimum;
+    this.only = only;
 
     this.text = '';
     this.title = '';
@@ -49,6 +51,11 @@ class Crawler {
     this.logger.log(`Start crawling ${this.url}`);
 
     const $ = cheerio.load(this.decodeBody(doc.res));
+
+    if (this.only) {
+      this.logger.log('only if flag is true, skip identifying more urls');
+      return;
+    }
 
     this.logger.log('Identifying urls');
     doc.$('a').each((i: number, elem: any) => {

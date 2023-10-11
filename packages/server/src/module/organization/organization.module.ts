@@ -33,6 +33,8 @@ import {
 } from './schemas/docIndexJob.schema';
 import { DocIndexOrgJobRepository } from './repositories/docIndexJob.repository';
 import { DocIndexOrgJobService } from './services/docIndexJob.service';
+import CrawlWebsitesByOrganizationUseCase from './useCases/CrawlWebsitesByOrganizationUseCase';
+import CrawlWebsiteOrganizationUseCase from './useCases/jobs/CrawlWebsite';
 
 @Module({
   imports: [
@@ -78,6 +80,8 @@ import { DocIndexOrgJobService } from './services/docIndexJob.service';
     CreateOrganizationUseCase,
     GetOrganizationUseCase,
     CreateCrawlJobOrganizationUseCase,
+    CrawlWebsitesByOrganizationUseCase,
+    CrawlWebsiteOrganizationUseCase,
     OrganizationRoleGuard,
   ],
   exports: [OrganizationService, MemberService],

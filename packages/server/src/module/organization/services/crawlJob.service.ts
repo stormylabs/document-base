@@ -11,6 +11,7 @@ export class CrawlJobOrganizationService {
     organizationId: string;
     limit: number;
     initUrls: string[];
+    only?: boolean;
   }): Promise<CrawlJobOrganizationData> {
     const createdCrawlJob = await this.crawlJobOrgRepository.create(data);
 

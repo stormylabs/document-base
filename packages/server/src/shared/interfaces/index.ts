@@ -9,6 +9,7 @@ export enum JobType {
   WebCrawl = 'web-crawl',
   WebCrawlOrg = 'web-crawl-org',
   DocIndex = 'doc-index',
+  DocIndexOrg = 'doc-index-org',
   FileExtract = 'file-extract',
 }
 

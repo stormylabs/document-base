@@ -12,10 +12,9 @@ import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { DocumentService } from '@/module/bot/services/document.service';
 import { DocumentType } from '@/shared/interfaces/document';
 import { CrawlJobOrganizationService } from '@/module/organization/services/crawlJob.service';
-import UseCaseError from '@/shared/core/UseCaseError';
 
 type Response = Either<
-  Result<UseCaseError>,
+  UnexpectedError | SQSSendMessageError | NotFoundError,
   Result<{ jobId: string; status: JobStatus }>
 >;
 
@@ -25,40 +24,35 @@ export default class CreateCrawlJobOrganizationUseCase {
   constructor(
     private readonly sqsMessageService: SqsMessageService,
     private readonly crawlJobOrgService: CrawlJobOrganizationService,
-    private readonly organizationService: OrganizationService,
+    private readonly orgService: OrganizationService,
     private readonly documentService: DocumentService,
   ) {}
   public async exec(
-    organizationId: string,
+    orgId: string,
     urls: string[],
-    limit: number,
+    limitValue: number,
+    only: boolean,
   ): Promise<Response> {
     try {
-      this.logger.log(`Start creating crawl job organization`);
+      this.logger.log(`Start creating crawl job`);
 
-      const org = await this.organizationService.findById(organizationId);
-      if (!org)
-        return left(new NotFoundError(Resource.Organization, [organizationId]));
+      const botExists = await this.orgService.exists([orgId]);
+      if (!botExists)
+        return left(new NotFoundError(Resource.Organization, [orgId]));
 
-      const urlDocs = org.documents.filter(
-        (doc) => doc.type === DocumentType.Url,
-      );
-
-      // ? need to verify this flow
-      await this.organizationService.removeDocuments(
-        organizationId,
-        urlDocs.map((doc) => doc._id),
-      );
+      // if only is true, set limit to the number of urls
+      const limit = only ? urls.length : limitValue;
 
       const crawlJob = await this.crawlJobOrgService.create({
+        organizationId: orgId,
         limit,
-        organizationId,
         initUrls: urls,
+        only,
       });
 
       const { _id: jobId, status } = crawlJob;
 
-      const payloads = await this.createPayloads(jobId, organizationId, urls);
+      const payloads = await this.createPayloads(jobId, orgId, urls);
 
       const batchSize = 100;
 
@@ -72,7 +66,12 @@ export default class CreateCrawlJobOrganizationUseCase {
 
       this.logger.log(`Sent ${payloads.length} messages to the queue`);
 
-      this.logger.log(`Crawl job organization is created successfully`);
+      // to keep track of the number of documents sent to the queue
+      const documentIds = payloads.map((payload) => payload.documentId);
+      await this.crawlJobOrgService.upsertDocuments(jobId, documentIds);
+      this.logger.log('documents upserted to crawl job');
+
+      this.logger.log(`Crawl job is created successfully`);
       return right(Result.ok({ jobId, status }));
     } catch (err) {
       return left(new UnexpectedError(err));
@@ -87,7 +86,7 @@ export default class CreateCrawlJobOrganizationUseCase {
     );
   }
 
-  async createPayloads(jobId: string, organizationId: string, urls: string[]) {
+  async createPayloads(jobId: string, orgId: string, urls: string[]) {
     const payloads: CrawlJobOrgMessage[] = [];
     for (const url of urls) {
       const document = await this.documentService.findBySourceName(url);
@@ -107,7 +106,7 @@ export default class CreateCrawlJobOrganizationUseCase {
         }
       }
 
-      payloads.push({ organizationId, jobId, documentId });
+      payloads.push({ organizationId: orgId, jobId, documentId });
     }
     return payloads;
   }

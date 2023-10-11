@@ -9,6 +9,7 @@ import IndexDocumentUseCase from '@/module/bot/useCases/jobs/IndexDocuments';
 import { errorHandler } from '@/shared/http';
 import ExtractFileUseCase from '@/module/bot/useCases/jobs/ExtractFile';
 import * as AWS from '@aws-sdk/client-sqs/dist-cjs';
+import { CrawlJobOrgMessage } from '@/shared/interfaces/crawlJobOrganization';
 dotenv.config();
 
 @Injectable()
@@ -34,6 +35,26 @@ export class SqsConsumerService {
       botId,
       documentId,
     );
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[WebCrawl] web crawl error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+  }
+
+  @SqsMessageHandler(process.env.WEB_CRAWL_ORG_QUEUE_NAME)
+  async handleWebCrawlOrgMessage(message: AWS.SQS.Message) {
+    const body: CrawlJobOrgMessage = JSON.parse(message.Body);
+    const { jobId, organizationId, documentId } = body;
+    this.logger.log(`Received web crawl org message from SQS`);
+    const result = await this.crawlWebsiteUseCase.exec(
+      jobId,
+      organizationId,
+      documentId,
+    );
+
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
@@ -78,7 +99,9 @@ export class SqsConsumerService {
   }
 
   @SqsConsumerEventHandler(process.env.WEB_CRAWL_QUEUE_NAME, 'error')
+  @SqsConsumerEventHandler(process.env.WEB_CRAWL_ORG_QUEUE_NAME, 'error')
   @SqsConsumerEventHandler(process.env.DOC_INDEX_QUEUE_NAME, 'error')
+  @SqsConsumerEventHandler(process.env.DOC_INDEX_ORG_QUEUE_NAME, 'error')
   @SqsConsumerEventHandler(process.env.FILE_EXTRACT_QUEUE_NAME, 'error')
   async handleError(error: Error) {
     this.logger.error(error);
