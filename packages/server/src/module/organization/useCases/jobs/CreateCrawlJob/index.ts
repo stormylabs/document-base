@@ -30,7 +30,6 @@ export default class CreateCrawlJobOrganizationUseCase {
   public async exec(
     orgId: string,
     urls: string[],
-    limitValue: number,
     only: boolean,
   ): Promise<Response> {
     try {
@@ -41,7 +40,7 @@ export default class CreateCrawlJobOrganizationUseCase {
         return left(new NotFoundError(Resource.Organization, [orgId]));
 
       // if only is true, set limit to the number of urls
-      const limit = only ? urls.length : limitValue;
+      const limit = only ? urls.length : 200; // default limit value url > 200
 
       const crawlJob = await this.crawlJobOrgService.create({
         organizationId: orgId,

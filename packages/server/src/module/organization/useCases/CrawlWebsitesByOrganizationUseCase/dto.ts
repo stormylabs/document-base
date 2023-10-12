@@ -51,10 +51,10 @@ export class CrawlWebsitesByOrganizationDTO {
 
 export class CrawlWebsitesByOrganizationResponseDTO {
   @ApiProperty({
-    description: 'Crawl organization ID',
+    description: 'Crawl Job ID',
     type: String,
   })
-  organizationId: string;
+  jobId: string;
 
   @ApiProperty({
     description: 'Crawl Job Status',

@@ -249,7 +249,9 @@ export class BotController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] crawl websites error ${error.errorValue().message}`,
+        `[POST] crawl websites by organization error ${
+          error.errorValue().message
+        }`,
       );
 
       return errorHandler(error);

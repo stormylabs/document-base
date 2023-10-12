@@ -17,6 +17,7 @@ import {
   ApiOperation,
   ApiSecurity,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { errorHandler } from '@/shared/http';
@@ -36,6 +37,11 @@ import { GetOrganizationResponseDto } from '../useCases/GetOrganization/dto';
 import GetOrganizationUseCase from '../useCases/GetOrganization';
 import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
+import {
+  CrawlWebsitesByOrganizationDTO,
+  CrawlWebsitesByOrganizationResponseDTO,
+} from '../useCases/CrawlWebsitesByOrganizationUseCase/dto';
+import CrawlWebsitesByOrganizationUseCase from '../useCases/CrawlWebsitesByOrganizationUseCase';
 
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
@@ -46,6 +52,7 @@ export class OrganizationController {
     private createOrgUseCase: CreateOrganizationUseCase,
     private getOrgUseCase: GetOrganizationUseCase,
     private inviteUserToOrgUseCase: InviteMemberToOrganizationUseCase,
+    private crawlWebsiteByOrgUseCase: CrawlWebsitesByOrganizationUseCase,
   ) {}
 
   @Post()
@@ -143,6 +150,60 @@ export class OrganizationController {
     }
 
     const result = await this.inviteUserToOrgUseCase.exec(param.orgId, email);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] invite user to organization error ${
+          error.errorValue().message
+        }`,
+      );
+
+      return errorHandler(error);
+    }
+
+    return result.value.getValue();
+  }
+
+  @Post(':orgId/crawl')
+  @ApiBody({ type: CrawlWebsitesByOrganizationDTO })
+  @ApiOperation({
+    summary: 'Crawl Website by Organization',
+  })
+  @ApiCreatedResponse({
+    description: 'Crawl Job Id and Status',
+    type: CrawlWebsitesByOrganizationResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Bot not found',
+  })
+  @ApiConflictResponse({
+    description:
+      'If there are unfinished web crawl jobs or train jobs, this error will be returned.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @RoleAccessLevel([AccessLevel.ADMIN, AccessLevel.MEMBER])
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
+  async crawlWebsite(
+    @Body() body: CrawlWebsitesByOrganizationDTO,
+    @Req() req: RequestWithUser,
+    @Param() param: OrgIdParams,
+  ) {
+    const { only, urls } = body;
+    this.logger.log(`[POST] Start crawl websites by organization`);
+
+    // check org ownership
+    if (req?.user?.member?.organization?._id !== param.orgId) {
+      return errorHandler(new UnauthorizedError());
+    }
+
+    const result = await this.crawlWebsiteByOrgUseCase.exec(
+      param.orgId,
+      urls,
+      only,
+    );
 
     if (result.isLeft()) {
       const error = result.value;

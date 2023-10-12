@@ -28,7 +28,6 @@ export default class CrawlWebsitesByOrganizationUseCase {
   public async exec(
     orgId: string,
     urls: string[],
-    limit: number,
     only: boolean,
   ): Promise<Response> {
     try {
@@ -67,12 +66,7 @@ export default class CrawlWebsitesByOrganizationUseCase {
       this.logger.log(`Removed all documents of organization ${orgId}`);
 
       this.logger.log(`Create crawl job`);
-      const result = await this.createCrawlJobUseCase.exec(
-        orgId,
-        urls,
-        limit,
-        only,
-      );
+      const result = await this.createCrawlJobUseCase.exec(orgId, urls, only);
 
       if (result.isLeft()) {
         return left(result.value);
