@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
   NotFoundError,
   SQSSendMessageError,
@@ -9,7 +9,7 @@ import { BotService } from '@/module/bot/services/bot.service';
 import { CrawlJobMessage } from '@/shared/interfaces/crawlJob';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
 import { JobStatus, JobType, Resource } from '@/shared/interfaces';
-import { DocumentService } from '@/module/bot/services/document.service';
+import { DocumentService } from '@/module/document/services/document.service';
 import { DocumentType } from '@/shared/interfaces/document';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import UseCaseError from '@/shared/core/UseCaseError';
@@ -23,6 +23,7 @@ type Response = Either<
 export default class CreateCrawlJobUseCase {
   private readonly logger = new Logger(CreateCrawlJobUseCase.name);
   constructor(
+    @Inject(forwardRef(() => SqsMessageService))
     private readonly sqsMessageService: SqsMessageService,
     private readonly crawlJobService: CrawlJobService,
     private readonly botService: BotService,

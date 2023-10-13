@@ -9,7 +9,6 @@ import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { OrganizationService } from '@/module/organization/services/organization.service';
 import CreateCrawlJobOrgUseCase from '../jobs/CreateCrawlJob';
 import { CrawlJobOrganizationService } from '@/module/organization/services/crawlJob.service';
-import { DocIndexOrgJobService } from '@/module/organization/services/docIndexJob.service';
 
 type Response = Either<
   NotFoundError | UnexpectedError,
@@ -23,7 +22,6 @@ export default class CrawlWebsitesByOrganizationUseCase {
     private readonly orgService: OrganizationService,
     private readonly createCrawlJobUseCase: CreateCrawlJobOrgUseCase,
     private readonly crawlJobService: CrawlJobOrganizationService,
-    private readonly docIndexJobService: DocIndexOrgJobService,
   ) {}
   public async exec(
     orgId: string,
@@ -33,30 +31,18 @@ export default class CrawlWebsitesByOrganizationUseCase {
     try {
       this.logger.log(`Start crawling websites by organization`);
 
-      const bot = await this.orgService.findById(orgId);
-      if (!bot) return left(new NotFoundError(Resource.Organization, [orgId]));
+      const org = await this.orgService.findById(orgId);
+      if (!org) return left(new NotFoundError(Resource.Organization, [orgId]));
 
       const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
         orgId,
       );
-
-      const unfinishedDocIndexJobs =
-        await this.docIndexJobService.findUnfinishedJobs(orgId);
 
       if (unfinishedCrawlJobs.length > 0) {
         return left(
           new UnfinishedJobsError(
             unfinishedCrawlJobs.map((job) => job._id),
             JobType.WebCrawlOrg,
-          ),
-        );
-      }
-
-      if (unfinishedDocIndexJobs.length > 0) {
-        return left(
-          new UnfinishedJobsError(
-            unfinishedDocIndexJobs.map((job) => job._id),
-            JobType.DocIndexOrg,
           ),
         );
       }

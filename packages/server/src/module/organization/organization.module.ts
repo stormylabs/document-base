@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import {
@@ -17,7 +17,6 @@ import { MemberService } from './services/member.service';
 import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
 import CreateOrganizationUseCase from './useCases/CreateOrganization';
 import GetOrganizationUseCase from './useCases/GetOrganization';
-import { BotModule } from '../bot/bot.module';
 import {
   CrawlJobOrganization,
   CrawlJobOrganizationSchema,
@@ -27,14 +26,9 @@ import { CrawlJobOrganizationService } from './services/crawlJob.service';
 import CreateCrawlJobOrganizationUseCase from './useCases/jobs/CreateCrawlJob';
 import { SqsProducerModule } from '../sqsProducer/sqsProducer.module';
 import { SqsConsumerModule } from '../sqsConsumer/sqsConsumer.module';
-import {
-  DocIndexOrgJob,
-  DocIndexOrgJobSchema,
-} from './schemas/docIndexJob.schema';
-import { DocIndexOrgJobRepository } from './repositories/docIndexJob.repository';
-import { DocIndexOrgJobService } from './services/docIndexJob.service';
 import CrawlWebsitesByOrganizationUseCase from './useCases/CrawlWebsitesByOrganizationUseCase';
 import CrawlWebsiteOrganizationUseCase from './useCases/jobs/CrawlWebsite';
+import { DocumentModule } from '../document/document.module';
 
 @Module({
   imports: [
@@ -51,17 +45,13 @@ import CrawlWebsiteOrganizationUseCase from './useCases/jobs/CrawlWebsite';
         name: CrawlJobOrganization.name,
         schema: CrawlJobOrganizationSchema,
       },
-      {
-        name: DocIndexOrgJob.name,
-        schema: DocIndexOrgJobSchema,
-      },
     ]),
     ConfigModule,
     UserModule,
-    AuthModule,
-    BotModule, // ? when the document is separated into its own module replace this with import the document module
     SqsProducerModule,
-    SqsConsumerModule,
+    forwardRef(() => SqsConsumerModule),
+    AuthModule,
+    DocumentModule,
   ],
   controllers: [OrganizationController],
   providers: [
@@ -72,8 +62,6 @@ import CrawlWebsiteOrganizationUseCase from './useCases/jobs/CrawlWebsite';
     MemberService,
     CrawlJobOrganizationRepository,
     CrawlJobOrganizationService,
-    DocIndexOrgJobRepository,
-    DocIndexOrgJobService,
 
     // use case & other
     InviteMemberToOrganizationUseCase,
@@ -84,6 +72,6 @@ import CrawlWebsiteOrganizationUseCase from './useCases/jobs/CrawlWebsite';
     CrawlWebsiteOrganizationUseCase,
     OrganizationRoleGuard,
   ],
-  exports: [OrganizationService, MemberService],
+  exports: [OrganizationService, CrawlWebsiteOrganizationUseCase],
 })
 export class OrganizationModule {}

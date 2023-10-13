@@ -11,7 +11,7 @@ import { BotService } from '@/module/bot/services/bot.service';
 import { LangChainService } from '@/module/langChain/services/langChain.service';
 import { DocIndexJobService } from '@/module/bot/services/docIndexJob.service';
 import { LangChainSplitDocsError } from '@/shared/core/LangChainError';
-import { DocumentService } from '@/module/bot/services/document.service';
+import { DocumentService } from '@/module/document/services/document.service';
 import { PineconeStore } from 'langchain/vectorstores/pinecone';
 import UseCaseError from '@/shared/core/UseCaseError';
 

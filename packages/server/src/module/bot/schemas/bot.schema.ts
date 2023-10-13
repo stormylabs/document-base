@@ -1,7 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
-import { DocumentDocument } from './document.schema';
+import { DocumentDocument } from '../../document/schemas/document.schema';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 import { DEFAULT_FALLBACK_MSG, DEFAULT_PROMPT } from '@/shared/constants';
 import { UserDocument } from '@/module/user/schemas/user.schema';

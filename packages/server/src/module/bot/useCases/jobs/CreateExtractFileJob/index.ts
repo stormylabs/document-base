@@ -10,7 +10,7 @@ import { BotService } from '@/module/bot/services/bot.service';
 import { ExtractFileJobMessage } from '@/shared/interfaces/extractFileJob';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
 import { JobStatus, JobType, Resource } from '@/shared/interfaces';
-import { DocumentService } from '@/module/bot/services/document.service';
+import { DocumentService } from '@/module/document/services/document.service';
 import { DocumentExtToType } from '@/shared/interfaces/document';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 import { extractExtensionFromUrl } from '@/shared/utils/web-utils';

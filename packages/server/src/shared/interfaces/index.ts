@@ -17,6 +17,7 @@ export enum Resource {
   Bot = 'Bot',
   Document = 'Document',
   CrawlJob = 'Crawl job',
+  CrawlJobOrg = 'Crawl job organization',
   DocIndexJob = 'Train job',
   ExtractFileJob = 'Extract file job',
   User = 'User',

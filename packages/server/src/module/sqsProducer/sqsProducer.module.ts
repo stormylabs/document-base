@@ -17,6 +17,11 @@ import { SqsMessageService } from './services/sqsMessage.service';
               region: config.get<string>('SQS_REGION'),
             },
             {
+              name: config.get<string>('WEB_CRAWL_ORG_QUEUE_NAME'),
+              queueUrl: config.get<string>('WEB_CRAWL_ORG_QUEUE_URL'),
+              region: config.get<string>('SQS_REGION'),
+            },
+            {
               name: config.get<string>('DOC_INDEX_QUEUE_NAME'),
               queueUrl: config.get<string>('DOC_INDEX_QUEUE_URL'),
               region: config.get<string>('SQS_REGION'),

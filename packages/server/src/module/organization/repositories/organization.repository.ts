@@ -71,11 +71,11 @@ export class OrganizationRepository {
   }
 
   async removeDocuments(
-    botId: string,
+    orgId: string,
     documentIds: string[],
   ): Promise<OrganizationData> {
-    const id = new Types.ObjectId(botId);
-    const bot = await this.orgModel
+    const id = new Types.ObjectId(orgId);
+    const org = await this.orgModel
       .findByIdAndUpdate(
         id,
         {
@@ -85,6 +85,6 @@ export class OrganizationRepository {
       )
       .populate('documents')
       .exec();
-    return bot.toJSON() as OrganizationData;
+    return org.toJSON() as OrganizationData;
   }
 }

@@ -1,13 +1,10 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BotController } from './controllers/bot.controller';
 import { BotRepository } from './repositories/bot.repository';
 import { Bot, BotSchema } from './schemas/bot.schema';
 import { BotService } from './services/bot.service';
 import CreateBotUseCase from './useCases/bot/CreateBot';
-import { DocumentRepository } from './repositories/document.repository';
-import { DocumentService } from './services/document.service';
-import { DocumentSchema, Document } from './schemas/document.schema';
 import { PineconeModule } from '../pinecone/pinecone.module';
 import { PineconeClientService } from '../pinecone/pinecone.service';
 import { ConfigModule } from '@nestjs/config';
@@ -52,14 +49,11 @@ import AbortExtractFileJobUseCase from './useCases/jobs/AbortExtractFIleJob';
 import AbortDocIndexJobUseCase from './useCases/jobs/AbortDocIndexJob';
 import { AuthModule } from '../auth/auth.module';
 import { UsageModule } from '../usage/usage.module';
+import { DocumentModule } from '../document/document.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([
-      {
-        name: Document.name,
-        schema: DocumentSchema,
-      },
       {
         name: Bot.name,
         schema: BotSchema,
@@ -81,16 +75,16 @@ import { UsageModule } from '../usage/usage.module';
     ConfigModule,
     LangChainModule,
     SqsProducerModule,
-    SqsConsumerModule,
+    forwardRef(() => SqsConsumerModule),
     S3Module,
     AuthModule,
     UsageModule,
+    DocumentModule,
   ],
   controllers: [BotController, DataController],
   providers: [
     BotRepository,
     BotService,
-    DocumentRepository,
     CreateBotUseCase,
     GetBotInfoUseCase,
     UpdateBotUseCase,
@@ -102,7 +96,6 @@ import { UsageModule } from '../usage/usage.module';
     GetCrawlJobStatusUseCase,
     CrawlJobService,
     CrawlJobRepository,
-    DocumentService,
     SqsMessageService,
     SqsConsumerService,
     IndexDocumentUseCase,
@@ -128,7 +121,6 @@ import { UsageModule } from '../usage/usage.module';
     CrawlWebsiteUseCase,
     ExtractFileUseCase,
     IndexDocumentUseCase,
-    DocumentService,
   ],
 })
 export class BotModule {}

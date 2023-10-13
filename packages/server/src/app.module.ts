@@ -26,8 +26,6 @@ import { OrganizationModule } from './module/organization/organization.module';
         NODE_ENV: Joi.string(),
         DOC_INDEX_QUEUE_NAME: Joi.string().required(),
         DOC_INDEX_QUEUE_URL: Joi.string().required(),
-        DOC_INDEX_ORG_QUEUE_NAME: Joi.string().required(),
-        DOC_INDEX_ORG_QUEUE_URL: Joi.string().required(),
         WEB_CRAWL_QUEUE_NAME: Joi.string().required(),
         WEB_CRAWL_QUEUE_URL: Joi.string().required(),
         WEB_CRAWL_ORG_QUEUE_NAME: Joi.string().required(),

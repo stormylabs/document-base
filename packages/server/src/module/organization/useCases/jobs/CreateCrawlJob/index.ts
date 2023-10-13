@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
   NotFoundError,
   SQSSendMessageError,
@@ -9,7 +9,7 @@ import { OrganizationService } from '@/module/organization/services/organization
 import { CrawlJobOrgMessage } from '@/shared/interfaces/crawlJobOrganization';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
 import { JobStatus, JobType, Resource } from '@/shared/interfaces';
-import { DocumentService } from '@/module/bot/services/document.service';
+import { DocumentService } from '@/module/document/services/document.service';
 import { DocumentType } from '@/shared/interfaces/document';
 import { CrawlJobOrganizationService } from '@/module/organization/services/crawlJob.service';
 
@@ -22,6 +22,7 @@ type Response = Either<
 export default class CreateCrawlJobOrganizationUseCase {
   private readonly logger = new Logger(CreateCrawlJobOrganizationUseCase.name);
   constructor(
+    @Inject(forwardRef(() => SqsMessageService))
     private readonly sqsMessageService: SqsMessageService,
     private readonly crawlJobOrgService: CrawlJobOrganizationService,
     private readonly orgService: OrganizationService,
@@ -35,8 +36,8 @@ export default class CreateCrawlJobOrganizationUseCase {
     try {
       this.logger.log(`Start creating crawl job`);
 
-      const botExists = await this.orgService.exists([orgId]);
-      if (!botExists)
+      const orgExists = await this.orgService.exists([orgId]);
+      if (!orgExists)
         return left(new NotFoundError(Resource.Organization, [orgId]));
 
       // if only is true, set limit to the number of urls

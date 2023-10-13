@@ -4,7 +4,7 @@ import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
-import { DocumentDocument } from './document.schema';
+import { DocumentDocument } from '../../document/schemas/document.schema';
 
 export type DocIndexJobDocument = HydratedDocument<DocIndexJob>;
 

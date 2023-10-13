@@ -11,6 +11,7 @@ import ExtractFileUseCase from '@/module/bot/useCases/jobs/ExtractFile';
 import * as AWS from '@aws-sdk/client-sqs/dist-cjs';
 import { CrawlJobOrgMessage } from '@/shared/interfaces/crawlJobOrganization';
 import CrawlWebsiteOrganizationUseCase from '@/module/organization/useCases/jobs/CrawlWebsite';
+
 dotenv.config();
 
 @Injectable()
@@ -21,12 +22,10 @@ export class SqsConsumerService {
     // without specifying all the dependencies in SqsConsumerModule
     @Inject(forwardRef(() => CrawlWebsiteUseCase))
     private readonly crawlWebsiteUseCase: CrawlWebsiteUseCase,
-    @Inject(forwardRef(() => CrawlWebsiteUseCase))
-    private readonly crawlWebsiteByOrgUseCase: CrawlWebsiteOrganizationUseCase,
     @Inject(forwardRef(() => IndexDocumentUseCase))
     private readonly indexDocumentUseCase: IndexDocumentUseCase,
     @Inject(forwardRef(() => ExtractFileUseCase))
-    private readonly extractFileUseCase: ExtractFileUseCase,
+    private readonly extractFileUseCase: ExtractFileUseCase, // TODO: fix circular deps // @Inject(forwardRef(() => CrawlWebsiteOrganizationUseCase)) // private readonly crawlWebsiteOrgUseCase: CrawlWebsiteOrganizationUseCase,
   ) {}
   @SqsMessageHandler(process.env.WEB_CRAWL_QUEUE_NAME)
   async handleWebCrawlMessage(message: AWS.SQS.Message) {
@@ -52,19 +51,19 @@ export class SqsConsumerService {
     const body: CrawlJobOrgMessage = JSON.parse(message.Body);
     const { jobId, organizationId, documentId } = body;
     this.logger.log(`Received web crawl org message from SQS`);
-    const result = await this.crawlWebsiteByOrgUseCase.exec(
-      jobId,
-      organizationId,
-      documentId,
-    );
+    // const result = await this.crawlWebsiteOrgUseCase.exec(
+    //   jobId,
+    //   organizationId,
+    //   documentId,
+    // );
 
-    if (result.isLeft()) {
-      const error = result.value;
-      this.logger.error(
-        `[WebCrawl] web crawl error ${error.errorValue().message}`,
-      );
-      return errorHandler(error);
-    }
+    // if (result.isLeft()) {
+    //   const error = result.value;
+    //   this.logger.error(
+    //     `[WebCrawl] web crawl error ${error.errorValue().message}`,
+    //   );
+    //   return errorHandler(error);
+    // }
   }
 
   @SqsMessageHandler(process.env.DOC_INDEX_QUEUE_NAME)

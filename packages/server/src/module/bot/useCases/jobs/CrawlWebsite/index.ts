@@ -7,7 +7,7 @@ import UnexpectedError, {
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { CrawlJobService } from '../../../services/crawlJob.service';
 import { BotService } from '@/module/bot/services/bot.service';
-import { DocumentService } from '@/module/bot/services/document.service';
+import { DocumentService } from '@/module/document/services/document.service';
 import { Crawler } from '@/shared/utils/crawler';
 import { DocumentType } from '@/shared/interfaces/document';
 import { JobStatus, JobType, Resource } from '@/shared/interfaces';

@@ -7,7 +7,7 @@ import UnexpectedError, {
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { ExtractFileJobService } from '../../../services/extractFileJob.service';
 import { BotService } from '@/module/bot/services/bot.service';
-import { DocumentService } from '@/module/bot/services/document.service';
+import { DocumentService } from '@/module/document/services/document.service';
 import { ExtractPDF } from '@/shared/utils/extractPdf';
 import { DocumentType } from '@/shared/interfaces/document';
 import { JobStatus, JobType, Resource } from '@/shared/interfaces';

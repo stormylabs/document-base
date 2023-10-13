@@ -39,7 +39,7 @@ export class CrawlJobOrganizationService {
     return unfinishedJobs;
   }
 
-  async findJobsByBotId(orgId: string): Promise<CrawlJobOrganizationData[]> {
+  async findJobsByOrgId(orgId: string): Promise<CrawlJobOrganizationData[]> {
     const crawlJob = await this.crawlJobOrgRepository.findJobsByOrgId(orgId);
     return crawlJob;
   }
@@ -51,11 +51,14 @@ export class CrawlJobOrganizationService {
   ): Promise<CrawlJobOrganizationData> {
     const exists = await this.exists([crawlJobId]);
     if (!exists) throw new Error('Crawl job does not exist.');
-    const updatedBot = await this.crawlJobOrgRepository.update(crawlJobId, {
-      status,
-      locked,
-    });
-    return updatedBot;
+    const updatedCrawlJob = await this.crawlJobOrgRepository.update(
+      crawlJobId,
+      {
+        status,
+        locked,
+      },
+    );
+    return updatedCrawlJob;
   }
 
   async bulkUpdateStatus(

@@ -175,7 +175,7 @@ export class OrganizationController {
     type: CrawlWebsitesByOrganizationResponseDTO,
   })
   @ApiNotFoundResponse({
-    description: 'Bot not found',
+    description: 'Organization not found',
   })
   @ApiConflictResponse({
     description:

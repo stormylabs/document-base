@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
   NotFoundError,
   CrawlerError,
@@ -6,7 +6,7 @@ import UnexpectedError, {
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { CrawlJobOrganizationService } from '../../../services/crawlJob.service';
 import { OrganizationService } from '@/module/organization/services/organization.service';
-import { DocumentService } from '@/module/bot/services/document.service';
+import { DocumentService } from '@/module/document/services/document.service';
 import { Crawler } from '@/shared/utils/crawler';
 import { DocumentType } from '@/shared/interfaces/document';
 import { JobStatus, Resource } from '@/shared/interfaces';
@@ -39,8 +39,10 @@ export default class CrawlWebsiteOrganizationUseCase {
         return left(new NotFoundError(Resource.Organization, [orgId]));
       }
       const crawlJob = await this.crawlJobOrgService.findById(jobId);
+
+      console.log({ crawlJob });
       if (!crawlJob) {
-        return left(new NotFoundError(Resource.CrawlJob, [jobId]));
+        return left(new NotFoundError(Resource.CrawlJobOrg, [jobId]));
       }
 
       const document = await this.documentService.findById(documentId);

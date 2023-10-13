@@ -3,7 +3,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { JobStatus } from '@/shared/interfaces';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
-import { DocumentDocument } from '@/module/bot/schemas/document.schema';
+import { DocumentDocument } from '@/module/document/schemas/document.schema';
 import { BotDocument } from '@/module/bot/schemas/bot.schema';
 
 export type ExtractFileJobDocument = HydratedDocument<ExtractFileJob>;

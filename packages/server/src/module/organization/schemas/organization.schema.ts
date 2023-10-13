@@ -2,7 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
-import { DocumentDocument } from '@/module/bot/schemas/document.schema';
+import { DocumentDocument } from '@/module/document/schemas/document.schema';
 
 export type OrganizationDocument = HydratedDocument<Organization>;
 
