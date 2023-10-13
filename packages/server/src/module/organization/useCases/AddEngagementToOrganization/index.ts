@@ -4,7 +4,6 @@ import { Either, Result, left, right } from '@/shared/core/Result';
 import { AddEngagementOrganizationResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { EngagementService } from '../../services/engagement.service';
-import { EngagementData } from '@/shared/interfaces/engagement';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -27,22 +26,10 @@ export default class AddEngagementOrganizationUseCase {
     knowledgeIds,
     outcome,
   ): Promise<Response> {
-    console.log({
-      name,
-      organizationId,
-      budgetPerInteraction,
-      executesAt,
-      endsAt,
-      templateId,
-      contactIds,
-      channels,
-      knowledgeIds,
-      outcome,
-    });
     try {
       this.logger.log(`Start creating Engagement`);
 
-      await this.engagementService.create({
+      const engagement = await this.engagementService.create({
         name,
         organizationId,
         budgetPerInteraction,
@@ -58,7 +45,7 @@ export default class AddEngagementOrganizationUseCase {
         updatedAt: new Date(),
       });
 
-      return right(Result.ok(null));
+      return right(Result.ok(engagement));
     } catch (err) {
       return left(new UnexpectedError(err));
     }

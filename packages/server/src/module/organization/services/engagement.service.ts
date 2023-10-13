@@ -10,11 +10,11 @@ export class EngagementService {
     engagementData: Omit<EngagementData, '_id'>,
   ): Promise<EngagementData> {
     console.log(`Start creating organization`, engagementData);
-    const createdEngagemenet = await this.engagementRepository.create(
+    const createdEngagement = await this.engagementRepository.create(
       engagementData,
     );
-    console.log(`createdEngagemenet`, createdEngagemenet);
-    return createdEngagemenet;
+    console.log(`createdEngagement`, createdEngagement);
+    return createdEngagement;
   }
 
   async findEngagementById(
