@@ -32,10 +32,10 @@ export default class CrawlWebsiteOrganizationUseCase {
     documentId: string,
   ): Promise<Response> {
     try {
-      this.logger.log(`Start crawling website`);
+      this.logger.log(`Start crawling website by organization`);
 
-      const bot = await this.orgService.findById(orgId);
-      if (!bot) {
+      const org = await this.orgService.findById(orgId);
+      if (!org) {
         return left(new NotFoundError(Resource.Organization, [orgId]));
       }
       const crawlJob = await this.crawlJobOrgService.findById(jobId);
@@ -56,7 +56,7 @@ export default class CrawlWebsiteOrganizationUseCase {
       const limit = crawlJob.limit;
       if (
         limit ===
-        bot.documents.filter((doc) => doc.type === DocumentType.Url).length
+        org.documents.filter((doc) => doc.type === DocumentType.Url).length
       ) {
         await this.crawlJobOrgService.updateStatus(jobId, JobStatus.Finished);
         return right(Result.ok());
@@ -108,7 +108,7 @@ export default class CrawlWebsiteOrganizationUseCase {
         orgId,
         documentId,
       );
-      this.logger.log('document upserted to bot');
+      this.logger.log('document upserted to org');
 
       if (upsertedOrg.documents.length === limit) {
         this.logger.log('crawl job finished');
@@ -121,12 +121,12 @@ export default class CrawlWebsiteOrganizationUseCase {
         return right(Result.ok());
       }
 
-      const botDocumentUrls = upsertedOrg.documents
+      const orgDocumentUrls = upsertedOrg.documents
         .filter((doc) => doc.type === DocumentType.Url)
         .map((doc) => doc.sourceName);
 
-      //   filters out current bot documents.urls to only send new urls
-      const urls = data.urls.filter((url) => !botDocumentUrls.includes(url));
+      //   filters out current org documents.urls to only send new urls
+      const urls = data.urls.filter((url) => !orgDocumentUrls.includes(url));
       const numToSend = Math.ceil((limit - crawlJobDocIds.length) * 1.3);
       const urlsToSend = urls.slice(0, numToSend);
 
@@ -148,7 +148,7 @@ export default class CrawlWebsiteOrganizationUseCase {
       await this.createCrawlJobOrgUseCase.sendMessages(jobId, payloads);
       this.logger.log(`Sent ${payloads.length} messages to the queue`);
 
-      this.logger.log('documents upserted to crawl job');
+      this.logger.log('documents upserted to crawl job by organization');
 
       this.logger.log(`Website is crawled successfully`);
       return right(Result.ok());
