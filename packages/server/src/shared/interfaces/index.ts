@@ -20,6 +20,7 @@ export enum Resource {
   User = 'User',
   ApiKey = 'ApiKey',
   Organization = 'Organization',
+  Engagement = 'Engagement',
 }
 
 export enum JobStatus {
