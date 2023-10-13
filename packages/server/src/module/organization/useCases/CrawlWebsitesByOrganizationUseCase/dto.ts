@@ -1,4 +1,3 @@
-import { DOCUMENT_LIMIT } from '@/shared/constants';
 import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 import {
@@ -6,10 +5,7 @@ import {
   ArrayMinSize,
   IsArray,
   IsBoolean,
-  IsNumber,
   IsUrl,
-  Max,
-  Min,
 } from 'class-validator';
 
 export class CrawlWebsitesByOrganizationDTO {
@@ -26,18 +22,6 @@ export class CrawlWebsitesByOrganizationDTO {
   @ArrayMinSize(1)
   @ArrayMaxSize(10)
   urls: string[];
-
-  @ApiProperty({
-    description: 'Max number of URLs to crawl',
-    minimum: 1,
-    maximum: DOCUMENT_LIMIT,
-    required: true,
-    type: Number,
-  })
-  @IsNumber()
-  @Min(1)
-  @Max(DOCUMENT_LIMIT)
-  limit: number;
 
   @ApiProperty({
     description: 'Flag to crawl job ',
