@@ -10,6 +10,7 @@ import { errorHandler } from '@/shared/http';
 import ExtractFileUseCase from '@/module/bot/useCases/jobs/ExtractFile';
 import * as AWS from '@aws-sdk/client-sqs/dist-cjs';
 import { CrawlJobOrgMessage } from '@/shared/interfaces/crawlJobOrganization';
+import CrawlWebsiteOrganizationUseCase from '@/module/organization/useCases/jobs/CrawlWebsite';
 dotenv.config();
 
 @Injectable()
@@ -20,6 +21,8 @@ export class SqsConsumerService {
     // without specifying all the dependencies in SqsConsumerModule
     @Inject(forwardRef(() => CrawlWebsiteUseCase))
     private readonly crawlWebsiteUseCase: CrawlWebsiteUseCase,
+    @Inject(forwardRef(() => CrawlWebsiteUseCase))
+    private readonly crawlWebsiteByOrgUseCase: CrawlWebsiteOrganizationUseCase,
     @Inject(forwardRef(() => IndexDocumentUseCase))
     private readonly indexDocumentUseCase: IndexDocumentUseCase,
     @Inject(forwardRef(() => ExtractFileUseCase))
@@ -49,7 +52,7 @@ export class SqsConsumerService {
     const body: CrawlJobOrgMessage = JSON.parse(message.Body);
     const { jobId, organizationId, documentId } = body;
     this.logger.log(`Received web crawl org message from SQS`);
-    const result = await this.crawlWebsiteUseCase.exec(
+    const result = await this.crawlWebsiteByOrgUseCase.exec(
       jobId,
       organizationId,
       documentId,
