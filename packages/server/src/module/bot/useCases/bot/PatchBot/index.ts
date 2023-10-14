@@ -3,7 +3,7 @@ import UnexpectedError from 'src/shared/core/AppError';
 import { Either, Result, left, right } from 'src/shared/core/Result';
 import { BotService } from '../../../services/bot.service';
 import UseCaseError from '@/shared/core/UseCaseError';
-import { DocumentService } from '@/module/bot/services/document.service';
+import { DocumentService } from '@/module/document/services/document.service';
 
 type Response = Either<Result<UseCaseError>, Result<void>>;
 
