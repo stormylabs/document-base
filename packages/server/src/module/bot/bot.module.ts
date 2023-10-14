@@ -50,6 +50,7 @@ import AbortDocIndexJobUseCase from './useCases/jobs/AbortDocIndexJob';
 import { AuthModule } from '../auth/auth.module';
 import { UsageModule } from '../usage/usage.module';
 import { DocumentModule } from '../document/document.module';
+import { OrganizationModule } from '../organization/organization.module';
 
 @Module({
   imports: [
@@ -76,6 +77,7 @@ import { DocumentModule } from '../document/document.module';
     LangChainModule,
     SqsProducerModule,
     forwardRef(() => SqsConsumerModule),
+    forwardRef(() => OrganizationModule),
     S3Module,
     AuthModule,
     UsageModule,

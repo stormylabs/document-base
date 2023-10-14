@@ -25,7 +25,9 @@ export class SqsConsumerService {
     @Inject(forwardRef(() => IndexDocumentUseCase))
     private readonly indexDocumentUseCase: IndexDocumentUseCase,
     @Inject(forwardRef(() => ExtractFileUseCase))
-    private readonly extractFileUseCase: ExtractFileUseCase, // TODO: fix circular deps // @Inject(forwardRef(() => CrawlWebsiteOrganizationUseCase)) // private readonly crawlWebsiteOrgUseCase: CrawlWebsiteOrganizationUseCase,
+    private readonly extractFileUseCase: ExtractFileUseCase,
+    @Inject(forwardRef(() => CrawlWebsiteOrganizationUseCase))
+    private crawlWebsiteOrgUseCase: CrawlWebsiteOrganizationUseCase,
   ) {}
   @SqsMessageHandler(process.env.WEB_CRAWL_QUEUE_NAME)
   async handleWebCrawlMessage(message: AWS.SQS.Message) {
@@ -51,19 +53,19 @@ export class SqsConsumerService {
     const body: CrawlJobOrgMessage = JSON.parse(message.Body);
     const { jobId, organizationId, documentId } = body;
     this.logger.log(`Received web crawl org message from SQS`);
-    // const result = await this.crawlWebsiteOrgUseCase.exec(
-    //   jobId,
-    //   organizationId,
-    //   documentId,
-    // );
+    const result = await this.crawlWebsiteOrgUseCase.exec(
+      jobId,
+      organizationId,
+      documentId,
+    );
 
-    // if (result.isLeft()) {
-    //   const error = result.value;
-    //   this.logger.error(
-    //     `[WebCrawl] web crawl error ${error.errorValue().message}`,
-    //   );
-    //   return errorHandler(error);
-    // }
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[WebCrawl] web crawl error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
   }
 
   @SqsMessageHandler(process.env.DOC_INDEX_QUEUE_NAME)

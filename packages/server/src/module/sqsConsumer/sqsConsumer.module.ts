@@ -7,8 +7,8 @@ import { OrganizationModule } from '../organization/organization.module';
 
 @Module({
   imports: [
-    ConfigModule,
     forwardRef(() => BotModule),
+    ConfigModule,
     forwardRef(() => OrganizationModule),
     SqsModule.registerAsync({
       imports: [ConfigModule],

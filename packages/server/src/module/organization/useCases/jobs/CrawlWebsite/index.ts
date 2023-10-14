@@ -40,7 +40,6 @@ export default class CrawlWebsiteOrganizationUseCase {
       }
       const crawlJob = await this.crawlJobOrgService.findById(jobId);
 
-      console.log({ crawlJob });
       if (!crawlJob) {
         return left(new NotFoundError(Resource.CrawlJobOrg, [jobId]));
       }
