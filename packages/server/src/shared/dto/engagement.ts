@@ -87,7 +87,7 @@ export class EngagementResponse {
   updatedAt?: Date;
 }
 
-export class EngagemnetIdParams {
+export class EngagementIdParams {
   @ApiProperty({
     name: 'orgId',
     type: String,
@@ -104,4 +104,22 @@ export class EngagemnetIdParams {
   @IsString()
   @IsNotEmpty()
   engagementId: string;
+}
+
+export class ExecuteEngagementResponse {
+  @ApiProperty({
+    description: 'Name of the Agent',
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({
+    description: 'Say of the Agent',
+    type: String,
+  })
+  @IsString()
+  @IsNotEmpty()
+  say: string;
 }

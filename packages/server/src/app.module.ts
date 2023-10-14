@@ -37,6 +37,8 @@ import { OrganizationModule } from './module/organization/organization.module';
         AWS_SECRET_ACCESS_KEY: Joi.string().required(),
         AWS_REGION: Joi.string().required(),
         AWS_PUBLIC_BUCKET_NAME: Joi.string().required(),
+        AGENT_QUEUE_NAME: Joi.string().required(),
+        AGENT_QUEUE_URL: Joi.string().required(),
       }),
     }),
     ThrottlerAsyncModule,

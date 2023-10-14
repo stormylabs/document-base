@@ -21,6 +21,13 @@ export class SqsMessageService {
     await this.sqsService.send(this.getQueueName(job), messages);
   }
 
+  async sendMessage<T>(job: JobType, payload: T) {
+    await this.sqsService.send(this.getQueueName(job), {
+      body: payload,
+      id: uuid(),
+    });
+  }
+
   getQueueName(job: JobType) {
     if (job === JobType.WebCrawl) {
       return this.config.get<string>('WEB_CRAWL_QUEUE_NAME');
@@ -30,6 +37,10 @@ export class SqsMessageService {
       return this.config.get<string>('FILE_EXTRACT_QUEUE_NAME');
     }
 
-    return this.config.get<string>('DOC_INDEX_QUEUE_NAME');
+    if (job === JobType.Agent) {
+      return this.config.get<string>('AGENT_QUEUE_NAME');
+    }
+
+    return this.config.get<string>('DOC_INDEX_QUEUE_NAME'); // }
   }
 }

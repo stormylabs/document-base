@@ -4,7 +4,6 @@ import { Either, Result, left, right } from '@/shared/core/Result';
 import { AddEngagementOrganizationResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { EngagementService } from '../../services/engagement.service';
-import { EngagementData } from '@/shared/interfaces/engagement';
 
 type Response = Either<
   Result<UseCaseError>,

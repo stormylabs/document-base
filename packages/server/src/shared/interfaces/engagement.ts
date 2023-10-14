@@ -14,3 +14,20 @@ export class EngagementData {
   deletedAt: Date;
   updatedAt: Date;
 }
+
+export class ExecuteEngagementData {
+  engagementId: string;
+  message: string;
+  conversationHistory: string[];
+}
+
+export class EngagementQueuePayload {
+  engagementId: string;
+  message: string;
+  conversationHistory: string[];
+}
+
+export class ExecuteEngagementQueueResponse {
+  name: string;
+  message: string;
+}

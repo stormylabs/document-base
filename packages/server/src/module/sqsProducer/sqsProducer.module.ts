@@ -26,6 +26,11 @@ import { SqsMessageService } from './services/sqsMessage.service';
               queueUrl: config.get<string>('FILE_EXTRACT_QUEUE_URL'),
               region: config.get<string>('SQS_REGION'),
             },
+            {
+              name: config.get<string>('AGENT_QUEUE_NAME'),
+              queueUrl: config.get<string>('AGENT_QUEUE_URL'),
+              region: config.get<string>('SQS_REGION'),
+            },
           ],
         };
       },

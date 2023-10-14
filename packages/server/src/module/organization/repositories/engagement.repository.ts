@@ -16,7 +16,7 @@ export class EngagementRepository {
   ): Promise<EngagementData> {
     const engagement = new this.engagementModel({
       name: engagementData.name,
-      organization: engagementData.organizationId,
+      organizationId: engagementData.organizationId,
       budgetPerInteraction: engagementData.budgetPerInteraction,
       executesAt: engagementData.executesAt,
       endsAt: engagementData.endsAt,

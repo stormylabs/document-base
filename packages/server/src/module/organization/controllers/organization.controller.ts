@@ -39,8 +39,10 @@ import { OrganizationRoleGuard } from '@/shared/guards/OrganizationRole.guard';
 import { AddEngagementOrganizationResponseDTO } from '../useCases/AddEngagementToOrganization/dto';
 import AddEngagementToOrganizationDTO from '../useCases/AddEngagementToOrganization/dto';
 import AddEngagementOrganizationUseCase from '../useCases/AddEngagementToOrganization';
-import { EngagemnetIdParams } from '@/shared/dto/engagement';
+import { EngagementIdParams } from '@/shared/dto/engagement';
 import GetEngagementUseCase from '../useCases/GetEngagement';
+import ExecuteEngagementDTO from '../useCases/ExecuteEngagement/dto';
+import ExecuteEngagementUseCase from '../useCases/ExecuteEngagement';
 
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
@@ -53,6 +55,7 @@ export class OrganizationController {
     private inviteUserToOrgUseCase: InviteMemberToOrganizationUseCase,
     private addEngagementOrganizationUseCase: AddEngagementOrganizationUseCase,
     private getEngagementUseCase: GetEngagementUseCase,
+    private executeEngagementUseCase: ExecuteEngagementUseCase,
   ) {}
 
   @Post()
@@ -251,7 +254,7 @@ export class OrganizationController {
   ])
   @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
   async getEngagement(
-    @Param() { engagementId }: EngagemnetIdParams,
+    @Param() { engagementId }: EngagementIdParams,
     @Req() { user }: RequestWithUser,
   ) {
     this.logger.log(`[GET] Start getting engagement info`);
@@ -270,6 +273,52 @@ export class OrganizationController {
       );
       return errorHandler(error);
     }
+    return result.value.getValue();
+  }
+
+  // Execute engagement Endpoint
+  @Post(':orgId/engagement/execute')
+  @ApiBody({ type: ExecuteEngagementDTO })
+  @ApiOperation({
+    summary: 'Execute engagement',
+  })
+  @ApiCreatedResponse({
+    description: 'Engagement executed',
+  })
+  @ApiConflictResponse({
+    description: 'Engagement already exists.',
+  })
+  @RoleAccessLevel([AccessLevel.ADMIN, AccessLevel.MEMBER])
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
+  async executeEngagement(
+    @Body() body: ExecuteEngagementDTO,
+    @Req() req: RequestWithUser,
+    @Param() param: OrgIdParams,
+  ) {
+    this.logger.log(`[POST] Start execute engagement`);
+
+    const { engagementId, message, conversationHistory } = body;
+
+    // check org ownership
+    // if (req?.user?.member?.organization?._id !== param.orgId) {
+    //   return errorHandler(new UnauthorizedError());
+    // }
+
+    const result = await this.executeEngagementUseCase.exec(
+      engagementId,
+      message,
+      conversationHistory,
+    );
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] execute engagement error ${error.errorValue().message}`,
+      );
+
+      return errorHandler(error);
+    }
+
     return result.value.getValue();
   }
 }

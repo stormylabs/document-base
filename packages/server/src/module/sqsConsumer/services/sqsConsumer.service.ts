@@ -9,6 +9,8 @@ import IndexDocumentUseCase from '@/module/bot/useCases/jobs/IndexDocuments';
 import { errorHandler } from '@/shared/http';
 import ExtractFileUseCase from '@/module/bot/useCases/jobs/ExtractFile';
 import * as AWS from '@aws-sdk/client-sqs/dist-cjs';
+import { ExecuteEngagementResponse } from '@/shared/dto/engagement';
+import { ExecuteEngagementQueueResponse } from '@/shared/interfaces/engagement';
 dotenv.config();
 
 @Injectable()
@@ -77,9 +79,27 @@ export class SqsConsumerService {
     }
   }
 
+  @SqsMessageHandler(process.env.AGENT_QUEUE_NAME)
+  async handleAgentMessage(msg: AWS.SQS.Message) {
+    const body: ExecuteEngagementQueueResponse = JSON.parse(msg.Body);
+
+    const { name, message } = body;
+    console.log(name, message);
+    this.logger.log(`Received agent message from SQS`);
+    // const result = await this.extractFileUseCase.exec(jobId, botId, documentId);
+    // if (result.isLeft()) {
+    //   const error = result.value;
+    //   this.logger.error(
+    //     `[FileExtract] extract file error ${error.errorValue().message}`,
+    //   );
+    // return errorHandler(error);
+    // }
+  }
+
   @SqsConsumerEventHandler(process.env.WEB_CRAWL_QUEUE_NAME, 'error')
   @SqsConsumerEventHandler(process.env.DOC_INDEX_QUEUE_NAME, 'error')
   @SqsConsumerEventHandler(process.env.FILE_EXTRACT_QUEUE_NAME, 'error')
+  @SqsConsumerEventHandler(process.env.AGENT_QUEUE_NAME, 'error')
   async handleError(error: Error) {
     this.logger.error(error);
   }

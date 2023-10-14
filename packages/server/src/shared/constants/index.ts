@@ -61,4 +61,5 @@ export const JOB_TERM_MAPPING: { [key in JobType]: string } = {
   [JobType.WebCrawl]: 'Crawl job',
   [JobType.DocIndex]: 'Train job',
   [JobType.FileExtract]: 'File Extract job',
+  [JobType.Agent]: 'Agent job',
 };

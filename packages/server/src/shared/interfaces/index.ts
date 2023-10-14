@@ -9,6 +9,7 @@ export enum JobType {
   WebCrawl = 'web-crawl',
   DocIndex = 'doc-index',
   FileExtract = 'file-extract',
+  Agent = 'agent',
 }
 
 export enum Resource {

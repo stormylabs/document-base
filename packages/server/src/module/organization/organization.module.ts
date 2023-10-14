@@ -22,6 +22,8 @@ import { Engagement, EngagementSchema } from './schemas/engagement.schema';
 import { EngagementService } from './services/engagement.service';
 import { EngagementRepository } from './repositories/engagement.repository';
 import GetEngagementUseCase from './useCases/GetEngagement';
+import ExecuteEngagementUseCase from './useCases/ExecuteEngagement';
+import { SqsMessageService } from '../sqsProducer/services/sqsMessage.service';
 
 @Module({
   imports: [
@@ -57,6 +59,8 @@ import GetEngagementUseCase from './useCases/GetEngagement';
     EngagementRepository,
     AddEngagementOrganizationUseCase,
     GetEngagementUseCase,
+    ExecuteEngagementUseCase,
+    SqsMessageService,
   ],
   exports: [OrganizationService, MemberService, EngagementService],
 })
