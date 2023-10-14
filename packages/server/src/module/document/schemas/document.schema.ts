@@ -31,6 +31,12 @@ export class Document extends MongooseDocument {
   @Prop({ type: String })
   content?: string;
 
+  @Prop({ type: Number })
+  tokens?: number;
+
+  @Prop({ type: Number })
+  characters?: number;
+
   @Prop({ type: String })
   title?: string;
 

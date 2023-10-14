@@ -29,6 +29,11 @@ import { SqsConsumerModule } from '../sqsConsumer/sqsConsumer.module';
 import CrawlWebsitesByOrganizationUseCase from './useCases/CrawlWebsitesByOrganizationUseCase';
 import CrawlWebsiteOrganizationUseCase from './useCases/jobs/CrawlWebsite';
 import { DocumentModule } from '../document/document.module';
+import AddEngagementOrganizationUseCase from './useCases/AddEngagementToOrganization';
+import { Engagement, EngagementSchema } from './schemas/engagement.schema';
+import { EngagementService } from './services/engagement.service';
+import { EngagementRepository } from './repositories/engagement.repository';
+import GetEngagementUseCase from './useCases/GetEngagement';
 
 @Module({
   imports: [
@@ -44,6 +49,10 @@ import { DocumentModule } from '../document/document.module';
       {
         name: CrawlJobOrganization.name,
         schema: CrawlJobOrganizationSchema,
+      },
+      {
+        name: Engagement.name,
+        schema: EngagementSchema,
       },
     ]),
     ConfigModule,
@@ -71,7 +80,16 @@ import { DocumentModule } from '../document/document.module';
     CreateCrawlJobOrganizationUseCase,
     CrawlWebsitesByOrganizationUseCase,
     OrganizationRoleGuard,
+    EngagementService,
+    EngagementRepository,
+    AddEngagementOrganizationUseCase,
+    GetEngagementUseCase,
   ],
-  exports: [OrganizationService, CrawlWebsiteOrganizationUseCase],
+  exports: [
+    OrganizationService,
+    MemberService,
+    EngagementService,
+    CrawlWebsiteOrganizationUseCase,
+  ],
 })
 export class OrganizationModule {}

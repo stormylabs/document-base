@@ -20,6 +20,8 @@ export interface DocumentData {
   sourceName: string;
   title?: string;
   content?: string;
+  tokens?: number;
+  characters?: number;
   createdAt: Date;
   deletedAt?: Date;
 }

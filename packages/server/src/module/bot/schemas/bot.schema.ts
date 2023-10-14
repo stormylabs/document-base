@@ -19,6 +19,12 @@ export class Bot extends Document {
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Document' }] })
   documents: DocumentDocument[];
 
+  @Prop({ type: Number, default: 0 })
+  totalTokens: number;
+
+  @Prop({ type: Number, default: 0 })
+  totalCharacters: number;
+
   @Prop({ type: String, default: DEFAULT_FALLBACK_MSG })
   fallbackMessage: string;
 

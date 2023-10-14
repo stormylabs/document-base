@@ -1,22 +1,27 @@
+import { Logger } from '@nestjs/common';
 import {
-  COST_PER_TOKEN_PER_BOT_PER_SECOND,
+  COST_PER_TOKEN_PER_BOT_PER_DAY,
   COST_PER_MESSAGE,
   COST_PER_TRAINING,
+  MAX_TOKENS_PER_BOT,
 } from '../constants/costs';
 import {
   BotUsageData,
   ResourceUsageData,
   BillableResource,
 } from '../interfaces/usage';
+import { differenceInDays } from 'date-fns';
 
 export const getCostsInPeriod = (
-  botUsage: Array<BotUsageData & { tokens: number }>,
+  botUsage: Array<BotUsageData>,
   resourceUsage: ResourceUsageData[],
   start: Date,
   end: Date,
 ) => {
   let tokens = 0;
   const botCost = botUsage.reduce((acc, usage) => {
+    Logger.log(`calculating bot usage: ${usage._id}`);
+    Logger.log(`calculating bot usage bot: ${usage.bot._id}`);
     const now = new Date();
     const activePeriodStart =
       start >= usage.createdAt ? start : usage.createdAt;
@@ -26,11 +31,14 @@ export const getCostsInPeriod = (
     } else {
       activePeriodEnd = end >= now ? now : end;
     }
-    const timeElapsed =
-      (activePeriodEnd.getTime() - activePeriodStart.getTime()) / 1000;
+    const daysActive = differenceInDays(activePeriodEnd, activePeriodStart);
 
-    tokens += usage.tokens;
-    return acc + timeElapsed * COST_PER_TOKEN_PER_BOT_PER_SECOND * usage.tokens;
+    tokens += usage.bot.totalTokens;
+    return (
+      acc +
+      (daysActive * COST_PER_TOKEN_PER_BOT_PER_DAY * usage.bot.totalTokens) /
+        MAX_TOKENS_PER_BOT
+    );
   }, 0);
   const resourceCost = resourceUsage.reduce((acc, usage) => {
     if (usage.resource === BillableResource.Message) {

@@ -57,7 +57,7 @@ export class BotUsageRepository {
       ],
     };
     if (data.botId) query['bot'] = new Types.ObjectId(data.botId);
-    const usages = await this.botUsageModel.find(query).exec();
+    const usages = await this.botUsageModel.find(query).populate('bot').exec();
     return usages.map((usage) => usage.toJSON() as BotUsageData);
   }
 

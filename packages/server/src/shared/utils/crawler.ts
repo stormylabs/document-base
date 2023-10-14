@@ -66,8 +66,8 @@ class Crawler {
         const targetUrlParts = parse(encodeURI(targetUrl));
         const uParts = parse(this.url);
         const extension = path.extname(targetUrlParts.pathname);
-        const contentType = doc.res.headers['content-type'] || '';
-        const contentTypeParts = contentType.split('; ');
+        const contentType: string = doc.res.headers['content-type'] || '';
+        const contentTypeParts = contentType.split(/;\s|;/);
         if (
           !targetUrl ||
           targetUrlParts.hostname !== uParts.hostname ||

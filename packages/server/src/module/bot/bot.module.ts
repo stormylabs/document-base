@@ -51,6 +51,7 @@ import { AuthModule } from '../auth/auth.module';
 import { UsageModule } from '../usage/usage.module';
 import { DocumentModule } from '../document/document.module';
 import { OrganizationModule } from '../organization/organization.module';
+import PatchBotUseCase from './useCases/bot/PatchBot';
 
 @Module({
   imports: [
@@ -117,6 +118,7 @@ import { OrganizationModule } from '../organization/organization.module';
     AbortCrawlJobUseCase,
     AbortExtractFileJobUseCase,
     AbortDocIndexJobUseCase,
+    PatchBotUseCase,
   ],
   exports: [
     BotService,

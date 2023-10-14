@@ -42,6 +42,11 @@ import {
   CrawlWebsitesByOrganizationResponseDTO,
 } from '../useCases/CrawlWebsitesByOrganizationUseCase/dto';
 import CrawlWebsitesByOrganizationUseCase from '../useCases/CrawlWebsitesByOrganizationUseCase';
+import { AddEngagementOrganizationResponseDTO } from '../useCases/AddEngagementToOrganization/dto';
+import AddEngagementToOrganizationDTO from '../useCases/AddEngagementToOrganization/dto';
+import AddEngagementOrganizationUseCase from '../useCases/AddEngagementToOrganization';
+import { EngagemnetIdParams } from '@/shared/dto/engagement';
+import GetEngagementUseCase from '../useCases/GetEngagement';
 
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
@@ -53,6 +58,8 @@ export class OrganizationController {
     private getOrgUseCase: GetOrganizationUseCase,
     private inviteUserToOrgUseCase: InviteMemberToOrganizationUseCase,
     private crawlWebsiteByOrgUseCase: CrawlWebsitesByOrganizationUseCase,
+    private addEngagementOrganizationUseCase: AddEngagementOrganizationUseCase,
+    private getEngagementUseCase: GetEngagementUseCase,
   ) {}
 
   @Post()
@@ -216,6 +223,114 @@ export class OrganizationController {
       return errorHandler(error);
     }
 
+    return result.value.getValue();
+  }
+
+  // Add engagement to organization Endpoint
+  @Post(':orgId/engagement')
+  @ApiBody({ type: AddEngagementToOrganizationDTO })
+  @ApiOperation({
+    summary: 'Add engagement to organization',
+  })
+  @ApiCreatedResponse({
+    description: 'Engagement added to organization',
+    type: AddEngagementOrganizationResponseDTO,
+  })
+  @ApiConflictResponse({
+    description: 'Engagement already exists.',
+  })
+  @RoleAccessLevel([AccessLevel.ADMIN])
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
+  async addEngagementToOrg(
+    @Body() body: AddEngagementToOrganizationDTO,
+    @Req() req: RequestWithUser,
+    @Param() param: OrgIdParams,
+  ) {
+    console.log(body);
+    const {
+      name,
+      budgetPerInteraction,
+      executesAt,
+      endsAt,
+      templateId,
+      contactIds,
+      channels,
+      knowledgeIds,
+      outcome,
+    } = body;
+    console.log(`[POST] Start add engagement to organization`);
+
+    // check org ownership
+    // if (req?.user?.member?.organization?._id !== param.orgId) {
+    //   this.logger.error('[POST] invite user to organization error');
+    //   return errorHandler(new UnauthorizedError());
+    // }
+
+    const result = await this.addEngagementOrganizationUseCase.exec(
+      name,
+      param.orgId,
+      budgetPerInteraction,
+      executesAt,
+      endsAt,
+      templateId,
+      contactIds,
+      channels,
+      knowledgeIds,
+      outcome,
+    );
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[POST] add engagement to organization error ${
+          error.errorValue().message
+        }`,
+      );
+
+      return errorHandler(error);
+    }
+
+    return result.value.getValue();
+  }
+
+  // Get engagement by engagement ID Endpoint
+  @Get(':orgId/engagement/:engagementId')
+  @ApiOperation({
+    summary: 'Get engagement info by engagement ID.',
+  })
+  @ApiOkResponse({
+    description: 'Get engagement info',
+    type: GetOrganizationResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'Engagement not found',
+  })
+  @RoleAccessLevel([
+    AccessLevel.ADMIN,
+    AccessLevel.MEMBER,
+    AccessLevel.READ_ONLY,
+  ])
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
+  async getEngagement(
+    @Param() { engagementId }: EngagemnetIdParams,
+    @Req() { user }: RequestWithUser,
+  ) {
+    this.logger.log(`[GET] Start getting engagement info`);
+
+    // check org ownership
+    // if (user?.member?.organization?._id !== orgId) {
+    //   return errorHandler(new UnauthorizedError());
+    // }
+
+    const result = await this.getEngagementUseCase.exec(engagementId);
+
+    if (result.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[GET] get engagement error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
     return result.value.getValue();
   }
 }
