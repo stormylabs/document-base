@@ -52,6 +52,7 @@ import AbortExtractFileJobUseCase from './useCases/jobs/AbortExtractFIleJob';
 import AbortDocIndexJobUseCase from './useCases/jobs/AbortDocIndexJob';
 import { AuthModule } from '../auth/auth.module';
 import { UsageModule } from '../usage/usage.module';
+import PatchBotUseCase from './useCases/bot/PatchBot';
 
 @Module({
   imports: [
@@ -122,6 +123,7 @@ import { UsageModule } from '../usage/usage.module';
     AbortCrawlJobUseCase,
     AbortExtractFileJobUseCase,
     AbortDocIndexJobUseCase,
+    PatchBotUseCase,
   ],
   exports: [
     BotService,

@@ -5,7 +5,7 @@ import UseCaseError from '@/shared/core/UseCaseError';
 import { ResourceUsageService } from '@/module/usage/services/resourceUsage.service';
 import { BotUsageService } from '../../services/botUsage.service';
 import { GetUsageByUserIdResponseDTO } from './dto';
-import { getCostsFromUsage } from '@/shared/utils/getCostsFromUsage';
+import { getCostsInPeriod } from '@/shared/utils/getCostsInPeriod';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -23,33 +23,47 @@ export default class GetUsageByUserIdUseCase {
     try {
       this.logger.log(`Start getting usages by user id`);
 
-      const botUsages = await this.botUsageService.findUsagesByUserId(userId);
-
-      const resourceUsages = await this.resourceUsageService.findUsagesByUserId(
+      const botUsages = await this.botUsageService.findUsagesInPeriodByUserId(
         userId,
         from,
         to,
       );
 
+      const resourceUsages =
+        await this.resourceUsageService.findUsagesInPeriodByUserId(
+          userId,
+          from,
+          to,
+        );
+
       const {
         bot: botCost,
         resource: resourceCost,
         total,
-      } = getCostsFromUsage(botUsages, resourceUsages, from);
+        tokens,
+      } = getCostsInPeriod(botUsages, resourceUsages, from, to);
 
       this.logger.log(`Got usages by user id successfully`);
 
       return right(
         Result.ok({
-          bot: { usages: botUsages, costs: parseFloat(botCost.toFixed(3)) },
+          bot: {
+            usages: botUsages.map((usage) => ({
+              ...usage,
+              bot: usage.bot._id,
+            })),
+            costs: parseFloat(botCost.toFixed(3)),
+          },
           resource: {
             usages: resourceUsages,
             costs: parseFloat(resourceCost.toFixed(3)),
           },
           total: parseFloat(total.toFixed(3)),
+          tokens,
         }),
       );
     } catch (err) {
+      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

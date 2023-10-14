@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DocumentRepository } from '../repositories/document.repository';
 import { DocumentData } from '@/shared/interfaces/document';
+import { encode } from 'gpt-tokenizer';
 
 @Injectable()
 export class DocumentService {
@@ -57,5 +58,28 @@ export class DocumentService {
       deletedAt: null,
     });
     return updatedDocument;
+  }
+
+  async patch() {
+    const totalDocuments = await this.documentRepository.count();
+    let processed = 0;
+    let documents = await this.documentRepository.findBatch();
+    while (documents.length > 0) {
+      for (const document of documents) {
+        console.log('start to patch', document._id);
+        await this.documentRepository.update(document._id, {
+          tokens: document.content ? encode(document.content).length : 0,
+          characters: document.content ? document.content.length : 0,
+        });
+        console.log(`Processed ${processed} documents.`);
+        documents = await this.documentRepository.findBatch();
+        console.log(
+          `Processed ${((processed / totalDocuments) * 100).toFixed(
+            2,
+          )}% documents.`,
+        );
+        processed++;
+      }
+    }
   }
 }

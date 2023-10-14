@@ -85,4 +85,34 @@ export class BotService {
     if (!exists) throw new Error('Bot does not exist.');
     return this.botRepository.update(botId, { documents: [] });
   }
+
+  async findByBotIds(botIds: string[]): Promise<BotData[]> {
+    const bots = await this.botRepository.findByBotIds(botIds);
+    return bots;
+  }
+
+  async patch() {
+    const totalBots = await this.botRepository.count();
+    let processed = 0;
+    let bots = await this.botRepository.findBatch();
+    while (bots.length > 0) {
+      for (const bot of bots) {
+        await this.botRepository.update(bot._id, {
+          totalTokens: bot.documents.reduce(
+            (acc, doc) => acc + (doc.tokens || 0),
+            0,
+          ),
+          totalCharacters: bot.documents.reduce(
+            (acc, doc) => acc + (doc.characters || 0),
+            0,
+          ),
+        });
+        bots = await this.botRepository.findBatch();
+        console.log(
+          `Processed ${((processed / totalBots) * 100).toFixed(2)}% bots.`,
+        );
+        processed++;
+      }
+    }
+  }
 }

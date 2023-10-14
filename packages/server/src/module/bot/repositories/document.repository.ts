@@ -35,6 +35,17 @@ export class DocumentRepository {
     return documents.map((document) => document.toJSON() as DocumentData);
   }
 
+  async findBatch(): Promise<DocumentData[]> {
+    const documents = await this.documentModel
+      .find({ $or: [{ tokens: null }, { characters: null }] })
+      .limit(50);
+    return documents.map((document) => document.toJSON() as DocumentData);
+  }
+
+  async count() {
+    return this.documentModel.countDocuments().exec();
+  }
+
   async exists(documentIds: string[]): Promise<boolean> {
     const count = await this.documentModel
       .countDocuments({ _id: { $in: documentIds } })

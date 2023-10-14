@@ -5,7 +5,7 @@ import UseCaseError from '@/shared/core/UseCaseError';
 import { ResourceUsageService } from '@/module/usage/services/resourceUsage.service';
 import { BotUsageService } from '../../services/botUsage.service';
 import { GetUsageByBotIdResponseDTO } from './dto';
-import { getCostsFromUsage } from '@/shared/utils/getCostsFromUsage';
+import { getCostsInPeriod } from '@/shared/utils/getCostsInPeriod';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -28,13 +28,16 @@ export default class GetUsageByBotIdUseCase {
     try {
       this.logger.log(`Start getting usages by bot id`);
 
-      const botUsages = await this.botUsageService.findUsagesByBotIdUserId(
-        botId,
-        userId,
-      );
+      const botUsages =
+        await this.botUsageService.findUsagesInPeriodByBotIdUserId(
+          botId,
+          userId,
+          from,
+          to,
+        );
 
       const resourceUsages =
-        await this.resourceUsageService.findUsagesByBotIdUserId(
+        await this.resourceUsageService.findUsagesInPeriodByBotIdUserId(
           botId,
           userId,
           from,
@@ -45,18 +48,26 @@ export default class GetUsageByBotIdUseCase {
         bot: botCost,
         resource: resourceCost,
         total,
-      } = getCostsFromUsage(botUsages, resourceUsages, from);
+        tokens,
+      } = getCostsInPeriod(botUsages, resourceUsages, from, to);
 
       this.logger.log(`Got usages by bot id successfully`);
 
       return right(
         Result.ok({
-          bot: { usages: botUsages, costs: parseFloat(botCost.toFixed(3)) },
+          bot: {
+            usages: botUsages.map((usage) => ({
+              ...usage,
+              bot: usage.bot._id,
+            })),
+            costs: parseFloat(botCost.toFixed(3)),
+          },
           resource: {
             usages: resourceUsages,
             costs: parseFloat(resourceCost.toFixed(3)),
           },
           total: parseFloat(total.toFixed(3)),
+          tokens,
         }),
       );
     } catch (err) {

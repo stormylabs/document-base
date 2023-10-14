@@ -33,23 +33,21 @@ export class ResourceUsageRepository {
     return usage.toJSON() as ResourceUsageData;
   }
 
-  async find(data: {
-    userId?: string;
+  async findUsagesInPeriod(data: {
     botId?: string;
+    userId: string;
     from: Date;
     to: Date;
-  }): Promise<ResourceUsageData[]> {
+  }) {
     const query = {
+      user: new Types.ObjectId(data.userId),
       createdAt: {
         $gte: data.from,
         $lte: data.to,
       },
     };
-    if (data.userId) query['user'] = new Types.ObjectId(data.userId);
     if (data.botId) query['bot'] = new Types.ObjectId(data.botId);
-
     const usages = await this.resourceUsageModel.find(query).exec();
-
     return usages.map((usage) => usage.toJSON() as ResourceUsageData);
   }
 

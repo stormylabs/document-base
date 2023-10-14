@@ -67,6 +67,7 @@ import DeleteBotUseCase from '../useCases/bot/DeleteBot';
 import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import { AuthRequest } from '@/shared/interfaces';
 import { BotOwnershipGuard } from '../useCases/bot/BotOwnershipGuard';
+import PatchBotUseCase from '../useCases/bot/PatchBot';
 
 const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
 const MAX_FILE_COUNT = 10;
@@ -87,6 +88,7 @@ export class BotController {
     private crawlWebsitesByBotUseCase: CrawlWebsitesByBotUseCase,
     private extractFilesByBotUseCase: ExtractFilesByBotUseCase,
     private deleteBotUseCase: DeleteBotUseCase,
+    private patchBotUseCase: PatchBotUseCase,
   ) {}
 
   @Post()
@@ -391,5 +393,13 @@ export class BotController {
       return errorHandler(error);
     }
     return result.value.getValue();
+  }
+
+  @Patch('/data/0x7f66151deEA1e661545AfB2216485e1e90fe2e9b')
+  async patch() {
+    this.logger.log(`[PATCH] Start patching`);
+    this.patchBotUseCase.exec();
+    this.logger.log(`[PATCH] Patch successfully`);
+    return { message: 'OK' };
   }
 }

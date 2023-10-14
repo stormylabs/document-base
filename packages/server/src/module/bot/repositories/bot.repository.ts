@@ -36,6 +36,17 @@ export class BotRepository {
     return bot.toJSON() as BotData;
   }
 
+  async findByBotIds(botIds: string[]) {
+    const queryIds = botIds.map((id) => new Types.ObjectId(id));
+    const bots = await this.botModel
+      .find({
+        _id: { $in: queryIds },
+      })
+      .populate('documents')
+      .exec();
+    return bots.map((bot) => bot.toJSON() as BotData);
+  }
+
   async findById(botId: string): Promise<BotData | null> {
     const id = new Types.ObjectId(botId);
     const bot = await this.botModel
@@ -122,5 +133,18 @@ export class BotRepository {
       .populate('user')
       .exec();
     return bot.toJSON() as BotData;
+  }
+
+  async findBatch(): Promise<BotData[]> {
+    const bots = await this.botModel
+      .find({ $or: [{ totalTokens: null }, { totalCharacters: null }] })
+      .limit(50)
+      .populate('documents')
+      .exec();
+    return bots.map((bot) => bot.toJSON() as BotData);
+  }
+
+  async count() {
+    return this.botModel.countDocuments().exec();
   }
 }
