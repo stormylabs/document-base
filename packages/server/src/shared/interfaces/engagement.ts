@@ -1,16 +1,18 @@
+import { OrganizationData } from './organization';
+
 export class EngagementData {
   _id: string;
   name: string;
-  organizationId: string;
+  organization: OrganizationData;
   budgetPerInteraction: number;
   executesAt: Date;
   endsAt: Date;
   templateId: string;
-  contactIds: string[];
+  contacts: string[];
   channels: string[];
-  knowledgeIds: string[];
+  knowledgeBases: string[];
   outcome: string;
-  createdAt: Date;
-  deletedAt: Date;
-  updatedAt: Date;
+  createdAt?: Date;
+  deletedAt?: Date;
+  updatedAt?: Date;
 }

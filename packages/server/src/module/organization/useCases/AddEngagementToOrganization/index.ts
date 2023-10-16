@@ -15,16 +15,16 @@ export default class AddEngagementOrganizationUseCase {
   private readonly logger = new Logger(AddEngagementOrganizationUseCase.name);
   constructor(private readonly engagementService: EngagementService) {}
   public async exec(
-    name,
-    organizationId,
-    budgetPerInteraction,
-    executesAt,
-    endsAt,
-    templateId,
-    contactIds,
-    channels,
-    knowledgeIds,
-    outcome,
+    name: string,
+    organizationId: string,
+    budgetPerInteraction: number,
+    executesAt: number,
+    endsAt: number,
+    templateId: string,
+    contacts: string[],
+    channelIds: string[],
+    knowledgeBaseIds: string[],
+    outcome: string,
   ): Promise<Response> {
     try {
       this.logger.log(`Start creating Engagement`);
@@ -36,13 +36,10 @@ export default class AddEngagementOrganizationUseCase {
         executesAt: new Date(executesAt),
         endsAt: new Date(endsAt),
         templateId,
-        contactIds,
-        channels,
-        knowledgeIds,
+        contacts,
+        channels: channelIds,
+        knowledgeBases: knowledgeBaseIds,
         outcome,
-        createdAt: new Date(),
-        deletedAt: null,
-        updatedAt: new Date(),
       });
 
       return right(Result.ok(engagement));

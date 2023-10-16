@@ -2,6 +2,7 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, Types } from 'mongoose';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
+import { OrganizationDocument } from './organization.schema';
 
 export type EngagementDocument = HydratedDocument<Engagement>;
 
@@ -10,13 +11,18 @@ export class Engagement extends Document {
   @Transform(({ value }) => value.toString())
   _id: string;
 
-  @Prop({ type: String })
+  @Prop({
+    type: String,
+    maxlength: 50,
+    default: 'New Engagement',
+    required: true,
+  })
   name: string;
 
-  @Prop({ type: String })
-  organizationId: string;
+  @Prop({ type: Types.ObjectId, ref: 'Organization' })
+  organization: OrganizationDocument;
 
-  @Prop({ type: Number })
+  @Prop({ type: Number, default: 0 })
   budgetPerInteraction: number;
 
   @Prop({ type: Date })
@@ -29,13 +35,13 @@ export class Engagement extends Document {
   templateId: string;
 
   @Prop({ type: [String] })
-  contactIds: string[];
+  contacts: string[];
 
   @Prop({ type: [String] })
   channels: string[];
 
   @Prop({ type: [String] })
-  knowledgeIds: string[];
+  knowledgeBases: string[];
 
   @Prop({ type: String })
   outcome: string;
@@ -50,5 +56,4 @@ export class Engagement extends Document {
   deletedAt: Date;
 }
 export const EngagementSchema = SchemaFactory.createForClass(Engagement);
-EngagementSchema.index({ accessLevel: 1 });
 EngagementSchema.set('toJSON', toJSONOverride);

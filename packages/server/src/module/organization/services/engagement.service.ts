@@ -7,13 +7,13 @@ export class EngagementService {
   constructor(private engagementRepository: EngagementRepository) {}
 
   async create(
-    engagementData: Omit<EngagementData, '_id'>,
+    engagementData: Partial<Omit<EngagementData, 'organization'>> & {
+      organizationId: string;
+    },
   ): Promise<EngagementData> {
-    console.log(`Start creating organization`, engagementData);
     const createdEngagement = await this.engagementRepository.create(
       engagementData,
     );
-    console.log(`createdEngagement`, createdEngagement);
     return createdEngagement;
   }
 

@@ -1,11 +1,8 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, { NotFoundError } from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
-
 import UseCaseError from '@/shared/core/UseCaseError';
-
 import { Resource } from '@/shared/interfaces';
-import { MemberService } from '../../services/member.service';
 import { EngagementService } from '../../services/engagement.service';
 import { GetEngagementResponseDto } from './dto';
 
