@@ -87,7 +87,7 @@ export class EngagementResponse {
   updatedAt?: Date;
 }
 
-export class EngagemnetIdParams {
+export class EngagementIdParams {
   @ApiProperty({
     name: 'orgId',
     type: String,

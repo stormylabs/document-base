@@ -4,7 +4,6 @@ import { Either, Result, left, right } from '@/shared/core/Result';
 import { AddEngagementOrganizationResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { EngagementService } from '../../services/engagement.service';
-import { EngagementData } from '@/shared/interfaces/engagement';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -16,49 +15,34 @@ export default class AddEngagementOrganizationUseCase {
   private readonly logger = new Logger(AddEngagementOrganizationUseCase.name);
   constructor(private readonly engagementService: EngagementService) {}
   public async exec(
-    name,
-    organizationId,
-    budgetPerInteraction,
-    executesAt,
-    endsAt,
-    templateId,
-    contactIds,
-    channels,
-    knowledgeIds,
-    outcome,
+    name: string,
+    organizationId: string,
+    budgetPerInteraction: number,
+    executesAt: number,
+    endsAt: number,
+    templateId: string,
+    contacts: string[],
+    channelIds: string[],
+    knowledgeBaseIds: string[],
+    outcome: string,
   ): Promise<Response> {
-    console.log({
-      name,
-      organizationId,
-      budgetPerInteraction,
-      executesAt,
-      endsAt,
-      templateId,
-      contactIds,
-      channels,
-      knowledgeIds,
-      outcome,
-    });
     try {
       this.logger.log(`Start creating Engagement`);
 
-      await this.engagementService.create({
+      const engagement = await this.engagementService.create({
         name,
         organizationId,
         budgetPerInteraction,
         executesAt: new Date(executesAt),
         endsAt: new Date(endsAt),
         templateId,
-        contactIds,
-        channels,
-        knowledgeIds,
+        contacts,
+        channels: channelIds,
+        knowledgeBases: knowledgeBaseIds,
         outcome,
-        createdAt: new Date(),
-        deletedAt: null,
-        updatedAt: new Date(),
       });
 
-      return right(Result.ok(null));
+      return right(Result.ok(engagement));
     } catch (err) {
       return left(new UnexpectedError(err));
     }
