@@ -198,6 +198,7 @@ export class OrganizationController {
       contactIds,
       channels,
       knowledgeIds,
+      agentId,
       outcome,
     } = body;
     console.log(`[POST] Start add engagement to organization`);
@@ -218,6 +219,7 @@ export class OrganizationController {
       contactIds,
       channels,
       knowledgeIds,
+      agentId,
       outcome,
     );
 

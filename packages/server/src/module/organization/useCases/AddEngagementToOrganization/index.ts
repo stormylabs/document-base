@@ -24,6 +24,7 @@ export default class AddEngagementOrganizationUseCase {
     contactIds,
     channels,
     knowledgeIds,
+    agentId,
     outcome,
   ): Promise<Response> {
     console.log({
@@ -36,6 +37,7 @@ export default class AddEngagementOrganizationUseCase {
       contactIds,
       channels,
       knowledgeIds,
+      agentId,
       outcome,
     });
     try {
@@ -51,6 +53,7 @@ export default class AddEngagementOrganizationUseCase {
         contactIds,
         channels,
         knowledgeIds,
+        agentId,
         outcome,
         createdAt: new Date(),
         deletedAt: null,

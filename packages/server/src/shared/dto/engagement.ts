@@ -63,6 +63,12 @@ export class EngagementResponse {
   knowledgeIds?: string[];
 
   @ApiProperty({
+    description: 'Agent ID',
+    type: String,
+  })
+  agentId?: string;
+
+  @ApiProperty({
     description: 'Outcome',
     type: String,
   })

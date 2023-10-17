@@ -38,6 +38,9 @@ export class Engagement extends Document {
   knowledgeIds: string[];
 
   @Prop({ type: String })
+  agentId: string;
+
+  @Prop({ type: String })
   outcome: string;
 
   @Prop({ default: Date.now, type: Date })

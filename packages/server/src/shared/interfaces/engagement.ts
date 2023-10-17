@@ -9,6 +9,7 @@ export class EngagementData {
   contactIds: string[];
   channels: string[];
   knowledgeIds: string[];
+  agentId: string;
   outcome: string;
   createdAt: Date;
   deletedAt: Date;

@@ -3,7 +3,6 @@ import UnexpectedError from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
 import ExecuteEngagementDTO from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
-import { EngagementService } from '../../services/engagement.service';
 import { SqsMessageService } from '@/module/sqsProducer/services/sqsMessage.service';
 import { JobType } from '@/shared/interfaces';
 import { EngagementQueuePayload } from '@/shared/interfaces/engagement';
