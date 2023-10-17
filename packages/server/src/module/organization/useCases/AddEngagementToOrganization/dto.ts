@@ -1,4 +1,5 @@
 import { EngagementResponse } from '@/shared/dto/engagement';
+import { AgentRole } from '@/shared/interfaces/organization';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import {
@@ -6,6 +7,7 @@ import {
   ArrayNotEmpty,
   IsArray,
   IsNotEmpty,
+  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
@@ -28,6 +30,36 @@ export default class AddEngagementToOrganizationDTO {
   @IsOptional()
   @MinLength(1)
   name?: string;
+
+  @ApiProperty({
+    description: 'Name of Agent',
+    minLength: 1,
+    maxLength: 30,
+    required: true,
+    example: 'Stella',
+    type: String,
+  })
+  @MaxLength(30)
+  @MinLength(1)
+  agentName: string;
+
+  @ApiProperty({
+    description: 'Role of Agent',
+    enum: AgentRole,
+  })
+  @IsEnum(AgentRole)
+  agentRole: AgentRole;
+
+  @ApiProperty({
+    description: 'Purpose of Engagement',
+    minLength: 1,
+    maxLength: 1000,
+    required: true,
+    type: String,
+  })
+  @MaxLength(1000)
+  @MinLength(1)
+  purpose: string;
 
   @ApiProperty({
     description: 'Budget per Interaction',

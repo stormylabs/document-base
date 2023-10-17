@@ -18,12 +18,19 @@ export default class CreateOrganizationUseCase {
     private readonly orgService: OrganizationService,
     private readonly memberService: MemberService,
   ) {}
-  public async exec(name: string, userId: string): Promise<Response> {
+  public async exec(
+    name: string,
+    descriptions: string,
+    values: string,
+    userId: string,
+  ): Promise<Response> {
     try {
       this.logger.log(`Start creating organization`);
 
       const org = await this.orgService.create({
         name,
+        descriptions,
+        values,
       });
 
       // create member (by default org creator is assigned as admin role)

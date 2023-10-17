@@ -5,6 +5,9 @@ export class EngagementData {
   name: string;
   organization: OrganizationData;
   budgetPerInteraction: number;
+  agentName: string;
+  agentRole: string;
+  purpose: string;
   executesAt: Date;
   endsAt: Date;
   templateId: string;

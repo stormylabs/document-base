@@ -72,9 +72,14 @@ export class OrganizationController {
     @Body() body: CreateOrganizationDTO,
     @Req() req: RequestWithUser,
   ) {
-    const { name } = body;
+    const { name, descriptions, values } = body;
     this.logger.log(`[POST] Start creating organization`);
-    const result = await this.createOrgUseCase.exec(name, req?.user?._id);
+    const result = await this.createOrgUseCase.exec(
+      name,
+      descriptions,
+      values,
+      req?.user?._id,
+    );
 
     if (result.isLeft()) {
       const error = result.value;
@@ -191,6 +196,9 @@ export class OrganizationController {
     const {
       name,
       budgetPerInteraction,
+      agentName,
+      agentRole,
+      purpose,
       executesAt,
       endsAt,
       templateId,
@@ -212,6 +220,9 @@ export class OrganizationController {
       name,
       param.orgId,
       budgetPerInteraction,
+      agentName,
+      agentRole,
+      purpose,
       executesAt,
       endsAt,
       templateId,
