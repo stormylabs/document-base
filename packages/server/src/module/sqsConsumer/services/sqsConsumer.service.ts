@@ -79,7 +79,7 @@ export class SqsConsumerService {
     }
   }
 
-  @SqsMessageHandler(process.env.AGENT_QUEUE_NAME)
+  @SqsMessageHandler(process.env.AGENT_RESPONSE_QUEUE_NAME)
   async handleAgentMessage(msg: AWS.SQS.Message) {
     const body: ExecuteEngagementQueueResponse = JSON.parse(msg.Body);
 
@@ -99,7 +99,7 @@ export class SqsConsumerService {
   @SqsConsumerEventHandler(process.env.WEB_CRAWL_QUEUE_NAME, 'error')
   @SqsConsumerEventHandler(process.env.DOC_INDEX_QUEUE_NAME, 'error')
   @SqsConsumerEventHandler(process.env.FILE_EXTRACT_QUEUE_NAME, 'error')
-  @SqsConsumerEventHandler(process.env.AGENT_QUEUE_NAME, 'error')
+  @SqsConsumerEventHandler(process.env.AGENT_RESPONSE_QUEUE_NAME, 'error')
   async handleError(error: Error) {
     this.logger.error(error);
   }
