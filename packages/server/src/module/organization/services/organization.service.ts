@@ -6,7 +6,11 @@ import { OrganizationRepository } from '@/module/organization/repositories/organ
 export class OrganizationService {
   constructor(private orgRepository: OrganizationRepository) {}
 
-  async create(data: { name: string }): Promise<OrganizationData> {
+  async create(data: {
+    name: string;
+    descriptions: string;
+    values: string;
+  }): Promise<OrganizationData> {
     const orgData: Partial<OrganizationData> = data;
     const createdOrg = await this.orgRepository.create(orgData);
     return createdOrg;

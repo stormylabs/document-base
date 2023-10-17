@@ -3,6 +3,7 @@ import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, Types } from 'mongoose';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 import { OrganizationDocument } from './organization.schema';
+import { AgentRole } from '@/shared/interfaces/organization';
 
 export type EngagementDocument = HydratedDocument<Engagement>;
 
@@ -24,6 +25,20 @@ export class Engagement extends Document {
 
   @Prop({ type: Number, default: 0 })
   budgetPerInteraction: number;
+
+  @Prop({ type: String, maxlength: 30, required: true })
+  agentName: string;
+
+  @Prop({
+    type: String,
+    enum: AgentRole,
+    default: AgentRole.SALES_REP,
+    required: true,
+  })
+  agentRole: AgentRole;
+
+  @Prop({ type: String, maxlength: 1000, required: true })
+  purpose: string;
 
   @Prop({ type: Date })
   executesAt: Date;
