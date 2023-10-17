@@ -545,22 +545,55 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n   \"name\":\"StormyEngage\",\n   \"budgetPerInteraction\":1,\n   \"executesAt\":\"2023-10-04T05:46:25.956+00:00\",\n   \"endsAt\":\"2023-10-04T05:46:25.956+00:00\",\n   \"templateId\":\"6512c414b009ccc6b3dfdaa5\",\n   \"contactIds\":[\n      \"1\"\n   ],\n   \"channels\":[\n      \"1\"\n   ],\n   \"knowledgeIds\":[\n      \"1\"\n   ],\n   \"outcome\":\"outcome\"\n}",
+							"raw": "{\n   \"name\":\"Uphone Campaign\",\n   \"budgetPerInteraction\":1,\n   \"executesAt\":\"2023-10-04T05:46:25.956+00:00\",\n   \"endsAt\":\"2023-10-04T05:46:25.956+00:00\",\n   \"templateId\":\"6512c414b009ccc6b3dfdaa5\",\n   \"agentId\":\"64f95066c98f32924eb0cd30\",\n   \"contactIds\":[\n      \"1\"\n   ],\n   \"channels\":[\n      \"1\"\n   ],\n   \"knowledgeIds\":[\n      \"64f95112c98f32924eb0cd37\" \n   ],\n   \"outcome\":\"outcome\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
 								}
 							}
 						},
-						"url": "{{SERVER_ENDPOINT}}/api/v1/organization/{{ORG_ID}}/engagement"
+						"url": "{{SERVER_ENDPOINT}}/api/v1/organization/{{ORG_ID}}/engagement8"
 					},
 					"response": []
 				},
 				{
 					"name": "Get Engagement",
 					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": {
+								"value": "a17c1e45-2f6e-4fca-9961-7ef52d41e712",
+								"key": "x-api-key"
+							}
+						},
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": "{{SERVER_ENDPOINT}}/api/v1/organization/{{ORG_ID}}/engagement/65203a76ec49b6e65c54523e"
+					},
+					"response": []
+				},
+				{
+					"name": "ExecuteEngagement",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": {
+								"value": "a17c1e45-2f6e-4fca-9961-7ef52d41e712",
+								"key": "x-api-key"
+							}
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"engagementId\": \"652a2bcfc22f3a4335c90c0b\",\n    \"message\": \"Can you introduce a mattress that is environmentally friendly and budget friendly? my budget is 1000USD\",\n    \"conversationHistory\": [\n        \"User: hi? <END_OF_TURN>\",\n        \"Siddharth: Hello! This is Siddharth from Stormy Labs. How are you today? <END_OF_TURN>\",\n        \"User: Why are you calling? <END_OF_TURN>\",\n        \"Siddharth: I'm calling to discuss how Stormy Labs can help you achieve a better night's sleep. We specialize in providing exceptional sleep solutions. Are you currently looking to improve your sleep quality? <END_OF_TURN>\",\n        \"User: Yes <END_OF_TURN>\",\n        \"Siddharth: That's great to hear! Quality sleep is essential for overall health and well-being. Can you please confirm if you are the right person to talk to regarding purchasing decisions for sleep solutions? <END_OF_TURN>\",\n        \"User: Yes I am, why do I need to use you? <END_OF_TURN>\",\n        \"Siddharth: At Stormy Labs, we offer premier mattresses that are designed to provide the best possible sleep experience. Our mattresses are made with high-quality materials and advanced sleep technology to ensure optimal comfort and support. We also provide exceptional customer service to assist you throughout the entire process. By choosing Stormy Labs, you can expect a superior sleep solution that will help you achieve a better night's sleep. Would you like to learn more about our mattresses? <END_OF_TURN>\"\n    ]\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": "{{SERVER_ENDPOINT}}/api/v1/organization/{{ORG_ID}}/engagement/execute"
 					},
 					"response": []
 				}
