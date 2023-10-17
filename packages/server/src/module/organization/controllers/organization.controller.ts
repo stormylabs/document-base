@@ -181,14 +181,13 @@ export class OrganizationController {
   @ApiConflictResponse({
     description: 'Engagement already exists.',
   })
-  @RoleAccessLevel([AccessLevel.ADMIN])
+  @RoleAccessLevel([AccessLevel.ADMIN, AccessLevel.MEMBER])
   @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
   async addEngagementToOrg(
     @Body() body: AddEngagementToOrganizationDTO,
     @Req() req: RequestWithUser,
     @Param() param: OrgIdParams,
   ) {
-    console.log(body);
     const {
       name,
       budgetPerInteraction,
@@ -196,18 +195,18 @@ export class OrganizationController {
       endsAt,
       templateId,
       contactIds,
-      channels,
-      knowledgeIds,
+      channelIds,
+      knowledgeBaseIds,
       agentId,
       outcome,
     } = body;
-    console.log(`[POST] Start add engagement to organization`);
+    this.logger.log(`[POST] Start add engagement to organization`);
 
     // check org ownership
-    // if (req?.user?.member?.organization?._id !== param.orgId) {
-    //   this.logger.error('[POST] invite user to organization error');
-    //   return errorHandler(new UnauthorizedError());
-    // }
+    if (req?.user?.member?.organization?._id !== param.orgId) {
+      this.logger.error('[POST] add engagement to organization error');
+      return errorHandler(new UnauthorizedError());
+    }
 
     const result = await this.addEngagementOrganizationUseCase.exec(
       name,
@@ -217,8 +216,8 @@ export class OrganizationController {
       endsAt,
       templateId,
       contactIds,
-      channels,
-      knowledgeIds,
+      channelIds,
+      knowledgeBaseIds,
       agentId,
       outcome,
     );
@@ -256,15 +255,15 @@ export class OrganizationController {
   ])
   @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
   async getEngagement(
-    @Param() { engagementId }: EngagementIdParams,
+    @Param() { engagementId, orgId }: EngagementIdParams & OrgIdParams,
     @Req() { user }: RequestWithUser,
   ) {
     this.logger.log(`[GET] Start getting engagement info`);
 
     // check org ownership
-    // if (user?.member?.organization?._id !== orgId) {
-    //   return errorHandler(new UnauthorizedError());
-    // }
+    if (user?.member?.organization?._id !== orgId) {
+      return errorHandler(new UnauthorizedError());
+    }
 
     const result = await this.getEngagementUseCase.exec(engagementId);
 

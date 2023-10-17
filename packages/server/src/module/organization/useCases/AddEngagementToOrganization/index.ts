@@ -15,52 +15,36 @@ export default class AddEngagementOrganizationUseCase {
   private readonly logger = new Logger(AddEngagementOrganizationUseCase.name);
   constructor(private readonly engagementService: EngagementService) {}
   public async exec(
-    name,
-    organizationId,
-    budgetPerInteraction,
-    executesAt,
-    endsAt,
-    templateId,
-    contactIds,
-    channels,
-    knowledgeIds,
-    agentId,
-    outcome,
+    name: string,
+    organizationId: string,
+    budgetPerInteraction: number,
+    executesAt: number,
+    endsAt: number,
+    templateId: string,
+    contacts: string[],
+    channelIds: string[],
+    knowledgeBaseIds: string[],
+    agentId: string,
+    outcome: string,
   ): Promise<Response> {
-    console.log({
-      name,
-      organizationId,
-      budgetPerInteraction,
-      executesAt,
-      endsAt,
-      templateId,
-      contactIds,
-      channels,
-      knowledgeIds,
-      agentId,
-      outcome,
-    });
     try {
       this.logger.log(`Start creating Engagement`);
 
-      await this.engagementService.create({
+      const engagement = await this.engagementService.create({
         name,
         organizationId,
         budgetPerInteraction,
         executesAt: new Date(executesAt),
         endsAt: new Date(endsAt),
         templateId,
-        contactIds,
-        channels,
-        knowledgeIds,
+        contacts,
+        channels: channelIds,
+        knowledgeBases: knowledgeBaseIds,
         agentId,
         outcome,
-        createdAt: new Date(),
-        deletedAt: null,
-        updatedAt: new Date(),
       });
 
-      return right(Result.ok(null));
+      return right(Result.ok(engagement));
     } catch (err) {
       return left(new UnexpectedError(err));
     }

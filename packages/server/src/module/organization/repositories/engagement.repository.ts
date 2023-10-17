@@ -1,4 +1,4 @@
-import { Injectable, Type } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Engagement } from '../schemas/engagement.schema';
@@ -12,23 +12,13 @@ export class EngagementRepository {
   ) {}
 
   async create(
-    engagementData: Partial<Omit<EngagementData, '_id'>>,
+    engagementData: Partial<Omit<EngagementData, 'organization'>> & {
+      organizationId: string;
+    },
   ): Promise<EngagementData> {
     const engagement = new this.engagementModel({
-      name: engagementData.name,
-      organizationId: engagementData.organizationId,
-      budgetPerInteraction: engagementData.budgetPerInteraction,
-      executesAt: engagementData.executesAt,
-      endsAt: engagementData.endsAt,
-      templateId: engagementData.templateId,
-      contactsIds: engagementData.contactIds,
-      channels: engagementData.channels,
-      knowledgeIds: engagementData.knowledgeIds,
-      agentId: engagementData.agentId,
-      outcome: engagementData.outcome,
-      createdAt: engagementData.createdAt,
-      deletedAt: engagementData.deletedAt,
-      updatedAt: engagementData.updatedAt,
+      ...engagementData,
+      organization: new Types.ObjectId(engagementData.organizationId),
     });
     const saved = await engagement.save();
     return saved.toJSON() as EngagementData;
@@ -36,7 +26,8 @@ export class EngagementRepository {
 
   async findEngagementByOrgId(orgId: string): Promise<EngagementData[]> {
     const engagements = await this.engagementModel
-      .find({ organizationId: new Types.ObjectId(orgId) })
+      .find({ organization: new Types.ObjectId(orgId) })
+      .populate('organization')
       .exec();
     return engagements.map(
       (engagement) => engagement.toJSON() as EngagementData,
@@ -44,7 +35,10 @@ export class EngagementRepository {
   }
 
   async findById(engagementId: string): Promise<EngagementData | null> {
-    const engagement = await this.engagementModel.findById(engagementId).exec();
+    const engagement = await this.engagementModel
+      .findById(engagementId)
+      .populate('organization')
+      .exec();
     if (!engagement || engagement.deletedAt) return null;
     return engagement.toJSON() as EngagementData;
   }

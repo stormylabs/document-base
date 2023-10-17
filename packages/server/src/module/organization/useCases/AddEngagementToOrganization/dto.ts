@@ -1,9 +1,14 @@
 import { EngagementResponse } from '@/shared/dto/engagement';
 import { ApiProperty, OmitType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
 import {
+  ArrayMinSize,
+  ArrayNotEmpty,
   IsArray,
   IsNotEmpty,
   IsNumber,
+  IsOptional,
+  IsString,
   MaxLength,
   Min,
   MinLength,
@@ -14,45 +19,46 @@ export default class AddEngagementToOrganizationDTO {
     description: 'Name of the Engagement',
     minLength: 1,
     maxLength: 320,
-    required: true,
+    required: false,
     default: 'default',
     example: 'New Engagement',
     type: String,
   })
   @MaxLength(320)
+  @IsOptional()
   @MinLength(1)
-  @IsNotEmpty()
-  name: string;
+  name?: string;
 
   @ApiProperty({
     description: 'Budget per Interaction',
     required: true,
-    default: 0,
+    default: 1,
     example: 100,
     type: Number,
   })
-  @IsNotEmpty()
   @IsNumber()
-  @Min(0)
+  @Min(1)
   budgetPerInteraction: number;
 
   @ApiProperty({
-    description: 'Execution Date',
+    description: 'Executes At',
     required: true,
-    example: '2022-01-01T00:00:00Z',
-    type: Date,
+    example: 1696003200000,
+    type: Number,
   })
-  @IsNotEmpty()
-  executesAt: Date;
+  @IsNumber()
+  @Type(() => Number)
+  executesAt: number;
 
   @ApiProperty({
-    description: 'End Date',
+    description: 'Ends Date',
     required: true,
-    example: '2022-01-31T23:59:59Z',
-    type: Date,
+    example: 1696003200000,
+    type: Number,
   })
-  @IsNotEmpty()
-  endsAt: Date;
+  @IsNumber()
+  @Type(() => Number)
+  endsAt: number;
 
   @ApiProperty({
     description: 'Template ID',
@@ -60,7 +66,7 @@ export default class AddEngagementToOrganizationDTO {
     example: 'templateId',
     type: String,
   })
-  @IsNotEmpty()
+  @IsString()
   templateId: string;
 
   @ApiProperty({
@@ -69,19 +75,23 @@ export default class AddEngagementToOrganizationDTO {
     example: ['contactId1', 'contactId2'],
     type: [String],
   })
-  @IsNotEmpty()
+  @IsString({ each: true })
+  @ArrayNotEmpty()
+  @ArrayMinSize(1)
   @IsArray()
   contactIds: string[];
 
   @ApiProperty({
-    description: 'Engagement Channels',
+    description: 'Engagement Channel IDs',
     example: ['channel1', 'channel2'],
     type: [String],
-    required: false,
+    required: true,
   })
-  @IsNotEmpty()
+  @IsString({ each: true })
+  @ArrayNotEmpty()
+  @ArrayMinSize(1)
   @IsArray()
-  channels: string[];
+  channelIds: string[];
 
   @ApiProperty({
     description: 'Knowledge Base IDs',
@@ -89,9 +99,11 @@ export default class AddEngagementToOrganizationDTO {
     example: ['knowledgeId1', 'knowledgeId2'],
     type: [String],
   })
+  @IsString({ each: true })
+  @ArrayNotEmpty()
+  @ArrayMinSize(1)
   @IsArray()
-  @IsNotEmpty()
-  knowledgeIds: string[];
+  knowledgeBaseIds: string[];
 
   @ApiProperty({
     description: 'Agent ID',
@@ -105,10 +117,10 @@ export default class AddEngagementToOrganizationDTO {
   @ApiProperty({
     description: 'Outcome',
     required: true,
-    example: 'outcome',
+    example: 'APIExecuted',
     type: String,
   })
-  @IsNotEmpty()
+  @IsString()
   outcome: string;
 }
 
