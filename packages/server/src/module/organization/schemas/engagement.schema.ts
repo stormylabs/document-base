@@ -46,7 +46,7 @@ export class Engagement extends Document {
   @Prop({ type: Date })
   endsAt: Date;
 
-  @Prop({ type: String })
+  @Prop({ type: String, default: 'agent-template-1' })
   templateId: string;
 
   @Prop({ type: [String] })

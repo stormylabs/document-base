@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
+import { AgentRole, OrganizationData } from '../interfaces/organization';
+import { OrganizationResponse } from './organization';
 
 export class EngagementResponse {
   @ApiProperty({
@@ -21,10 +23,34 @@ export class EngagementResponse {
   organizationId?: string;
 
   @ApiProperty({
+    description: 'Organization ID',
+    type: OrganizationResponse,
+  })
+  organization?: OrganizationData;
+
+  @ApiProperty({
     description: 'Budget per Interaction',
     type: Number,
   })
   budgetPerInteraction?: number;
+
+  @ApiProperty({
+    description: 'Agent Name',
+    type: String,
+  })
+  agentName?: string;
+
+  @ApiProperty({
+    description: 'Agent Role',
+    enum: AgentRole,
+  })
+  agentRole?: AgentRole;
+
+  @ApiProperty({
+    description: 'Engagement Purpose',
+    type: String,
+  })
+  purpose?: string;
 
   @ApiProperty({
     description: 'Execution Date',
@@ -43,6 +69,12 @@ export class EngagementResponse {
     type: String,
   })
   templateId?: string;
+
+  @ApiProperty({
+    description: 'Template',
+    type: String,
+  })
+  template?: string;
 
   @ApiProperty({
     description: 'Contact IDs',
