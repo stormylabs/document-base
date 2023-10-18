@@ -138,15 +138,6 @@ export default class AddEngagementToOrganizationDTO {
   knowledgeBaseIds: string[];
 
   @ApiProperty({
-    description: 'Agent ID',
-    required: true,
-    example: 'agentId',
-    type: String,
-  })
-  @IsNotEmpty()
-  agentId: string;
-
-  @ApiProperty({
     description: 'Outcome',
     required: true,
     example: 'APIExecuted',

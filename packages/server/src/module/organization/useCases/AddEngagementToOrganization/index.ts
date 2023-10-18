@@ -27,7 +27,6 @@ export default class AddEngagementOrganizationUseCase {
     contacts: string[],
     channelIds: string[],
     knowledgeBaseIds: string[],
-    agentId: string,
     outcome: string,
   ): Promise<Response> {
     try {
@@ -46,7 +45,6 @@ export default class AddEngagementOrganizationUseCase {
         contacts,
         channels: channelIds,
         knowledgeBases: knowledgeBaseIds,
-        agentId,
         outcome,
       });
 

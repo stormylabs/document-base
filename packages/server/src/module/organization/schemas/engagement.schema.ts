@@ -59,9 +59,6 @@ export class Engagement extends Document {
   knowledgeBases: string[];
 
   @Prop({ type: String })
-  agentId: string;
-
-  @Prop({ type: String })
   outcome: string;
 
   @Prop({ default: Date.now, type: Date })

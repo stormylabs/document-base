@@ -86,14 +86,7 @@ export class SqsConsumerService {
     const { name, message } = body;
     console.log(name, message);
     this.logger.log(`Received agent message from SQS`);
-    // const result = await this.extractFileUseCase.exec(jobId, botId, documentId);
-    // if (result.isLeft()) {
-    //   const error = result.value;
-    //   this.logger.error(
-    //     `[FileExtract] extract file error ${error.errorValue().message}`,
-    //   );
-    // return errorHandler(error);
-    // }
+    // TODO Do something with the message
   }
 
   @SqsConsumerEventHandler(process.env.WEB_CRAWL_QUEUE_NAME, 'error')

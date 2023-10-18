@@ -14,7 +14,6 @@ export class EngagementData {
   contacts: string[];
   channels: string[];
   knowledgeBases: string[];
-  agentId: string;
   outcome: string;
   createdAt?: Date;
   deletedAt?: Date;

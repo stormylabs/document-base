@@ -205,7 +205,6 @@ export class OrganizationController {
       contactIds,
       channelIds,
       knowledgeBaseIds,
-      agentId,
       outcome,
     } = body;
     this.logger.log(`[POST] Start add engagement to organization`);
@@ -229,7 +228,6 @@ export class OrganizationController {
       contactIds,
       channelIds,
       knowledgeBaseIds,
-      agentId,
       outcome,
     );
 
@@ -310,11 +308,6 @@ export class OrganizationController {
     this.logger.log(`[POST] Start execute engagement`);
 
     const { engagementId, message, conversationHistory } = body;
-
-    // check org ownership
-    // if (req?.user?.member?.organization?._id !== param.orgId) {
-    //   return errorHandler(new UnauthorizedError());
-    // }
 
     const result = await this.executeEngagementUseCase.exec(
       engagementId,
