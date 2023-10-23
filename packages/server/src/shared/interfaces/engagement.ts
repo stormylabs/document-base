@@ -1,4 +1,4 @@
-import { OrganizationData } from './organization';
+import { AgentRole, OrganizationData } from './organization';
 
 export class EngagementData {
   _id: string;
@@ -6,7 +6,7 @@ export class EngagementData {
   organization: OrganizationData;
   budgetPerInteraction: number;
   agentName: string;
-  agentRole: string;
+  agentRole: AgentRole;
   purpose: string;
   executesAt: Date;
   endsAt: Date;

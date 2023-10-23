@@ -4,6 +4,7 @@ import { Either, Result, left, right } from '@/shared/core/Result';
 import { AddEngagementOrganizationResponseDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { EngagementService } from '../../services/engagement.service';
+import { AgentRole } from '@/shared/interfaces/organization';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -19,7 +20,7 @@ export default class AddEngagementOrganizationUseCase {
     organizationId: string,
     budgetPerInteraction: number,
     agentName: string,
-    agentRole: string,
+    agentRole: AgentRole,
     purpose: string,
     executesAt: number,
     endsAt: number,
@@ -37,7 +38,7 @@ export default class AddEngagementOrganizationUseCase {
         organizationId,
         budgetPerInteraction,
         agentName,
-        agentRole,
+        agentRole: AgentRole[agentRole],
         purpose,
         executesAt: new Date(executesAt),
         endsAt: new Date(endsAt),
