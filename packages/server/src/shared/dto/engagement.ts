@@ -6,6 +6,7 @@ import { OrganizationResponse } from './organization';
 class AgentTemplate {
   stageAnalyzer: string;
   prompt: string;
+  toolsPrompt: string;
   conversationStages: Record<string, string>;
 }
 export class EngagementResponse {
