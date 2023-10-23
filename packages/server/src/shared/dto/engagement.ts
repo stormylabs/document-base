@@ -3,6 +3,11 @@ import { IsNotEmpty, IsString } from 'class-validator';
 import { AgentRole, OrganizationData } from '../interfaces/organization';
 import { OrganizationResponse } from './organization';
 
+class AgentTemplate {
+  stageAnalyzer: string;
+  prompt: string;
+  conversationStages: Record<string, string>;
+}
 export class EngagementResponse {
   @ApiProperty({
     description: 'Engagement ID',
@@ -72,9 +77,9 @@ export class EngagementResponse {
 
   @ApiProperty({
     description: 'Template',
-    type: String,
+    type: AgentTemplate,
   })
-  template?: string;
+  template?: AgentTemplate;
 
   @ApiProperty({
     description: 'Contact IDs',
