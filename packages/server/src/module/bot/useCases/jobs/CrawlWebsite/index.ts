@@ -13,6 +13,9 @@ import { DocumentType } from '@/shared/interfaces/document';
 import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import CreateCrawlJobUseCase from '../CreateCrawlJob';
 import UseCaseError from '@/shared/core/UseCaseError';
+import { BotData } from '@/shared/interfaces/bot';
+import { OrganizationData } from '@/shared/interfaces/organization';
+import { OrganizationService } from '@/module/organization/services/organization.service';
 
 type Response = Either<Result<UseCaseError>, Result<void>>;
 
@@ -24,12 +27,19 @@ export default class CrawlWebsiteUseCase {
     private readonly crawlJobService: CrawlJobService,
     private readonly documentService: DocumentService,
     private readonly createCrawlJobUseCase: CreateCrawlJobUseCase,
+    private readonly orgService: OrganizationService,
   ) {}
-  public async exec(
-    jobId: string,
-    botId: string,
-    documentId: string,
-  ): Promise<Response> {
+  public async exec({
+    documentId,
+    jobId,
+    botId,
+    organizationId,
+  }: {
+    jobId: string;
+    botId?: string;
+    organizationId?: string;
+    documentId: string;
+  }): Promise<Response> {
     try {
       this.logger.log(`Start crawling website, locking job: ${jobId}`);
       const lockAcquired = await this.crawlJobService.acquireLock(jobId);
@@ -68,9 +78,21 @@ export default class CrawlWebsiteUseCase {
         await this.crawlJobService.updateStatus(jobId, JobStatus.Running);
       }
 
-      const bot = await this.botService.findById(botId);
-      if (!bot) {
-        return left(new NotFoundError(Resource.Bot, [botId]));
+      let result: BotData | OrganizationData = null;
+
+      if (botId) {
+        result = await this.botService.findById(botId);
+      }
+      if (organizationId) {
+        result = await this.orgService.findById(organizationId);
+      }
+
+      if (!result) {
+        return left(
+          new NotFoundError(Resource[botId ? 'Bot' : 'Organization'], [
+            botId ? botId : organizationId,
+          ]),
+        );
       }
 
       const url = document.sourceName;
@@ -113,15 +135,24 @@ export default class CrawlWebsiteUseCase {
         title: data.title,
       });
       this.logger.log('document content updated');
-      const upsertedBot = await this.botService.upsertDocument(
-        botId,
-        documentId,
-      );
+
+      let upsertedData: BotData | OrganizationData = null;
+      if (botId) {
+        upsertedData = await this.botService.upsertDocument(botId, documentId);
+      }
+      if (botId) {
+        upsertedData = await this.orgService.upsertDocument(
+          organizationId,
+          documentId,
+        );
+      }
       const upsertedCrawlJob = await this.crawlJobService.upsertDocuments(
         jobId,
         [documentId],
       );
-      this.logger.log('document upserted to bot and crawl job');
+      this.logger.log(
+        `document upserted to ${botId ? 'bot' : 'organization'} and crawl job`,
+      );
 
       if (upsertedCrawlJob.documents.length === limit) {
         this.logger.log('crawl job finished');
@@ -129,12 +160,12 @@ export default class CrawlWebsiteUseCase {
         return right(Result.ok());
       }
 
-      const botDocumentUrls = upsertedBot.documents
+      const dataDocumentUrls = upsertedData.documents
         .filter((doc) => doc.type === DocumentType.Url)
         .map((doc) => doc.sourceName);
 
-      //   filters out current bot documents.urls to only send new urls
-      const urls = data.urls.filter((url) => !botDocumentUrls.includes(url));
+      // filters out current bot documents.urls to only send new urls
+      const urls = data.urls.filter((url) => !dataDocumentUrls.includes(url));
       const numToSend = Math.ceil(
         (limit - upsertedCrawlJob.documents.length) * 1.3,
       );
@@ -145,11 +176,12 @@ export default class CrawlWebsiteUseCase {
         return right(Result.ok());
       }
 
-      const payloads = await this.createCrawlJobUseCase.createPayloads(
+      const payloads = await this.createCrawlJobUseCase.createPayloads({
         jobId,
-        botId,
-        urlsToSend,
-      );
+        ...(botId ? { botId } : {}),
+        ...(organizationId ? { organizationId } : {}),
+        urls: urlsToSend,
+      });
 
       await this.createCrawlJobUseCase.sendMessages(jobId, payloads);
       this.logger.log(`Sent ${payloads.length} messages to the queue`);

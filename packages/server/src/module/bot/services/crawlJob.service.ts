@@ -8,7 +8,8 @@ export class CrawlJobService {
   constructor(private crawlJobRepository: CrawlJobRepository) {}
 
   async create(data: {
-    botId: string;
+    botId?: string;
+    organizationId?: string;
     limit: number;
     initUrls: string[];
   }): Promise<CrawlJobData> {
@@ -35,8 +36,19 @@ export class CrawlJobService {
     return unfinishedJobs;
   }
 
+  async findUnfinishedJobsByOrgId(orgId: string): Promise<CrawlJobData[]> {
+    const unfinishedJobs =
+      await this.crawlJobRepository.findUnfinishedJobsByOrgId(orgId);
+    return unfinishedJobs;
+  }
+
   async findAllByBotId(botId: string): Promise<CrawlJobData[]> {
     const crawlJob = await this.crawlJobRepository.findAllByBotId(botId);
+    return crawlJob;
+  }
+
+  async findByOrgId(orgId: string): Promise<CrawlJobData[]> {
+    const crawlJob = await this.crawlJobRepository.findByOrgId(orgId);
     return crawlJob;
   }
 

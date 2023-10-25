@@ -12,7 +12,8 @@ export interface ExtractFileJobData {
 }
 
 export interface ExtractFileJobMessage {
-  botId: string;
+  botId?: string;
+  organizationId?: string;
   jobId: string;
   documentId: string;
 }

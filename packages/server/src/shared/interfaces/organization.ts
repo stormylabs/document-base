@@ -1,3 +1,4 @@
+import { DocumentData } from './document';
 import { UserData } from './user';
 
 export interface OrganizationData {
@@ -5,6 +6,7 @@ export interface OrganizationData {
   name: string;
   descriptions: string;
   values: string;
+  documents: DocumentData[];
   members: UserData[];
   createdAt: Date;
   updatedAt: Date;

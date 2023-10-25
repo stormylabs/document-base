@@ -68,7 +68,11 @@ export default class CrawlWebsitesByBotUseCase {
       this.logger.log(`Removed all documents of bot ${botId}`);
 
       this.logger.log(`Create crawl job`);
-      const result = await this.createCrawlJobUseCase.exec(botId, urls, limit);
+      const result = await this.createCrawlJobUseCase.exec({
+        botId,
+        urls,
+        limit,
+      });
 
       if (result.isLeft()) {
         return left(result.value);

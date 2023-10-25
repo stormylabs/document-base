@@ -15,6 +15,7 @@ import { DocumentExtToType } from '@/shared/interfaces/document';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 import { extractExtensionFromUrl } from '@/shared/utils/web-utils';
 import UseCaseError from '@/shared/core/UseCaseError';
+import { OrganizationService } from '@/module/organization/services/organization.service';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -29,22 +30,47 @@ export default class CreateExtractFileJobUseCase {
     private readonly extractFileJobService: ExtractFileJobService,
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
+    private readonly orgService: OrganizationService,
   ) {}
-  public async exec(botId: string, urls: string[]): Promise<Response> {
+  public async exec({
+    botId,
+    organizationId,
+    urls,
+  }: {
+    botId?: string;
+    organizationId?: string;
+    urls: string[];
+  }): Promise<Response> {
     try {
       this.logger.log(`Start creating extract files job`);
 
-      const botExists = await this.botService.exists([botId]);
-      if (!botExists) return left(new NotFoundError(Resource.Bot, [botId]));
+      if (botId) {
+        const botExists = await this.botService.exists([botId]);
+        if (!botExists) return left(new NotFoundError(Resource.Bot, [botId]));
+      }
+
+      if (organizationId) {
+        const orgExists = await this.orgService.exists([organizationId]);
+        if (!orgExists)
+          return left(
+            new NotFoundError(Resource.Organization, [organizationId]),
+          );
+      }
 
       const extractFileJob = await this.extractFileJobService.create({
-        botId,
         initUrls: urls,
+        ...(botId ? { botId } : {}),
+        ...(organizationId ? { organizationId } : {}),
       });
 
       const { _id: jobId, status } = extractFileJob;
 
-      const payloads = await this.createPayloads(jobId, botId, urls);
+      const payloads = await this.createPayloads({
+        jobId,
+        urls,
+        ...(botId ? { botId } : {}),
+        ...(organizationId ? { organizationId } : {}),
+      });
 
       try {
         await this.sendMessages(jobId, payloads);
@@ -69,7 +95,17 @@ export default class CreateExtractFileJobUseCase {
     );
   }
 
-  async createPayloads(jobId: string, botId: string, urls: string[]) {
+  async createPayloads({
+    botId,
+    organizationId,
+    jobId,
+    urls,
+  }: {
+    jobId: string;
+    botId?: string;
+    organizationId?: string;
+    urls: string[];
+  }) {
     const payloads: ExtractFileJobMessage[] = [];
     for (const url of urls) {
       const document = await this.documentService.findBySourceName(url);
@@ -92,7 +128,12 @@ export default class CreateExtractFileJobUseCase {
         }
       }
 
-      payloads.push({ botId, jobId, documentId });
+      payloads.push({
+        jobId,
+        documentId,
+        ...(botId ? { botId } : {}),
+        ...(organizationId ? { organizationId } : {}),
+      });
     }
     return payloads;
   }

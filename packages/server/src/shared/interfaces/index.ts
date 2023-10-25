@@ -31,6 +31,11 @@ export enum JobStatus {
   Aborted = 'aborted',
 }
 
+export enum KnowledgeBaseType {
+  ProductSearch = 'ProductSearch',
+  FAQ = 'FAQ',
+}
+
 export interface AuthRequest extends Request {
   user: UserData;
 }

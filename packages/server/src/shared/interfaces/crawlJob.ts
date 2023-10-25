@@ -14,7 +14,8 @@ export interface CrawlJobData {
 }
 
 export interface CrawlJobMessage {
-  botId: string;
+  botId?: string;
+  organizationId?: string;
   jobId: string;
   documentId: string;
 }

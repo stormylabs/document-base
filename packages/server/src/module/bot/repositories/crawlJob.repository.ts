@@ -2,8 +2,8 @@
 import { CrawlJobData } from '@/shared/interfaces/crawlJob';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, Types } from 'mongoose';
-import { CrawlJob } from '../schemas/crawlJob.schema';
+import { Model, ObjectId, Types } from 'mongoose';
+import { CrawlJob, CrawlJobDocument } from '../schemas/crawlJob.schema';
 import { JobStatus } from '@/shared/interfaces';
 import { JOB_TIMEOUT } from '@/shared/constants';
 
@@ -13,13 +13,26 @@ export class CrawlJobRepository {
     @InjectModel(CrawlJob.name) private readonly crawlJobModel: Model<CrawlJob>,
   ) {}
 
-  async create(crawlJobData: {
-    botId: string;
+  async create({
+    botId,
+    organizationId,
+    ...crawlJobData
+  }: {
+    botId?: string;
+    organizationId?: string;
     limit: number;
     initUrls: string[];
   }): Promise<CrawlJobData> {
-    const botId = new Types.ObjectId(crawlJobData.botId);
-    const crawlJob = new this.crawlJobModel({ ...crawlJobData, bot: botId });
+    const payload: any = {};
+
+    if (botId) {
+      payload.bot = new Types.ObjectId(botId);
+    }
+    if (organizationId) {
+      payload.organization = new Types.ObjectId(organizationId);
+    }
+
+    const crawlJob = new this.crawlJobModel({ ...crawlJobData, ...payload });
     const created = await crawlJob.save();
     return created.toJSON() as CrawlJobData;
   }
@@ -48,6 +61,14 @@ export class CrawlJobRepository {
     return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
   }
 
+  async findByOrgId(orgId: string): Promise<CrawlJobData[]> {
+    const id = new Types.ObjectId(orgId);
+    const crawlJobs = await this.crawlJobModel
+      .find({ organization: id })
+      .exec();
+    return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
+  }
+
   async findTimeoutJobs(
     status: JobStatus.Running | JobStatus.Pending,
   ): Promise<CrawlJobData[]> {
@@ -68,6 +89,17 @@ export class CrawlJobRepository {
     const crawlJobs = await this.crawlJobModel
       .find({
         bot: id,
+        status: { $in: [JobStatus.Pending, JobStatus.Running] },
+      })
+      .exec();
+    return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
+  }
+
+  async findUnfinishedJobsByOrgId(orgId: string): Promise<CrawlJobData[]> {
+    const id = new Types.ObjectId(orgId);
+    const crawlJobs = await this.crawlJobModel
+      .find({
+        organization: id,
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
       })
       .exec();

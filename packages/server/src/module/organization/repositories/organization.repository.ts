@@ -52,4 +52,20 @@ export class OrganizationRepository {
     const org = await this.orgModel.findByIdAndDelete(id).exec();
     return org.toJSON() as OrganizationData;
   }
+
+  async upsertDocuments(
+    organizationId: string,
+    documentIds: string[],
+  ): Promise<OrganizationData> {
+    const id = new Types.ObjectId(organizationId);
+    const bot = await this.orgModel
+      .findByIdAndUpdate(
+        id,
+        { $addToSet: { documents: { $each: documentIds } } },
+        { new: true },
+      )
+      .populate('documents')
+      .exec();
+    return bot.toJSON() as OrganizationData;
+  }
 }

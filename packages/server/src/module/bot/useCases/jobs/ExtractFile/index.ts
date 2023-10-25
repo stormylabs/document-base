@@ -13,6 +13,9 @@ import { DocumentType } from '@/shared/interfaces/document';
 import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { ExtractWord } from '@/shared/utils/extractWord';
 import UseCaseError from '@/shared/core/UseCaseError';
+import { BotData } from '@/shared/interfaces/bot';
+import { OrganizationData } from '@/shared/interfaces/organization';
+import { OrganizationService } from '@/module/organization/services/organization.service';
 
 type Response = Either<Result<UseCaseError>, Result<void>>;
 
@@ -23,12 +26,19 @@ export default class ExtractFileUseCase {
     private readonly botService: BotService,
     private readonly extractFileJobService: ExtractFileJobService,
     private readonly documentService: DocumentService,
+    private readonly orgService: OrganizationService,
   ) {}
-  public async exec(
-    jobId: string,
-    botId: string,
-    documentId: string,
-  ): Promise<Response> {
+  public async exec({
+    botId,
+    organizationId,
+    documentId,
+    jobId,
+  }: {
+    jobId: string;
+    botId?: string;
+    organizationId?: string;
+    documentId: string;
+  }): Promise<Response> {
     try {
       this.logger.log(`Start extract file, locking job: ${jobId}`);
 
@@ -72,9 +82,21 @@ export default class ExtractFileUseCase {
         await this.extractFileJobService.updateStatus(jobId, JobStatus.Running);
       }
 
-      const bot = await this.botService.findById(botId);
-      if (!bot) {
-        return left(new NotFoundError(Resource.Bot, [botId]));
+      let result: BotData | OrganizationData = null;
+
+      if (botId) {
+        result = await this.botService.findById(botId);
+      }
+      if (organizationId) {
+        result = await this.orgService.findById(organizationId);
+      }
+
+      if (!result) {
+        return left(
+          new NotFoundError(Resource[botId ? 'Bot' : 'Organization'], [
+            botId ? botId : organizationId,
+          ]),
+        );
       }
 
       const url = document.sourceName;
@@ -115,11 +137,21 @@ export default class ExtractFileUseCase {
       });
       this.logger.log('document content updated');
 
-      await this.botService.upsertDocument(botId, documentId);
+      if (botId) {
+        await this.botService.upsertDocument(botId, documentId);
+      }
+
+      if (organizationId) {
+        await this.orgService.upsertDocument(organizationId, documentId);
+      }
       const upsertedExtractFileJob =
         await this.extractFileJobService.upsertDocuments(jobId, [documentId]);
 
-      this.logger.log('document upsert to bot and extract file job');
+      this.logger.log(
+        `document upsert to ${
+          botId ? 'bot' : 'organization'
+        } and extract file job`,
+      );
 
       if (
         upsertedExtractFileJob.documents.length ===

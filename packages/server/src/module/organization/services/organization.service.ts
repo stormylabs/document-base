@@ -33,4 +33,13 @@ export class OrganizationService {
   async exists(orgIds: string[]): Promise<boolean> {
     return this.orgRepository.exists(orgIds);
   }
+
+  async upsertDocument(
+    organizationId: string,
+    documentId: string,
+  ): Promise<OrganizationData> {
+    const exists = await this.exists([organizationId]);
+    if (!exists) throw new Error('Organization does not exist.');
+    return this.orgRepository.upsertDocuments(organizationId, [documentId]);
+  }
 }

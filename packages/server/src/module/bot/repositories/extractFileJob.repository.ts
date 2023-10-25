@@ -13,11 +13,23 @@ export class ExtractFileJobRepository {
     private readonly extractFileJobModel: Model<ExtractFileJob>,
   ) {}
 
-  async create(extractFileJobData: {
-    botId: string;
+  async create({
+    botId,
+    organizationId,
+    ...extractFileJobData
+  }: {
+    botId?: string;
+    organizationId?: string;
     initUrls: string[];
   }): Promise<ExtractFileJobData> {
-    const botId = new Types.ObjectId(extractFileJobData.botId);
+    const payload: any = {};
+    if (botId) {
+      payload.bot = new Types.ObjectId(botId);
+    }
+    if (organizationId) {
+      payload.organization = new Types.ObjectId(organizationId);
+    }
+
     const extractFileJob = new this.extractFileJobModel({
       ...extractFileJobData,
       bot: botId,
@@ -58,6 +70,16 @@ export class ExtractFileJobRepository {
     );
   }
 
+  async findByOrgId(orgId: string): Promise<ExtractFileJobData[]> {
+    const id = new Types.ObjectId(orgId);
+    const extractFileJobs = await this.extractFileJobModel
+      .find({ organization: id })
+      .exec();
+    return extractFileJobs.map(
+      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData,
+    );
+  }
+
   async findTimeoutJobs(
     status: JobStatus.Running | JobStatus.Pending,
   ): Promise<ExtractFileJobData[]> {
@@ -80,6 +102,21 @@ export class ExtractFileJobRepository {
     const extractFileJobs = await this.extractFileJobModel
       .find({
         bot: id,
+        status: { $in: [JobStatus.Pending, JobStatus.Running] },
+      })
+      .exec();
+    return extractFileJobs.map(
+      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData,
+    );
+  }
+
+  async findUnfinishedJobsByOrgId(
+    orgId: string,
+  ): Promise<ExtractFileJobData[]> {
+    const id = new Types.ObjectId(orgId);
+    const extractFileJobs = await this.extractFileJobModel
+      .find({
+        organization: id,
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
       })
       .exec();

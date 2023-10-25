@@ -2,21 +2,28 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Logger,
   Param,
+  ParseFilePipe,
+  ParseFilePipeBuilder,
   Post,
   Req,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiConflictResponse,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiSecurity,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { errorHandler } from '@/shared/http';
@@ -41,6 +48,16 @@ import AddEngagementToOrganizationDTO from '../useCases/AddEngagementToOrganizat
 import AddEngagementOrganizationUseCase from '../useCases/AddEngagementToOrganization';
 import { EngagementIdParams } from '@/shared/dto/engagement';
 import GetEngagementUseCase from '../useCases/GetEngagement';
+import AddKnowledgeBaseToOrganizationDTO from '../useCases/AddKnowlagebaseToOrganization/CreateOrganization/dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { AddKnowledgeBaseJobResponseDTO } from '@/shared/dto/addKnowledgeBaseJob';
+import { CustomFileCountValidationPipe } from '@/shared/validators/file-count.pipe';
+import { CustomUploadFileMimeTypeValidator } from '@/shared/validators/file-mimetype.validator';
+import AddKnowledgeBaseToOrganizationUseCase from '../useCases/AddKnowlagebaseToOrganization/CreateOrganization';
+
+const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
+const MAX_FILE_COUNT = 10;
+const MIN_FILE_COUNT = 1;
 
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
@@ -53,6 +70,7 @@ export class OrganizationController {
     private inviteUserToOrgUseCase: InviteMemberToOrganizationUseCase,
     private addEngagementOrganizationUseCase: AddEngagementOrganizationUseCase,
     private getEngagementUseCase: GetEngagementUseCase,
+    private addKnowledgeBaseToOrganizationUseCase: AddKnowledgeBaseToOrganizationUseCase,
   ) {}
 
   @Post()
@@ -277,6 +295,89 @@ export class OrganizationController {
       const error = result.value;
       this.logger.error(
         `[GET] get engagement error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  /**
+   * Add knowledge base to organization
+   * @param param
+   * @param files
+   * @returns
+   */
+  @Post(':orgId/knowledgeBase/add')
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
+  @ApiBody({ type: AddKnowledgeBaseToOrganizationDTO })
+  @ApiOperation({
+    summary: 'Extract files by bot.',
+  })
+  @ApiConsumes('multipart/form-data', 'application/json')
+  @UseInterceptors(FilesInterceptor('files'))
+  @ApiOkResponse({
+    description: 'Add knowledge base to organization',
+    type: AddKnowledgeBaseJobResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Organization not found',
+  })
+  @ApiConflictResponse({
+    description: 'If there are unfinished jobs, this error will be returned.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @RoleAccessLevel([
+    AccessLevel.ADMIN,
+    AccessLevel.MEMBER,
+    AccessLevel.READ_ONLY,
+  ])
+  async addKnowledgeBaseJob(
+    @Param() { orgId }: OrgIdParams,
+    @Body() body: AddKnowledgeBaseToOrganizationDTO,
+    @UploadedFiles(
+      new CustomFileCountValidationPipe({
+        minCount: MIN_FILE_COUNT,
+        maxCount: MAX_FILE_COUNT,
+      }),
+      new ParseFilePipeBuilder()
+        .addValidator(
+          new CustomUploadFileMimeTypeValidator({
+            fileExtensions: ALLOWED_UPLOADS_EXT_TYPES,
+          }),
+        )
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: true,
+        }),
+      new ParseFilePipe({
+        validators: [],
+      }),
+    )
+    files: Array<Express.Multer.File>,
+  ) {
+    const crawl =
+      typeof body?.crawl === 'string' ? JSON.parse(body?.crawl) : body.crawl;
+
+    this.logger.log(`[POST] Start add knowledge base to organization`);
+
+    const payload = {
+      files,
+      crawl,
+      organizationId: orgId,
+      name: body.name,
+      type: body.type,
+    };
+    const result = await this.addKnowledgeBaseToOrganizationUseCase.exec(
+      payload,
+    );
+
+    if (result.isLeft()) {
+      const error = result.value;
+
+      this.logger.error(
+        `[POST] Add knowledge base error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

@@ -13,6 +13,9 @@ import { DocumentService } from '@/module/bot/services/document.service';
 import { DocumentType } from '@/shared/interfaces/document';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import UseCaseError from '@/shared/core/UseCaseError';
+import { OrganizationService } from '@/module/organization/services/organization.service';
+import { BotData } from '@/shared/interfaces/bot';
+import { OrganizationData } from '@/shared/interfaces/organization';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -27,36 +30,63 @@ export default class CreateCrawlJobUseCase {
     private readonly crawlJobService: CrawlJobService,
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
+    private readonly orgService: OrganizationService,
   ) {}
-  public async exec(
-    botId: string,
-    urls: string[],
-    limit: number,
-  ): Promise<Response> {
+  public async exec({
+    organizationId,
+    botId,
+    limit,
+    urls,
+  }: {
+    organizationId?: string;
+    botId?: string;
+    urls: string[];
+    limit: number;
+  }): Promise<Response> {
     try {
       this.logger.log(`Start creating crawl job`);
 
-      const bot = await this.botService.findById(botId);
-      if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
+      let data: BotData | OrganizationData = null;
 
-      const urlDocs = bot.documents.filter(
+      if (botId) {
+        data = await this.botService.findById(botId);
+        if (!data) return left(new NotFoundError(Resource.Bot, [botId]));
+      }
+
+      if (organizationId) {
+        data = await this.orgService.findById(organizationId);
+        if (!data)
+          return left(
+            new NotFoundError(Resource.Organization, [organizationId]),
+          );
+      }
+
+      const urlDocs = data.documents.filter(
         (doc) => doc.type === DocumentType.Url,
       );
 
-      await this.botService.removeDocuments(
-        botId,
-        urlDocs.map((doc) => doc._id),
-      );
+      if (botId) {
+        await this.botService.removeDocuments(
+          botId,
+          urlDocs.map((doc) => doc._id),
+        );
+      }
 
       const crawlJob = await this.crawlJobService.create({
-        botId,
+        ...(botId ? { botId } : {}),
+        ...(organizationId ? { organizationId } : {}),
         limit,
         initUrls: urls,
       });
 
       const { _id: jobId, status } = crawlJob;
 
-      const payloads = await this.createPayloads(jobId, botId, urls);
+      const payloads = await this.createPayloads({
+        jobId,
+        ...(botId ? { botId } : {}),
+        ...(organizationId ? { organizationId } : {}),
+        urls,
+      });
 
       const batchSize = 100;
 
@@ -85,7 +115,17 @@ export default class CreateCrawlJobUseCase {
     );
   }
 
-  async createPayloads(jobId: string, botId: string, urls: string[]) {
+  async createPayloads({
+    organizationId,
+    botId,
+    jobId,
+    urls,
+  }: {
+    jobId: string;
+    organizationId?: string;
+    botId?: string;
+    urls: string[];
+  }) {
     const payloads: CrawlJobMessage[] = [];
     for (const url of urls) {
       const document = await this.documentService.findBySourceName(url);
@@ -105,7 +145,12 @@ export default class CreateCrawlJobUseCase {
         }
       }
 
-      payloads.push({ botId, jobId, documentId });
+      payloads.push({
+        ...(botId ? { botId } : {}),
+        ...(organizationId ? { organizationId } : {}),
+        jobId,
+        documentId,
+      });
     }
     return payloads;
   }

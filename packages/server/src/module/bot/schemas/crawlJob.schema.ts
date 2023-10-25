@@ -6,6 +6,7 @@ import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { DocumentDocument } from '@/module/bot/schemas/document.schema';
 import { BotDocument } from '@/module/bot/schemas/bot.schema';
 import { DOCUMENT_LIMIT } from '@/shared/constants';
+import { OrganizationDocument } from '@/module/organization/schemas/organization.schema';
 
 export type CrawlJobDocument = HydratedDocument<CrawlJob>;
 
@@ -35,6 +36,9 @@ export class CrawlJob extends Document {
 
   @Prop({ type: Types.ObjectId, ref: 'Bot' })
   bot: BotDocument;
+
+  @Prop({ type: Types.ObjectId, ref: 'Organization' })
+  organization: OrganizationDocument;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Document' }] })
   documents: DocumentDocument[];

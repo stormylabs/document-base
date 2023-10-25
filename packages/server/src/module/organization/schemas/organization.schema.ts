@@ -1,7 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Transform } from 'class-transformer';
-import { Document, HydratedDocument, ObjectId } from 'mongoose';
+import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
+import { DocumentDocument } from '@/module/bot/schemas/document.schema';
 
 export type OrganizationDocument = HydratedDocument<Organization>;
 
@@ -12,6 +13,9 @@ export class Organization extends Document {
 
   @Prop({ type: String, maxlength: 50, default: 'default', required: true })
   name: string;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Document' }] })
+  documents: DocumentDocument[];
 
   @Prop({ type: String, maxlength: 2500, required: true })
   descriptions: string;

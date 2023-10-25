@@ -4,9 +4,11 @@ import {
   Document as MongooseDocument,
   HydratedDocument,
   ObjectId,
+  Types,
 } from 'mongoose';
 import { DocumentType } from '../../../shared/interfaces/document';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
+import { OrganizationDocument } from '@/module/organization/schemas/organization.schema';
 
 export type DocumentDocument = HydratedDocument<Document>;
 
@@ -37,6 +39,9 @@ export class Document extends MongooseDocument {
 
   @Prop({ type: String })
   title?: string;
+
+  @Prop({ type: Types.ObjectId, ref: 'Organization' })
+  organization: OrganizationDocument; // if this exist it would be long to organization
 
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
