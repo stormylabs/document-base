@@ -25,8 +25,9 @@ export class CrawlDTO {
     required: true,
     type: [String],
     pattern: '^https://.*$',
-    example:
+    example: [
       'https://www.atlassian.com/blog/productivity/simple-ways-to-be-productive-at-work',
+    ],
   })
   @IsUrl({ protocols: ['https'], require_protocol: true }, { each: true })
   @IsArray()
