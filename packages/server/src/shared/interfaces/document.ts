@@ -1,3 +1,5 @@
+import { OrganizationData } from './organization';
+
 export enum DocumentType {
   Url = 'url',
   Pdf = 'pdf',
@@ -19,6 +21,7 @@ export interface DocumentData {
   type: DocumentType;
   sourceName: string;
   title?: string;
+  organization?: OrganizationData;
   content?: string;
   tokens?: number;
   characters?: number;

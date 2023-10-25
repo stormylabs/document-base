@@ -134,6 +134,7 @@ export default class ExtractFileUseCase {
       await this.documentService.updateContent({
         documentId,
         content: data.text,
+        ...(organizationId ? { organizationId } : {}),
       });
       this.logger.log('document content updated');
 

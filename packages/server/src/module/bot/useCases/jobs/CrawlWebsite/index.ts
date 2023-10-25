@@ -133,6 +133,7 @@ export default class CrawlWebsiteUseCase {
         documentId,
         content: data.text,
         title: data.title,
+        ...(organizationId ? { organizationId } : {}),
       });
       this.logger.log('document content updated');
 
