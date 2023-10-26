@@ -54,4 +54,15 @@ export class MemberService {
   async exists(memberIds: string[]): Promise<boolean> {
     return this.memberRepository.exists(memberIds);
   }
+
+  async findOneByUserIdOrgId(
+    organizationId: string,
+    userId: string,
+  ): Promise<MemberData> {
+    const bot = await this.memberRepository.findOneByUserIdOrgId({
+      userId,
+      organizationId,
+    });
+    return bot;
+  }
 }

@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "265c7721-9c68-4607-bdb5-1b6965cb5c7c",
+		"_postman_id": "01817903-7659-4fd9-9fc1-dbcf3af9e02b",
 		"name": "Document Base",
 		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json",
-		"_exporter_id": "22913389"
+		"_exporter_id": "3154639"
 	},
 	"item": [
 		{
@@ -238,6 +238,46 @@
 							}
 						},
 						"url": "{{SERVER_ENDPOINT}}/api/v1/organization/{{ORG_ID}}/invite"
+					},
+					"response": []
+				},
+				{
+					"name": "Add Knowledge Base to Organization",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "Stormy Labs Knowledge",
+									"type": "text"
+								},
+								{
+									"key": "type",
+									"value": "ProductSearch",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "crawl",
+									"value": "{\n  \"urls\": [\n    \"https://www.atlassian.com/blog/productivity/simple-ways-to-be-productive-at-work\"\n  ],\n  \"limit\": 500,\n  \"only\": true\n}",
+									"type": "text"
+								},
+								{
+									"key": "files",
+									"contentType": "application/pdf",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": "{{SERVER_ENDPOINT}}/api/v1/organization/{{ORG_ID}}/knowledgeBase"
 					},
 					"response": []
 				}
@@ -560,7 +600,8 @@
 					"name": "Get Engagement",
 					"request": {
 						"method": "GET",
-						"header": []
+						"header": [],
+						"url": ""
 					},
 					"response": []
 				}

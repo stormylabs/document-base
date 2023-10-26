@@ -2,7 +2,8 @@ import { JobStatus } from '@/shared/interfaces';
 
 export interface ExtractFileJobData {
   _id: string;
-  bot: string;
+  bot?: string;
+  organization?: string;
   documents: string[];
   status: JobStatus;
   initUrls: string[];

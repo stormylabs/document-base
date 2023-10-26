@@ -2,7 +2,8 @@ import { JobStatus } from '.';
 
 export interface CrawlJobData {
   _id: string;
-  bot: string;
+  bot?: string;
+  organization?: string;
   limit: number;
   locked: boolean;
   documents: string[];

@@ -141,7 +141,7 @@ export default class CrawlWebsiteUseCase {
       if (botId) {
         upsertedData = await this.botService.upsertDocument(botId, documentId);
       }
-      if (botId) {
+      if (organizationId) {
         upsertedData = await this.orgService.upsertDocument(
           organizationId,
           documentId,

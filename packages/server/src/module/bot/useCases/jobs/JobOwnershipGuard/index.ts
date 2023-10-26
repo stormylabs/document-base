@@ -13,6 +13,7 @@ import {
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 
+// TODO: update this guard, due to the organization schema relation
 @Injectable()
 export class JobOwnershipGuard implements CanActivate {
   constructor(

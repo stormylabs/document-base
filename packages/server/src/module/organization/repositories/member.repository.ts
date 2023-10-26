@@ -80,6 +80,30 @@ export class MemberRepository {
     return members.map((member) => member.toJSON() as MemberData);
   }
 
+  async findOneByUserIdOrgId(data: {
+    userId?: string;
+    organizationId?: string;
+  }): Promise<MemberData> {
+    const query = {};
+    if (data.userId) {
+      query['user'] = new Types.ObjectId(data.userId);
+    }
+    if (data.organizationId) {
+      query['organization'] = new Types.ObjectId(data.organizationId);
+    }
+
+    const member = await this.memberModel
+      .findOne({
+        ...query,
+        deletedAt: null,
+      })
+      .populate('organization')
+      .populate('user')
+      .exec();
+    if (!member) return null;
+    return member.toJSON() as MemberData;
+  }
+
   async exists(memberIds: string[]): Promise<boolean> {
     const count = await this.memberModel
       .countDocuments({ _id: { $in: memberIds }, deletedAt: null })

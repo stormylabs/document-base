@@ -307,11 +307,11 @@ export class OrganizationController {
    * @param files
    * @returns
    */
-  @Post(':orgId/knowledgeBase/add')
+  @Post(':orgId/knowledgeBase')
   @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
   @ApiBody({ type: AddKnowledgeBaseToOrganizationDTO })
   @ApiOperation({
-    summary: 'Extract files by bot.',
+    summary: 'Add knowledge base to organization.',
   })
   @ApiConsumes('multipart/form-data', 'application/json')
   @UseInterceptors(FilesInterceptor('files'))
