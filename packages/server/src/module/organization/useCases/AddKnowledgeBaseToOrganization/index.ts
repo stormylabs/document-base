@@ -117,6 +117,8 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
         ...(crawlJobId ? { crawlJobId } : {}),
       });
 
+      // TODO: add knowledge base to the knowledgeBases[] of the organization
+
       return right(
         Result.ok({
           jobId: addKnowledgeBaseJob._id,
