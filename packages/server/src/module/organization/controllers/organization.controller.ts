@@ -33,7 +33,7 @@ import InviteMemberToOrganizationUseCase from '../useCases/InviteMemberToOrganiz
 import { AccessLevel } from '@/shared/interfaces/accessLevel';
 import { RoleAccessLevel } from '@/shared/decorators/RoleAccessLevel.decorator';
 import { RequestWithUser } from '@/shared/interfaces/requestWithUser';
-import { UnauthorizedError } from '@/shared/core/AppError';
+import { InvalidInputError, UnauthorizedError } from '@/shared/core/AppError';
 import { OrgIdParams } from '@/shared/dto/organization';
 import CreateOrganizationDTO, {
   CreateOrganizationResponseDto,
@@ -48,12 +48,12 @@ import AddEngagementToOrganizationDTO from '../useCases/AddEngagementToOrganizat
 import AddEngagementOrganizationUseCase from '../useCases/AddEngagementToOrganization';
 import { EngagementIdParams } from '@/shared/dto/engagement';
 import GetEngagementUseCase from '../useCases/GetEngagement';
-import AddKnowledgeBaseToOrganizationDTO from '../useCases/AddKnowlagebaseToOrganization/CreateOrganization/dto';
+import AddKnowledgeBaseToOrganizationDTO from '../useCases/AddKnowledgeBaseToOrganization/dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { AddKnowledgeBaseJobResponseDTO } from '@/shared/dto/addKnowledgeBaseJob';
 import { CustomFileCountValidationPipe } from '@/shared/validators/file-count.pipe';
 import { CustomUploadFileMimeTypeValidator } from '@/shared/validators/file-mimetype.validator';
-import AddKnowledgeBaseToOrganizationUseCase from '../useCases/AddKnowlagebaseToOrganization/CreateOrganization';
+import AddKnowledgeBaseToOrganizationUseCase from '../useCases/AddKnowledgeBaseToOrganization';
 
 const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
 const MIN_FILE_COUNT = 0;
@@ -361,6 +361,13 @@ export class OrganizationController {
   ) {
     if (req?.user?.member?.organization?._id !== orgId) {
       return errorHandler(new UnauthorizedError());
+    }
+    if (!body.crawl && (!files || !files.length)) {
+      return errorHandler(
+        new InvalidInputError(
+          'One of the files or crawl data should be provided.',
+        ),
+      );
     }
 
     const crawl =

@@ -23,7 +23,6 @@ import { EngagementService } from './services/engagement.service';
 import { EngagementRepository } from './repositories/engagement.repository';
 import GetEngagementUseCase from './useCases/GetEngagement';
 import { BotModule } from '../bot/bot.module';
-import AddKnowledgeBaseToOrganizationUseCase from './useCases/AddKnowlagebaseToOrganization/CreateOrganization';
 import { S3Module } from '../s3/s3.module';
 import {
   KnowledgeBase,
@@ -37,6 +36,7 @@ import { KnowledgeBaseRepository } from './repositories/knowledgeBase.repository
 import { AddKnowledgeBaseJobRepository } from './repositories/addKnowledgeBaseJob.repository';
 import { KnowledgeBaseService } from './services/knowledgeBase.service';
 import { AddKnowledgeBaseJobService } from './services/addKnowledgeBaseJob.service';
+import AddKnowledgeBaseToOrganizationUseCase from './useCases/AddKnowledgeBaseToOrganization';
 
 @Module({
   imports: [

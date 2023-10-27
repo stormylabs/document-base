@@ -1,17 +1,13 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
-  InvalidInputError,
   NotFoundError,
   S3UploadError,
-  UnfinishedJobsError,
 } from '@/shared/core/AppError';
 import { Either, Result, left, right } from '@/shared/core/Result';
 import { CrawlDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
-import { JobType, KnowledgeBaseType, Resource } from '@/shared/interfaces';
+import { KnowledgeBaseType, Resource } from '@/shared/interfaces';
 import { OrganizationService } from '@/module/organization/services/organization.service';
-import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
-import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 import CreateCrawlJobUseCase from '@/module/bot/useCases/jobs/CreateCrawlJob';
 import { isEmpty } from 'lodash';
 import CreateExtractFileJobUseCase from '@/module/bot/useCases/jobs/CreateExtractFileJob';
@@ -36,10 +32,8 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
     private readonly configService: ConfigService,
     private readonly s3Service: S3Service,
     private readonly orgService: OrganizationService,
-    private readonly crawlJobService: CrawlJobService,
     private readonly knowledgeBaseService: KnowledgeBaseService,
     private readonly addKnowledgeBaseJobService: AddKnowledgeBaseJobService,
-    private readonly extractFileJobService: ExtractFileJobService,
     private readonly createCrawlJobUseCase: CreateCrawlJobUseCase,
     private readonly createExtractFileJobUseCase: CreateExtractFileJobUseCase,
   ) {}
@@ -59,44 +53,12 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
     try {
       this.logger.log(`Start add knowledge base to organization`);
 
-      if (isEmpty(crawl) && !files.length) {
-        return left(
-          new InvalidInputError(
-            'One of the files or crawl data should be provided!',
-          ),
-        );
-      }
-
       let crawlJobId: string;
       let extractFileJobId: string;
 
       const org = await this.orgService.findById(organizationId);
       if (!org)
         return left(new NotFoundError(Resource.Organization, [organizationId]));
-
-      const unfinishedCrawlJobs =
-        await this.crawlJobService.findUnfinishedJobsByOrgId(organizationId);
-      if (unfinishedCrawlJobs.length > 0) {
-        return left(
-          new UnfinishedJobsError(
-            unfinishedCrawlJobs.map((job) => job._id),
-            JobType.WebCrawl,
-          ),
-        );
-      }
-
-      const unfinishedExtractFileJobs =
-        await this.extractFileJobService.findUnfinishedJobsByOrgId(
-          organizationId,
-        );
-      if (unfinishedExtractFileJobs.length > 0) {
-        return left(
-          new UnfinishedJobsError(
-            unfinishedExtractFileJobs.map((job) => job._id),
-            JobType.FileExtract,
-          ),
-        );
-      }
 
       // * create knowledge base record
       this.logger.log('Creating knowledge base');
@@ -108,14 +70,15 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
 
       if (!isEmpty(crawl)) {
         this.logger.log('Create crawl job');
-        const crawlJob = await this.createCrawlJobUseCase.exec({
+        const result = await this.createCrawlJobUseCase.exec({
           organizationId,
           urls: crawl.urls,
           limit: crawl.limit,
           only: crawl.only,
         });
 
-        crawlJobId = (crawlJob.value.getValue() as { jobId: string }).jobId;
+        if (result.isLeft()) return left(result.value);
+        crawlJobId = result.value.getValue().jobId;
       }
       if (!isEmpty(files)) {
         let urls: string[] = [];
@@ -137,14 +100,13 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
         }
 
         this.logger.log('Create crawl job');
-        const extractFileJob = await this.createExtractFileJobUseCase.exec({
+        const result = await this.createExtractFileJobUseCase.exec({
           organizationId,
           urls,
         });
+        if (result.isLeft()) return left(result.value);
 
-        extractFileJobId = (
-          extractFileJob.value.getValue() as { jobId: string }
-        ).jobId;
+        extractFileJobId = result.value.getValue().jobId;
       }
 
       // * Create add knowledge base job record
@@ -155,6 +117,8 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
         ...(extractFileJobId ? { extractFileJobId } : {}),
         ...(crawlJobId ? { crawlJobId } : {}),
       });
+
+      // TODO: add knowledge base to the knowledgeBases[] of the organization
 
       return right(
         Result.ok({

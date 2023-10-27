@@ -4,6 +4,7 @@ import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 import { KnowledgeBaseType } from '@/shared/interfaces';
 import { OrganizationDocument } from './organization.schema';
+import { DocumentDocument } from '@/module/bot/schemas/document.schema';
 
 export type KnowledgeBaseDocument = HydratedDocument<KnowledgeBase>;
 
@@ -27,8 +28,11 @@ export class KnowledgeBase extends Document {
   })
   type: KnowledgeBaseType;
 
-  @Prop({ type: Types.ObjectId, ref: 'Organization' })
+  @Prop({ type: Types.ObjectId, ref: 'Organization', required: true })
   organization: OrganizationDocument;
+
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'Document' }] })
+  documents: DocumentDocument[];
 
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
@@ -41,5 +45,4 @@ export class KnowledgeBase extends Document {
 }
 
 export const KnowledgeBaseSchema = SchemaFactory.createForClass(KnowledgeBase);
-KnowledgeBaseSchema.index({ name: 1 });
 KnowledgeBaseSchema.set('toJSON', toJSONOverride);

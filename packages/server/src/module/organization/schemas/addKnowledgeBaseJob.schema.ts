@@ -14,10 +14,10 @@ export class AddKnowledgeBaseJob extends Document {
   @Transform(({ value }) => value.toString())
   _id: ObjectId;
 
-  @Prop({ type: Types.ObjectId, ref: 'Organization' })
+  @Prop({ type: Types.ObjectId, ref: 'Organization', required: true })
   organization: OrganizationDocument;
 
-  @Prop({ type: Types.ObjectId, ref: 'AddKnowledgeBaseJob' })
+  @Prop({ type: Types.ObjectId, ref: 'AddKnowledgeBaseJob', required: true })
   knowledgeBase: KnowledgeBaseDocument;
 
   @Prop({ type: Types.ObjectId, ref: 'CrawlJob' })
@@ -35,5 +35,4 @@ export class AddKnowledgeBaseJob extends Document {
 
 export const AddKnowledgeBaseJobSchema =
   SchemaFactory.createForClass(AddKnowledgeBaseJob);
-AddKnowledgeBaseJobSchema.index({ name: 1 });
 AddKnowledgeBaseJobSchema.set('toJSON', toJSONOverride);

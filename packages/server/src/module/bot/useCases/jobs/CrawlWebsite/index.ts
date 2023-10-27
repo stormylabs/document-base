@@ -83,9 +83,6 @@ export default class CrawlWebsiteUseCase {
       if (botId) {
         result = await this.botService.findById(botId);
       }
-      if (organizationId) {
-        result = await this.orgService.findById(organizationId);
-      }
 
       if (!result) {
         return left(
@@ -141,18 +138,13 @@ export default class CrawlWebsiteUseCase {
       if (botId) {
         upsertedData = await this.botService.upsertDocument(botId, documentId);
       }
-      if (organizationId) {
-        upsertedData = await this.orgService.upsertDocument(
-          organizationId,
-          documentId,
-        );
-      }
+
       const upsertedCrawlJob = await this.crawlJobService.upsertDocuments(
         jobId,
         [documentId],
       );
       this.logger.log(
-        `document upserted to ${botId ? 'bot' : 'organization'} and crawl job`,
+        `document upserted to crawl job: ${upsertedCrawlJob._id}`,
       );
 
       if (upsertedCrawlJob.documents.length === limit) {
