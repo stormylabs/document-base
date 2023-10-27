@@ -9,10 +9,10 @@ export class AddKnowledgeBaseJobService {
   ) {}
 
   async create(data: {
-    crawlJobId: string;
+    crawlJobId?: string;
     knowledgeBaseId: string;
     organizationId: string;
-    extractFileJobId: string;
+    extractFileJobId?: string;
   }): Promise<AddKnowledgeBaseJobData> {
     const addKnowledgeBaseJob = await this.addKnowledgeBaseJobRepository.create(
       data,

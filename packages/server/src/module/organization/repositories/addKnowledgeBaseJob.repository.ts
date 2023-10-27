@@ -20,8 +20,8 @@ export class AddKnowledgeBaseJobRepository {
     > & {
       organizationId: string;
       knowledgeBaseId: string;
-      crawlJobId: string;
-      extractFileJobId: string;
+      crawlJobId?: string;
+      extractFileJobId?: string;
     },
   ): Promise<AddKnowledgeBaseJobData> {
     const addKnowledgeBaseJob = new this.addKnowledgeBaseJobModel({

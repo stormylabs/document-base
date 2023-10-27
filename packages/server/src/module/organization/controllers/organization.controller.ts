@@ -56,8 +56,8 @@ import { CustomUploadFileMimeTypeValidator } from '@/shared/validators/file-mime
 import AddKnowledgeBaseToOrganizationUseCase from '../useCases/AddKnowlagebaseToOrganization/CreateOrganization';
 
 const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
+const MIN_FILE_COUNT = 0;
 const MAX_FILE_COUNT = 10;
-const MIN_FILE_COUNT = 1;
 
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
@@ -336,6 +336,7 @@ export class OrganizationController {
   async addKnowledgeBaseJob(
     @Param() { orgId }: OrgIdParams,
     @Body() body: AddKnowledgeBaseToOrganizationDTO,
+    @Req() req: RequestWithUser,
     @UploadedFiles(
       new CustomFileCountValidationPipe({
         minCount: MIN_FILE_COUNT,
@@ -349,14 +350,19 @@ export class OrganizationController {
         )
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
-          fileIsRequired: true,
+          fileIsRequired: false,
         }),
       new ParseFilePipe({
         validators: [],
+        fileIsRequired: false,
       }),
     )
     files: Array<Express.Multer.File>,
   ) {
+    if (req?.user?.member?.organization?._id !== orgId) {
+      return errorHandler(new UnauthorizedError());
+    }
+
     const crawl =
       typeof body?.crawl === 'string' ? JSON.parse(body?.crawl) : body.crawl;
 

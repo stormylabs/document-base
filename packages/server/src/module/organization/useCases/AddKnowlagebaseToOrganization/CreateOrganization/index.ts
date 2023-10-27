@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import UnexpectedError, {
+  InvalidInputError,
   NotFoundError,
   S3UploadError,
   UnfinishedJobsError,
@@ -58,6 +59,14 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
     try {
       this.logger.log(`Start add knowledge base to organization`);
 
+      if (isEmpty(crawl) && !files.length) {
+        return left(
+          new InvalidInputError(
+            'One of the files or crawl data should be provided!',
+          ),
+        );
+      }
+
       let crawlJobId: string;
       let extractFileJobId: string;
 
@@ -107,7 +116,7 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
 
         crawlJobId = (crawlJob.value.getValue() as { jobId: string }).jobId;
       }
-      if (files.length) {
+      if (!isEmpty(files)) {
         let urls: string[] = [];
 
         const filenames = files.map((file) => file.originalname);
@@ -140,10 +149,10 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
       // * Create add knowledge base job record
       this.logger.log('Create add knowledge base job');
       const addKnowledgeBaseJob = await this.addKnowledgeBaseJobService.create({
-        crawlJobId,
-        extractFileJobId,
         organizationId,
         knowledgeBaseId: knowledgeBase._id,
+        ...(extractFileJobId ? { extractFileJobId } : {}),
+        ...(crawlJobId ? { crawlJobId } : {}),
       });
 
       return right(
