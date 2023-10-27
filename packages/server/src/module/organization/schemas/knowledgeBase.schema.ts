@@ -27,7 +27,7 @@ export class KnowledgeBase extends Document {
   })
   type: KnowledgeBaseType;
 
-  @Prop({ type: Types.ObjectId, ref: 'Organization' })
+  @Prop({ type: Types.ObjectId, ref: 'Organization', required: true })
   organization: OrganizationDocument;
 
   @Prop({ default: Date.now, type: Date })
@@ -41,5 +41,4 @@ export class KnowledgeBase extends Document {
 }
 
 export const KnowledgeBaseSchema = SchemaFactory.createForClass(KnowledgeBase);
-KnowledgeBaseSchema.index({ name: 1 });
 KnowledgeBaseSchema.set('toJSON', toJSONOverride);

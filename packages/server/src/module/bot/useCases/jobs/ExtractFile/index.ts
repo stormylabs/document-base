@@ -87,9 +87,6 @@ export default class ExtractFileUseCase {
       if (botId) {
         result = await this.botService.findById(botId);
       }
-      if (organizationId) {
-        result = await this.orgService.findById(organizationId);
-      }
 
       if (!result) {
         return left(
@@ -141,17 +138,11 @@ export default class ExtractFileUseCase {
       if (botId) {
         await this.botService.upsertDocument(botId, documentId);
       }
-
-      if (organizationId) {
-        await this.orgService.upsertDocument(organizationId, documentId);
-      }
       const upsertedExtractFileJob =
         await this.extractFileJobService.upsertDocuments(jobId, [documentId]);
 
       this.logger.log(
-        `document upsert to ${
-          botId ? 'bot' : 'organization'
-        } and extract file job`,
+        `document upserted to extract file job: ${upsertedExtractFileJob._id}`,
       );
 
       if (
