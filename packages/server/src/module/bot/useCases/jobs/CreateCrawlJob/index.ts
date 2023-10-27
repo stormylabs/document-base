@@ -37,11 +37,13 @@ export default class CreateCrawlJobUseCase {
     botId,
     limit,
     urls,
+    only,
   }: {
     organizationId?: string;
     botId?: string;
     urls: string[];
     limit: number;
+    only?: boolean;
   }): Promise<Response> {
     try {
       this.logger.log(`Start creating crawl job`);
@@ -72,20 +74,24 @@ export default class CreateCrawlJobUseCase {
         );
       }
 
+      // * if only is true, set limit to the number of urls
+      const limitValue = only ? urls.length : limit;
+
       const crawlJob = await this.crawlJobService.create({
+        only,
+        limit: limitValue,
+        initUrls: urls,
         ...(botId ? { botId } : {}),
         ...(organizationId ? { organizationId } : {}),
-        limit,
-        initUrls: urls,
       });
 
       const { _id: jobId, status } = crawlJob;
 
       const payloads = await this.createPayloads({
         jobId,
+        urls,
         ...(botId ? { botId } : {}),
         ...(organizationId ? { organizationId } : {}),
-        urls,
       });
 
       const batchSize = 100;

@@ -63,7 +63,7 @@ export default class CrawlWebsitesByBotUseCase {
         );
       }
 
-      // remove all documents before start crawling
+      // * remove all documents before start crawling
       await this.botService.removeAllDocuments(botId);
       this.logger.log(`Removed all documents of bot ${botId}`);
 

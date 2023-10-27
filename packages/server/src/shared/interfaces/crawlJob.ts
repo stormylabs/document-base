@@ -9,6 +9,7 @@ export interface CrawlJobData {
   documents: string[];
   status: JobStatus;
   initUrls: string[];
+  only: boolean;
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date;

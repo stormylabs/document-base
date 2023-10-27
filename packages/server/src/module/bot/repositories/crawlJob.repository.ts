@@ -22,6 +22,7 @@ export class CrawlJobRepository {
     organizationId?: string;
     limit: number;
     initUrls: string[];
+    only?: boolean;
   }): Promise<CrawlJobData> {
     const payload: any = {};
 

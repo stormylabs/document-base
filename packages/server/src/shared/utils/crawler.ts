@@ -17,10 +17,12 @@ class Crawler {
   url: string;
   spider: Spider | null = {};
   textLengthMinimum = 200;
+  only: boolean;
   private readonly logger = new Logger(Crawler.name);
 
-  constructor(url: string, textLengthMinimum = 200) {
+  constructor(url: string, textLengthMinimum = 200, only = false) {
     this.url = encodeURI(url);
+    this.only = only;
     this.textLengthMinimum = textLengthMinimum;
 
     this.text = '';
@@ -50,33 +52,38 @@ class Crawler {
 
     const $ = cheerio.load(this.decodeBody(doc.res));
 
-    this.logger.log('Identifying urls');
-    doc.$('a').each((i: number, elem: any) => {
-      try {
-        const href = doc.$(elem).attr('href')?.split('#')[0];
-        const targetUrl =
-          href && isValidUrl(doc.resolve(href)) && doc.resolve(href);
-        const targetUrlParts = parse(encodeURI(targetUrl));
-        const uParts = parse(this.url);
-        const extension = path.extname(targetUrlParts.pathname);
-        const contentType: string = doc.res.headers['content-type'] || '';
-        const contentTypeParts = contentType.split(/;\s|;/);
-        if (
-          !targetUrl ||
-          targetUrlParts.hostname !== uParts.hostname ||
-          EXTENSIONS.includes(extension.toLowerCase()) ||
-          contentTypeParts.every((part) => !HTML_CONTENT_TYPES.includes(part))
-        ) {
-          this.logger.log(
-            `Ignoring url ${targetUrl}, extension: ${extension}, content-type: ${contentType}`,
-          );
-          return;
+    // * if only eq true skip Identifying new URLs
+    if (!this.only) {
+      this.logger.log('only if flag is true, skip identifying more urls');
+
+      this.logger.log('Identifying urls');
+      doc.$('a').each((i: number, elem: any) => {
+        try {
+          const href = doc.$(elem).attr('href')?.split('#')[0];
+          const targetUrl =
+            href && isValidUrl(doc.resolve(href)) && doc.resolve(href);
+          const targetUrlParts = parse(encodeURI(targetUrl));
+          const uParts = parse(this.url);
+          const extension = path.extname(targetUrlParts.pathname);
+          const contentType: string = doc.res.headers['content-type'] || '';
+          const contentTypeParts = contentType.split(/;\s|;/);
+          if (
+            !targetUrl ||
+            targetUrlParts.hostname !== uParts.hostname ||
+            EXTENSIONS.includes(extension.toLowerCase()) ||
+            contentTypeParts.every((part) => !HTML_CONTENT_TYPES.includes(part))
+          ) {
+            this.logger.log(
+              `Ignoring url ${targetUrl}, extension: ${extension}, content-type: ${contentType}`,
+            );
+            return;
+          }
+          this.urls.push(targetUrl);
+        } catch (e) {
+          console.log(e);
         }
-        this.urls.push(targetUrl);
-      } catch (e) {
-        console.log(e);
-      }
-    });
+      });
+    }
 
     $('script').remove();
     $('#hub-sidebar').remove();

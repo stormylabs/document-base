@@ -97,7 +97,7 @@ export default class CrawlWebsiteUseCase {
 
       const url = document.sourceName;
       const limit = crawlJob.limit;
-      const crawler = new Crawler(url);
+      const crawler = new Crawler(url, 200, crawlJob?.only);
 
       let data: {
         text: string;
@@ -161,11 +161,16 @@ export default class CrawlWebsiteUseCase {
         return right(Result.ok());
       }
 
+      if (crawlJob.only) {
+        this.logger.log('only flag is true, no need to crawl other urls');
+        return right(Result.ok());
+      }
+
       const dataDocumentUrls = upsertedData.documents
         .filter((doc) => doc.type === DocumentType.Url)
         .map((doc) => doc.sourceName);
 
-      // filters out current bot documents.urls to only send new urls
+      // * filters out current bot documents.urls to only send new urls
       const urls = data.urls.filter((url) => !dataDocumentUrls.includes(url));
       const numToSend = Math.ceil(
         (limit - upsertedCrawlJob.documents.length) * 1.3,

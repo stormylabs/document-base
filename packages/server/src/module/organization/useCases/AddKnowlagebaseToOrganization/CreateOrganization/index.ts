@@ -112,6 +112,7 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
           organizationId,
           urls: crawl.urls,
           limit: crawl.limit,
+          only: crawl.only,
         });
 
         crawlJobId = (crawlJob.value.getValue() as { jobId: string }).jobId;
