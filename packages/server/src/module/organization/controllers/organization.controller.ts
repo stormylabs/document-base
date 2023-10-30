@@ -2,21 +2,28 @@ import {
   Body,
   Controller,
   Get,
+  HttpStatus,
   Logger,
   Param,
+  ParseFilePipe,
+  ParseFilePipeBuilder,
   Post,
   Req,
+  UploadedFiles,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import {
   ApiBody,
   ApiConflictResponse,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiSecurity,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 
 import { errorHandler } from '@/shared/http';
@@ -26,7 +33,7 @@ import InviteMemberToOrganizationUseCase from '../useCases/InviteMemberToOrganiz
 import { AccessLevel } from '@/shared/interfaces/accessLevel';
 import { RoleAccessLevel } from '@/shared/decorators/RoleAccessLevel.decorator';
 import { RequestWithUser } from '@/shared/interfaces/requestWithUser';
-import { UnauthorizedError } from '@/shared/core/AppError';
+import { InvalidInputError, UnauthorizedError } from '@/shared/core/AppError';
 import { OrgIdParams } from '@/shared/dto/organization';
 import CreateOrganizationDTO, {
   CreateOrganizationResponseDto,
@@ -41,6 +48,16 @@ import AddEngagementToOrganizationDTO from '../useCases/AddEngagementToOrganizat
 import AddEngagementOrganizationUseCase from '../useCases/AddEngagementToOrganization';
 import { EngagementIdParams } from '@/shared/dto/engagement';
 import GetEngagementUseCase from '../useCases/GetEngagement';
+import AddKnowledgeBaseToOrganizationDTO from '../useCases/AddKnowledgeBaseToOrganization/dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { AddKnowledgeBaseJobResponseDTO } from '@/shared/dto/addKnowledgeBaseJob';
+import { CustomFileCountValidationPipe } from '@/shared/validators/file-count.pipe';
+import { CustomUploadFileMimeTypeValidator } from '@/shared/validators/file-mimetype.validator';
+import AddKnowledgeBaseToOrganizationUseCase from '../useCases/AddKnowledgeBaseToOrganization';
+
+const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
+const MIN_FILE_COUNT = 0;
+const MAX_FILE_COUNT = 10;
 
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
@@ -53,6 +70,7 @@ export class OrganizationController {
     private inviteUserToOrgUseCase: InviteMemberToOrganizationUseCase,
     private addEngagementOrganizationUseCase: AddEngagementOrganizationUseCase,
     private getEngagementUseCase: GetEngagementUseCase,
+    private addKnowledgeBaseToOrganizationUseCase: AddKnowledgeBaseToOrganizationUseCase,
   ) {}
 
   @Post()
@@ -277,6 +295,102 @@ export class OrganizationController {
       const error = result.value;
       this.logger.error(
         `[GET] get engagement error ${error.errorValue().message}`,
+      );
+      return errorHandler(error);
+    }
+    return result.value.getValue();
+  }
+
+  /**
+   * Add knowledge base to organization
+   * @param param
+   * @param files
+   * @returns
+   */
+  @Post(':orgId/knowledgeBase')
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
+  @ApiBody({ type: AddKnowledgeBaseToOrganizationDTO })
+  @ApiOperation({
+    summary: 'Add knowledge base to organization.',
+  })
+  @ApiConsumes('multipart/form-data', 'application/json')
+  @UseInterceptors(FilesInterceptor('files'))
+  @ApiOkResponse({
+    description: 'Add knowledge base to organization',
+    type: AddKnowledgeBaseJobResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Organization not found',
+  })
+  @ApiConflictResponse({
+    description: 'If there are unfinished jobs, this error will be returned.',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @RoleAccessLevel([
+    AccessLevel.ADMIN,
+    AccessLevel.MEMBER,
+    AccessLevel.READ_ONLY,
+  ])
+  async addKnowledgeBaseJob(
+    @Param() { orgId }: OrgIdParams,
+    @Body() body: AddKnowledgeBaseToOrganizationDTO,
+    @Req() req: RequestWithUser,
+    @UploadedFiles(
+      new CustomFileCountValidationPipe({
+        minCount: MIN_FILE_COUNT,
+        maxCount: MAX_FILE_COUNT,
+      }),
+      new ParseFilePipeBuilder()
+        .addValidator(
+          new CustomUploadFileMimeTypeValidator({
+            fileExtensions: ALLOWED_UPLOADS_EXT_TYPES,
+          }),
+        )
+        .build({
+          errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
+          fileIsRequired: false,
+        }),
+      new ParseFilePipe({
+        validators: [],
+        fileIsRequired: false,
+      }),
+    )
+    files: Array<Express.Multer.File>,
+  ) {
+    if (req?.user?.member?.organization?._id !== orgId) {
+      return errorHandler(new UnauthorizedError());
+    }
+    if (!body.crawl && (!files || !files.length)) {
+      return errorHandler(
+        new InvalidInputError(
+          'One of the files or crawl data should be provided.',
+        ),
+      );
+    }
+
+    const crawl =
+      typeof body?.crawl === 'string' ? JSON.parse(body?.crawl) : body.crawl;
+
+    this.logger.log(`[POST] Start add knowledge base to organization`);
+
+    const payload = {
+      files,
+      crawl,
+      organizationId: orgId,
+      name: body.name,
+      type: body.type,
+    };
+    const result = await this.addKnowledgeBaseToOrganizationUseCase.exec(
+      payload,
+    );
+
+    if (result.isLeft()) {
+      const error = result.value;
+
+      this.logger.error(
+        `[POST] Add knowledge base error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

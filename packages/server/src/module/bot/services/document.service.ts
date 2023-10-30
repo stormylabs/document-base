@@ -9,7 +9,9 @@ export class DocumentService {
 
   async create(
     documentData: Partial<
-      Omit<DocumentData, '_id' | 'createdAt' | 'deletedAt'>
+      Omit<DocumentData, '_id' | 'createdAt' | 'deletedAt' | 'organization'> & {
+        organizationId?: string;
+      }
     >,
   ): Promise<DocumentData> {
     const createdDocument = await this.documentRepository.create(documentData);
@@ -43,12 +45,14 @@ export class DocumentService {
     documentId,
     content,
     title,
-  }: { documentId: string } & Partial<
+    knowledgeBaseId,
+  }: { documentId: string; knowledgeBaseId?: string } & Partial<
     Omit<DocumentData, '_id' | 'createdAt'>
   >): Promise<DocumentData> {
     const updatedDocument = await this.documentRepository.update(documentId, {
       content,
       title,
+      ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
     });
     return updatedDocument;
   }

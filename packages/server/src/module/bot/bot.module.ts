@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { BotController } from './controllers/bot.controller';
 import { BotRepository } from './repositories/bot.repository';
@@ -53,6 +53,7 @@ import AbortDocIndexJobUseCase from './useCases/jobs/AbortDocIndexJob';
 import { AuthModule } from '../auth/auth.module';
 import { UsageModule } from '../usage/usage.module';
 import PatchBotUseCase from './useCases/bot/PatchBot';
+import { OrganizationModule } from '../organization/organization.module';
 
 @Module({
   imports: [
@@ -86,6 +87,7 @@ import PatchBotUseCase from './useCases/bot/PatchBot';
     S3Module,
     AuthModule,
     UsageModule,
+    OrganizationModule,
   ],
   controllers: [BotController, DataController],
   providers: [
@@ -130,6 +132,10 @@ import PatchBotUseCase from './useCases/bot/PatchBot';
     CrawlWebsiteUseCase,
     ExtractFileUseCase,
     IndexDocumentUseCase,
+    CrawlJobService,
+    ExtractFileJobService,
+    CreateCrawlJobUseCase,
+    CreateExtractFileJobUseCase,
   ],
 })
 export class BotModule {}

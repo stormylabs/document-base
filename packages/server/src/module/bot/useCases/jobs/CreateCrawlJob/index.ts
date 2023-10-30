@@ -13,6 +13,9 @@ import { DocumentService } from '@/module/bot/services/document.service';
 import { DocumentType } from '@/shared/interfaces/document';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import UseCaseError from '@/shared/core/UseCaseError';
+import { BotData } from '@/shared/interfaces/bot';
+import { KnowledgeBaseData } from '@/shared/interfaces/knowledgeBase';
+import { KnowledgeBaseService } from '@/module/organization/services/knowledgeBase.service';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -27,36 +30,69 @@ export default class CreateCrawlJobUseCase {
     private readonly crawlJobService: CrawlJobService,
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
+    private readonly knowledgeBaseService: KnowledgeBaseService,
   ) {}
-  public async exec(
-    botId: string,
-    urls: string[],
-    limit: number,
-  ): Promise<Response> {
+  public async exec({
+    knowledgeBaseId,
+    botId,
+    limit,
+    urls,
+    only,
+  }: {
+    knowledgeBaseId?: string;
+    botId?: string;
+    urls: string[];
+    limit: number;
+    only?: boolean;
+  }): Promise<Response> {
     try {
       this.logger.log(`Start creating crawl job`);
 
-      const bot = await this.botService.findById(botId);
-      if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
+      let data: BotData | KnowledgeBaseData = null;
 
-      const urlDocs = bot.documents.filter(
+      if (botId) {
+        data = await this.botService.findById(botId);
+        if (!data) return left(new NotFoundError(Resource.Bot, [botId]));
+      }
+
+      if (knowledgeBaseId) {
+        data = await this.knowledgeBaseService.findById(knowledgeBaseId);
+        if (!data)
+          return left(
+            new NotFoundError(Resource.KnowledgeBase, [knowledgeBaseId]),
+          );
+      }
+
+      const urlDocs = data.documents.filter(
         (doc) => doc.type === DocumentType.Url,
       );
 
-      await this.botService.removeDocuments(
-        botId,
-        urlDocs.map((doc) => doc._id),
-      );
+      if (botId) {
+        await this.botService.removeDocuments(
+          botId,
+          urlDocs.map((doc) => doc._id),
+        );
+      }
+
+      // * if only is true, set limit to the number of urls
+      const limitValue = only ? urls.length : limit;
 
       const crawlJob = await this.crawlJobService.create({
-        botId,
-        limit,
+        only,
+        limit: limitValue,
         initUrls: urls,
+        ...(botId ? { botId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
       });
 
       const { _id: jobId, status } = crawlJob;
 
-      const payloads = await this.createPayloads(jobId, botId, urls);
+      const payloads = await this.createPayloads({
+        jobId,
+        urls,
+        ...(botId ? { botId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
+      });
 
       const batchSize = 100;
 
@@ -85,7 +121,17 @@ export default class CreateCrawlJobUseCase {
     );
   }
 
-  async createPayloads(jobId: string, botId: string, urls: string[]) {
+  async createPayloads({
+    knowledgeBaseId,
+    botId,
+    jobId,
+    urls,
+  }: {
+    jobId: string;
+    knowledgeBaseId?: string;
+    botId?: string;
+    urls: string[];
+  }) {
     const payloads: CrawlJobMessage[] = [];
     for (const url of urls) {
       const document = await this.documentService.findBySourceName(url);
@@ -105,7 +151,12 @@ export default class CreateCrawlJobUseCase {
         }
       }
 
-      payloads.push({ botId, jobId, documentId });
+      payloads.push({
+        ...(botId ? { botId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
+        jobId,
+        documentId,
+      });
     }
     return payloads;
   }

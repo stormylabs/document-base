@@ -63,12 +63,16 @@ export default class CrawlWebsitesByBotUseCase {
         );
       }
 
-      // remove all documents before start crawling
+      // * remove all documents before start crawling
       await this.botService.removeAllDocuments(botId);
       this.logger.log(`Removed all documents of bot ${botId}`);
 
       this.logger.log(`Create crawl job`);
-      const result = await this.createCrawlJobUseCase.exec(botId, urls, limit);
+      const result = await this.createCrawlJobUseCase.exec({
+        botId,
+        urls,
+        limit,
+      });
 
       if (result.isLeft()) {
         return left(result.value);

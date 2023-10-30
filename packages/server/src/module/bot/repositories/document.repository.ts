@@ -11,15 +11,30 @@ export class DocumentRepository {
     @InjectModel(Document.name) private readonly documentModel: Model<Document>,
   ) {}
 
-  async create(documentData: Partial<DocumentData>): Promise<DocumentData> {
-    const document = new this.documentModel(documentData);
+  async create({
+    knowledgeBaseId,
+    ...documentData
+  }: Partial<
+    Omit<DocumentData, 'knowledgeBase'> & {
+      knowledgeBaseId?: string;
+    }
+  >): Promise<DocumentData> {
+    const document = new this.documentModel({
+      ...documentData,
+      ...(knowledgeBaseId
+        ? { knowledgeBase: new Types.ObjectId(knowledgeBaseId) }
+        : {}),
+    });
     const saved = await document.save();
     return saved.toJSON() as DocumentData;
   }
 
   async findById(documentId: string): Promise<DocumentData | null> {
     const id = new Types.ObjectId(documentId);
-    const document = await this.documentModel.findById(id).exec();
+    const document = await this.documentModel
+      .findById(id)
+      .populate('knowledgeBase')
+      .exec();
     if (!document) return null;
     return document.toJSON() as DocumentData;
   }
@@ -55,11 +70,29 @@ export class DocumentRepository {
 
   async update(
     documentId: string,
-    data: Partial<Omit<DocumentData, '_id' | 'createdAt'>>,
+    {
+      knowledgeBaseId,
+      ...data
+    }: Partial<
+      Omit<DocumentData, '_id' | 'createdAt' | 'knowledgeBase'> & {
+        knowledgeBaseId?: string;
+      }
+    >,
   ): Promise<DocumentData | null> {
     const id = new Types.ObjectId(documentId);
     const document = await this.documentModel
-      .findByIdAndUpdate(id, { $set: data }, { new: true })
+      .findByIdAndUpdate(
+        id,
+        {
+          $set: {
+            ...data,
+            ...(knowledgeBaseId
+              ? { knowledgeBase: new Types.ObjectId(knowledgeBaseId) }
+              : {}),
+          },
+        },
+        { new: true },
+      )
       .exec();
 
     return document.toJSON() as DocumentData;

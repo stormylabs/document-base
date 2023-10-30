@@ -1,3 +1,5 @@
+import { KnowledgeBaseData } from './knowledgeBase';
+
 export enum DocumentType {
   Url = 'url',
   Pdf = 'pdf',
@@ -19,6 +21,7 @@ export interface DocumentData {
   type: DocumentType;
   sourceName: string;
   title?: string;
+  knowledgeBase?: KnowledgeBaseData;
   content?: string;
   tokens?: number;
   characters?: number;

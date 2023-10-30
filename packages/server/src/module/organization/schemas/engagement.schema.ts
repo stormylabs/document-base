@@ -4,6 +4,7 @@ import { Document, HydratedDocument, Types } from 'mongoose';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
 import { OrganizationDocument } from './organization.schema';
 import { AgentRole } from '@/shared/interfaces/organization';
+import { KnowledgeBaseDocument } from './knowledgeBase.schema';
 
 export type EngagementDocument = HydratedDocument<Engagement>;
 
@@ -55,8 +56,8 @@ export class Engagement extends Document {
   @Prop({ type: [String] })
   channels: string[];
 
-  @Prop({ type: [String] })
-  knowledgeBases: string[];
+  @Prop({ type: [{ type: Types.ObjectId, ref: 'KnowledgeBase' }] })
+  knowledgeBases: KnowledgeBaseDocument[];
 
   @Prop({ type: String })
   outcome: string;

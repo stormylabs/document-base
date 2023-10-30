@@ -21,6 +21,7 @@ export enum Resource {
   ApiKey = 'ApiKey',
   Organization = 'Organization',
   Engagement = 'Engagement',
+  KnowledgeBase = 'KnowledgeBase',
 }
 
 export enum JobStatus {
@@ -29,6 +30,11 @@ export enum JobStatus {
   Finished = 'finished',
   Failed = 'failed',
   Aborted = 'aborted',
+}
+
+export enum KnowledgeBaseType {
+  ProductSearch = 'ProductSearch',
+  FAQ = 'FAQ',
 }
 
 export interface AuthRequest extends Request {

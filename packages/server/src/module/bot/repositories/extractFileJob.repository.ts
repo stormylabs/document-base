@@ -13,13 +13,26 @@ export class ExtractFileJobRepository {
     private readonly extractFileJobModel: Model<ExtractFileJob>,
   ) {}
 
-  async create(extractFileJobData: {
-    botId: string;
+  async create({
+    botId,
+    knowledgeBaseId,
+    ...extractFileJobData
+  }: {
+    botId?: string;
+    knowledgeBaseId?: string;
     initUrls: string[];
   }): Promise<ExtractFileJobData> {
-    const botId = new Types.ObjectId(extractFileJobData.botId);
+    const payload: any = {};
+    if (botId) {
+      payload.bot = new Types.ObjectId(botId);
+    }
+    if (knowledgeBaseId) {
+      payload.knowledgeBase = new Types.ObjectId(knowledgeBaseId);
+    }
+
     const extractFileJob = new this.extractFileJobModel({
       ...extractFileJobData,
+      ...payload,
       bot: botId,
     });
     const created = await extractFileJob.save();
@@ -58,6 +71,18 @@ export class ExtractFileJobRepository {
     );
   }
 
+  async findByKnowledgeBaseId(
+    knowledgeBaseId: string,
+  ): Promise<ExtractFileJobData[]> {
+    const id = new Types.ObjectId(knowledgeBaseId);
+    const extractFileJobs = await this.extractFileJobModel
+      .find({ knowledgeBase: id })
+      .exec();
+    return extractFileJobs.map(
+      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData,
+    );
+  }
+
   async findTimeoutJobs(
     status: JobStatus.Running | JobStatus.Pending,
   ): Promise<ExtractFileJobData[]> {
@@ -80,6 +105,21 @@ export class ExtractFileJobRepository {
     const extractFileJobs = await this.extractFileJobModel
       .find({
         bot: id,
+        status: { $in: [JobStatus.Pending, JobStatus.Running] },
+      })
+      .exec();
+    return extractFileJobs.map(
+      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData,
+    );
+  }
+
+  async findUnfinishedJobsByKnowledgeBaseId(
+    knowledgeBaseId: string,
+  ): Promise<ExtractFileJobData[]> {
+    const id = new Types.ObjectId(knowledgeBaseId);
+    const extractFileJobs = await this.extractFileJobModel
+      .find({
+        knowledgeBase: id,
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
       })
       .exec();

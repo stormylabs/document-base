@@ -12,13 +12,19 @@ export class EngagementRepository {
   ) {}
 
   async create(
-    engagementData: Partial<Omit<EngagementData, 'organization'>> & {
+    engagementData: Partial<
+      Omit<EngagementData, 'organization' | 'knowledgeBases'>
+    > & {
       organizationId: string;
+      knowledgeBaseIds: string[];
     },
   ): Promise<EngagementData> {
     const engagement = new this.engagementModel({
       ...engagementData,
       organization: new Types.ObjectId(engagementData.organizationId),
+      knowledgeBases: engagementData.knowledgeBaseIds.map(
+        (id) => new Types.ObjectId(id),
+      ),
     });
     const saved = await engagement.save();
     return saved.toJSON() as EngagementData;
@@ -38,6 +44,7 @@ export class EngagementRepository {
     const engagement = await this.engagementModel
       .findById(engagementId)
       .populate('organization')
+      .populate('knowledgeBases')
       .exec();
     if (!engagement || engagement.deletedAt) return null;
     return engagement.toJSON() as EngagementData;
