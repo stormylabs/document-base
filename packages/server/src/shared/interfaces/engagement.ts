@@ -1,3 +1,4 @@
+import { KnowledgeBaseData } from './knowledgeBase';
 import { AgentRole, OrganizationData } from './organization';
 
 export class EngagementData {
@@ -13,7 +14,7 @@ export class EngagementData {
   templateId: string;
   contacts: string[];
   channels: string[];
-  knowledgeBases: string[];
+  knowledgeBases: KnowledgeBaseData[];
   outcome: string;
   createdAt?: Date;
   deletedAt?: Date;

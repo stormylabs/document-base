@@ -5,6 +5,7 @@ import { Transform } from 'class-transformer';
 import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { DocumentDocument } from '@/module/bot/schemas/document.schema';
 import { BotDocument } from '@/module/bot/schemas/bot.schema';
+import { KnowledgeBaseDocument } from '@/module/organization/schemas/knowledgeBase.schema';
 
 export type ExtractFileJobDocument = HydratedDocument<ExtractFileJob>;
 
@@ -23,6 +24,9 @@ export class ExtractFileJob extends Document {
 
   @Prop({ type: Types.ObjectId, ref: 'Bot' })
   bot: BotDocument;
+
+  @Prop({ type: Types.ObjectId, ref: 'KnowledgeBase' })
+  knowledgeBase?: KnowledgeBaseDocument;
 
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Document' }] })
   documents: DocumentDocument[];

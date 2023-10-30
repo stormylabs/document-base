@@ -6,6 +6,7 @@ import { Document, HydratedDocument, ObjectId, Types } from 'mongoose';
 import { DocumentDocument } from '@/module/bot/schemas/document.schema';
 import { BotDocument } from '@/module/bot/schemas/bot.schema';
 import { DOCUMENT_LIMIT } from '@/shared/constants';
+import { KnowledgeBaseDocument } from '@/module/organization/schemas/knowledgeBase.schema';
 
 export type CrawlJobDocument = HydratedDocument<CrawlJob>;
 
@@ -36,11 +37,21 @@ export class CrawlJob extends Document {
   @Prop({ type: Types.ObjectId, ref: 'Bot' })
   bot: BotDocument;
 
+  @Prop({ type: Types.ObjectId, ref: 'KnowledgeBase' })
+  knowledgeBase: KnowledgeBaseDocument;
+
   @Prop({ type: [{ type: Types.ObjectId, ref: 'Document' }] })
   documents: DocumentDocument[];
 
   @Prop({ type: Array, default: [], minlength: 1, maxlength: 10 })
   initUrls: string[];
+
+  @Prop({
+    type: Boolean,
+    default: false,
+    required: true,
+  })
+  only: boolean;
 
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;

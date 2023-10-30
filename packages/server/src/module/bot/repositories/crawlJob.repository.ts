@@ -13,13 +13,27 @@ export class CrawlJobRepository {
     @InjectModel(CrawlJob.name) private readonly crawlJobModel: Model<CrawlJob>,
   ) {}
 
-  async create(crawlJobData: {
-    botId: string;
+  async create({
+    botId,
+    knowledgeBaseId,
+    ...crawlJobData
+  }: {
+    botId?: string;
+    knowledgeBaseId?: string;
     limit: number;
     initUrls: string[];
+    only?: boolean;
   }): Promise<CrawlJobData> {
-    const botId = new Types.ObjectId(crawlJobData.botId);
-    const crawlJob = new this.crawlJobModel({ ...crawlJobData, bot: botId });
+    const payload: any = {};
+
+    if (botId) {
+      payload.bot = new Types.ObjectId(botId);
+    }
+    if (knowledgeBaseId) {
+      payload.knowledgeBase = new Types.ObjectId(knowledgeBaseId);
+    }
+
+    const crawlJob = new this.crawlJobModel({ ...crawlJobData, ...payload });
     const created = await crawlJob.save();
     return created.toJSON() as CrawlJobData;
   }
@@ -48,6 +62,16 @@ export class CrawlJobRepository {
     return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
   }
 
+  async findByKnowledgeBaseId(
+    knowledgeBaseId: string,
+  ): Promise<CrawlJobData[]> {
+    const id = new Types.ObjectId(knowledgeBaseId);
+    const crawlJobs = await this.crawlJobModel
+      .find({ knowledgeBase: id })
+      .exec();
+    return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
+  }
+
   async findTimeoutJobs(
     status: JobStatus.Running | JobStatus.Pending,
   ): Promise<CrawlJobData[]> {
@@ -68,6 +92,19 @@ export class CrawlJobRepository {
     const crawlJobs = await this.crawlJobModel
       .find({
         bot: id,
+        status: { $in: [JobStatus.Pending, JobStatus.Running] },
+      })
+      .exec();
+    return crawlJobs.map((crawlJob) => crawlJob.toJSON() as CrawlJobData);
+  }
+
+  async findUnfinishedJobsByKnowledgeBaseId(
+    knowledgeBaseId: string,
+  ): Promise<CrawlJobData[]> {
+    const id = new Types.ObjectId(knowledgeBaseId);
+    const crawlJobs = await this.crawlJobModel
+      .find({
+        knowledgeBase: id,
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
       })
       .exec();

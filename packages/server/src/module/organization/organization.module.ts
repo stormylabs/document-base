@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule } from '@nestjs/config';
 import {
@@ -24,6 +24,21 @@ import { EngagementRepository } from './repositories/engagement.repository';
 import GetEngagementUseCase from './useCases/GetEngagement';
 import ExecuteEngagementUseCase from './useCases/ExecuteEngagement';
 import { SqsMessageService } from '../sqsProducer/services/sqsMessage.service';
+import { BotModule } from '../bot/bot.module';
+import { S3Module } from '../s3/s3.module';
+import {
+  KnowledgeBase,
+  KnowledgeBaseSchema,
+} from './schemas/knowledgeBase.schema';
+import {
+  AddKnowledgeBaseJob,
+  AddKnowledgeBaseJobSchema,
+} from './schemas/addKnowledgeBaseJob.schema';
+import { KnowledgeBaseRepository } from './repositories/knowledgeBase.repository';
+import { AddKnowledgeBaseJobRepository } from './repositories/addKnowledgeBaseJob.repository';
+import { KnowledgeBaseService } from './services/knowledgeBase.service';
+import { AddKnowledgeBaseJobService } from './services/addKnowledgeBaseJob.service';
+import AddKnowledgeBaseToOrganizationUseCase from './useCases/AddKnowledgeBaseToOrganization';
 
 @Module({
   imports: [
@@ -40,10 +55,20 @@ import { SqsMessageService } from '../sqsProducer/services/sqsMessage.service';
         name: Engagement.name,
         schema: EngagementSchema,
       },
+      {
+        name: KnowledgeBase.name,
+        schema: KnowledgeBaseSchema,
+      },
+      {
+        name: AddKnowledgeBaseJob.name,
+        schema: AddKnowledgeBaseJobSchema,
+      },
     ]),
     ConfigModule,
     UserModule,
     AuthModule,
+    forwardRef(() => BotModule),
+    S3Module,
   ],
   controllers: [OrganizationController],
   providers: [
@@ -51,6 +76,10 @@ import { SqsMessageService } from '../sqsProducer/services/sqsMessage.service';
     OrganizationService,
     MemberRepository,
     MemberService,
+    KnowledgeBaseRepository,
+    KnowledgeBaseService,
+    AddKnowledgeBaseJobRepository,
+    AddKnowledgeBaseJobService,
     InviteMemberToOrganizationUseCase,
     CreateOrganizationUseCase,
     GetOrganizationUseCase,
@@ -61,7 +90,13 @@ import { SqsMessageService } from '../sqsProducer/services/sqsMessage.service';
     GetEngagementUseCase,
     ExecuteEngagementUseCase,
     SqsMessageService,
+    AddKnowledgeBaseToOrganizationUseCase,
   ],
-  exports: [OrganizationService, MemberService, EngagementService],
+  exports: [
+    OrganizationService,
+    MemberService,
+    EngagementService,
+    KnowledgeBaseService,
+  ],
 })
 export class OrganizationModule {}

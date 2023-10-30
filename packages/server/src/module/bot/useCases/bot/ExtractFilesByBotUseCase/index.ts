@@ -78,7 +78,7 @@ export default class ExtractFilesByBotUseCase {
     let result: Response;
 
     try {
-      result = await this.extractFileJobUseCase.exec(botId, urls);
+      result = await this.extractFileJobUseCase.exec({ botId, urls });
 
       if (result.isLeft()) {
         return left(result.value);

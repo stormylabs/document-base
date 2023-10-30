@@ -15,6 +15,7 @@ import { DocumentExtToType } from '@/shared/interfaces/document';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 import { extractExtensionFromUrl } from '@/shared/utils/web-utils';
 import UseCaseError from '@/shared/core/UseCaseError';
+import { KnowledgeBaseService } from '@/module/organization/services/knowledgeBase.service';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -29,22 +30,49 @@ export default class CreateExtractFileJobUseCase {
     private readonly extractFileJobService: ExtractFileJobService,
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
+    private readonly knowledgeBaseService: KnowledgeBaseService,
   ) {}
-  public async exec(botId: string, urls: string[]): Promise<Response> {
+  public async exec({
+    botId,
+    knowledgeBaseId,
+    urls,
+  }: {
+    botId?: string;
+    knowledgeBaseId?: string;
+    urls: string[];
+  }): Promise<Response> {
     try {
       this.logger.log(`Start creating extract files job`);
 
-      const botExists = await this.botService.exists([botId]);
-      if (!botExists) return left(new NotFoundError(Resource.Bot, [botId]));
+      if (botId) {
+        const botExists = await this.botService.exists([botId]);
+        if (!botExists) return left(new NotFoundError(Resource.Bot, [botId]));
+      }
+
+      if (knowledgeBaseId) {
+        const knowledgeBaseExists = await this.knowledgeBaseService.exists([
+          knowledgeBaseId,
+        ]);
+        if (!knowledgeBaseExists)
+          return left(
+            new NotFoundError(Resource.KnowledgeBase, [knowledgeBaseId]),
+          );
+      }
 
       const extractFileJob = await this.extractFileJobService.create({
-        botId,
         initUrls: urls,
+        ...(botId ? { botId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
       });
 
       const { _id: jobId, status } = extractFileJob;
 
-      const payloads = await this.createPayloads(jobId, botId, urls);
+      const payloads = await this.createPayloads({
+        jobId,
+        urls,
+        ...(botId ? { botId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
+      });
 
       try {
         await this.sendMessages(jobId, payloads);
@@ -69,7 +97,17 @@ export default class CreateExtractFileJobUseCase {
     );
   }
 
-  async createPayloads(jobId: string, botId: string, urls: string[]) {
+  async createPayloads({
+    botId,
+    knowledgeBaseId,
+    jobId,
+    urls,
+  }: {
+    jobId: string;
+    botId?: string;
+    knowledgeBaseId?: string;
+    urls: string[];
+  }) {
     const payloads: ExtractFileJobMessage[] = [];
     for (const url of urls) {
       const document = await this.documentService.findBySourceName(url);
@@ -92,7 +130,12 @@ export default class CreateExtractFileJobUseCase {
         }
       }
 
-      payloads.push({ botId, jobId, documentId });
+      payloads.push({
+        jobId,
+        documentId,
+        ...(botId ? { botId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
+      });
     }
     return payloads;
   }

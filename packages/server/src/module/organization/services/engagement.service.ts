@@ -7,8 +7,11 @@ export class EngagementService {
   constructor(private engagementRepository: EngagementRepository) {}
 
   async create(
-    engagementData: Partial<Omit<EngagementData, 'organization'>> & {
+    engagementData: Partial<
+      Omit<EngagementData, 'organization' | 'knowledgeBases'>
+    > & {
       organizationId: string;
+      knowledgeBaseIds: string[];
     },
   ): Promise<EngagementData> {
     const createdEngagement = await this.engagementRepository.create(

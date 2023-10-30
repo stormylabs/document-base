@@ -13,6 +13,9 @@ import { DocumentType } from '@/shared/interfaces/document';
 import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import { ExtractWord } from '@/shared/utils/extractWord';
 import UseCaseError from '@/shared/core/UseCaseError';
+import { BotData } from '@/shared/interfaces/bot';
+import { KnowledgeBaseService } from '@/module/organization/services/knowledgeBase.service';
+import { KnowledgeBaseData } from '@/shared/interfaces/knowledgeBase';
 
 type Response = Either<Result<UseCaseError>, Result<void>>;
 
@@ -23,12 +26,19 @@ export default class ExtractFileUseCase {
     private readonly botService: BotService,
     private readonly extractFileJobService: ExtractFileJobService,
     private readonly documentService: DocumentService,
+    private readonly knowledgeBaseService: KnowledgeBaseService,
   ) {}
-  public async exec(
-    jobId: string,
-    botId: string,
-    documentId: string,
-  ): Promise<Response> {
+  public async exec({
+    botId,
+    knowledgeBaseId,
+    documentId,
+    jobId,
+  }: {
+    jobId: string;
+    botId?: string;
+    knowledgeBaseId?: string;
+    documentId: string;
+  }): Promise<Response> {
     try {
       this.logger.log(`Start extract file, locking job: ${jobId}`);
 
@@ -72,9 +82,22 @@ export default class ExtractFileUseCase {
         await this.extractFileJobService.updateStatus(jobId, JobStatus.Running);
       }
 
-      const bot = await this.botService.findById(botId);
-      if (!bot) {
-        return left(new NotFoundError(Resource.Bot, [botId]));
+      let result: BotData | KnowledgeBaseData = null;
+
+      if (botId) {
+        result = await this.botService.findById(botId);
+      }
+
+      if (knowledgeBaseId) {
+        result = await this.knowledgeBaseService.findById(knowledgeBaseId);
+      }
+
+      if (!result) {
+        return left(
+          new NotFoundError(Resource[botId ? 'Bot' : 'KnowledgeBase'], [
+            botId ? botId : knowledgeBaseId,
+          ]),
+        );
       }
 
       const url = document.sourceName;
@@ -112,14 +135,26 @@ export default class ExtractFileUseCase {
       await this.documentService.updateContent({
         documentId,
         content: data.text,
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
       });
       this.logger.log('document content updated');
 
-      await this.botService.upsertDocument(botId, documentId);
+      if (botId) {
+        await this.botService.upsertDocument(botId, documentId);
+      }
+      if (knowledgeBaseId) {
+        await this.knowledgeBaseService.upsertDocument(
+          knowledgeBaseId,
+          documentId,
+        );
+      }
+
       const upsertedExtractFileJob =
         await this.extractFileJobService.upsertDocuments(jobId, [documentId]);
 
-      this.logger.log('document upsert to bot and extract file job');
+      this.logger.log(
+        `document upserted to extract file job: ${upsertedExtractFileJob._id}`,
+      );
 
       if (
         upsertedExtractFileJob.documents.length ===

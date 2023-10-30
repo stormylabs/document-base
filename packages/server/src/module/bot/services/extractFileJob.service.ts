@@ -8,7 +8,8 @@ export class ExtractFileJobService {
   constructor(private extractFileJobRepository: ExtractFileJobRepository) {}
 
   async create(data: {
-    botId: string;
+    botId?: string;
+    knowledgeBaseId?: string;
     initUrls: string[];
   }): Promise<ExtractFileJobData> {
     const createdExtractFileJob = await this.extractFileJobRepository.create(
@@ -39,11 +40,31 @@ export class ExtractFileJobService {
     return unfinishedJobs;
   }
 
+  async findUnfinishedJobsByKnowledgeBaseId(
+    knowledgeBaseId: string,
+  ): Promise<ExtractFileJobData[]> {
+    const unfinishedJobs =
+      await this.extractFileJobRepository.findUnfinishedJobsByKnowledgeBaseId(
+        knowledgeBaseId,
+      );
+    return unfinishedJobs;
+  }
+
   async findAllByBotId(botId: string): Promise<ExtractFileJobData[]> {
-    const docIndexJob = await this.extractFileJobRepository.findAllByBotId(
+    const extractFileJob = await this.extractFileJobRepository.findAllByBotId(
       botId,
     );
-    return docIndexJob;
+    return extractFileJob;
+  }
+
+  async findByKnowledgeBaseId(
+    knowledgeBaseId: string,
+  ): Promise<ExtractFileJobData[]> {
+    const extractFileJob =
+      await this.extractFileJobRepository.findByKnowledgeBaseId(
+        knowledgeBaseId,
+      );
+    return extractFileJob;
   }
 
   async updateStatus(
