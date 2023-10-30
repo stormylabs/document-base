@@ -6,7 +6,7 @@ import UnexpectedError, {
 import { Either, Result, left, right } from '@/shared/core/Result';
 import { CrawlDTO } from './dto';
 import UseCaseError from '@/shared/core/UseCaseError';
-import { KnowledgeBaseType, Resource } from '@/shared/interfaces';
+import { JobStatus, KnowledgeBaseType, Resource } from '@/shared/interfaces';
 import { OrganizationService } from '@/module/organization/services/organization.service';
 import CreateCrawlJobUseCase from '@/module/bot/useCases/jobs/CreateCrawlJob';
 import { isEmpty } from 'lodash';
@@ -21,8 +21,14 @@ type Response = Either<
   Result<{
     addKnowledgeBaseJobId: string;
     knowledgeBaseId: string;
-    extractFileJobId?: string;
-    crawlJobId?: string;
+    extractFileJob?: {
+      jobId: string;
+      status: JobStatus;
+    };
+    crawlJob?: {
+      jobId: string;
+      status: JobStatus;
+    };
   }>
 >;
 
@@ -56,8 +62,15 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
     try {
       this.logger.log(`Start add knowledge base to organization`);
 
-      let crawlJobId: string;
-      let extractFileJobId: string;
+      let extractFileJob: {
+        jobId: string;
+        status: JobStatus;
+      };
+
+      let crawlJob: {
+        jobId: string;
+        status: JobStatus;
+      };
 
       const org = await this.orgService.findById(organizationId);
       if (!org)
@@ -82,7 +95,7 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
         });
 
         if (result.isLeft()) return left(result.value);
-        crawlJobId = result.value.getValue().jobId;
+        crawlJob = result.value.getValue();
       }
 
       // * exec create extract file jobs
@@ -112,7 +125,7 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
         });
         if (result.isLeft()) return left(result.value);
 
-        extractFileJobId = result.value.getValue().jobId;
+        extractFileJob = result.value.getValue();
       }
 
       // * Create add knowledge base job record
@@ -120,8 +133,10 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
       const addKnowledgeBaseJob = await this.addKnowledgeBaseJobService.create({
         organizationId,
         knowledgeBaseId: knowledgeBase._id,
-        ...(extractFileJobId ? { extractFileJobId } : {}),
-        ...(crawlJobId ? { crawlJobId } : {}),
+        ...(extractFileJob?.jobId
+          ? { extractFileJobId: extractFileJob.jobId }
+          : {}),
+        ...(crawlJob?.jobId ? { crawlJobId: crawlJob.jobId } : {}),
       });
 
       // * add knowledge base to the knowledgeBases[] of the organization
@@ -132,10 +147,10 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
 
       return right(
         Result.ok({
-          extractFileJobId,
-          crawlJobId,
           addKnowledgeBaseJobId: addKnowledgeBaseJob._id,
           knowledgeBaseId: knowledgeBase._id,
+          extractFileJob,
+          crawlJob,
         }),
       );
     } catch (err) {
