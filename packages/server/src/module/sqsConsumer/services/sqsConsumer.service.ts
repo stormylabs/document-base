@@ -27,13 +27,13 @@ export class SqsConsumerService {
   @SqsMessageHandler(process.env.WEB_CRAWL_QUEUE_NAME)
   async handleWebCrawlMessage(message: AWS.SQS.Message) {
     const body: CrawlJobMessage = JSON.parse(message.Body);
-    const { jobId, organizationId, botId, documentId } = body;
+    const { jobId, knowledgeBaseId, botId, documentId } = body;
     this.logger.log(`Received web crawl message from SQS`);
 
     const result = await this.crawlWebsiteUseCase.exec({
       jobId,
       ...(botId ? { botId } : {}),
-      ...(organizationId ? { organizationId } : {}),
+      ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
       documentId,
     });
     if (result.isLeft()) {
@@ -67,12 +67,12 @@ export class SqsConsumerService {
   @SqsMessageHandler(process.env.FILE_EXTRACT_QUEUE_NAME)
   async handleExtractFileMessage(message: AWS.SQS.Message) {
     const body: ExtractFileJobMessage = JSON.parse(message.Body);
-    const { jobId, organizationId, botId, documentId } = body;
+    const { jobId, knowledgeBaseId, botId, documentId } = body;
     this.logger.log(`Received extract file message from SQS`);
     const result = await this.extractFileUseCase.exec({
       jobId,
       ...(botId ? { botId } : {}),
-      ...(organizationId ? { organizationId } : {}),
+      ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
       documentId,
     });
     if (result.isLeft()) {

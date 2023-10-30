@@ -3,7 +3,7 @@ import { JobStatus } from '.';
 export interface CrawlJobData {
   _id: string;
   bot?: string;
-  organization?: string;
+  knowledgeBase?: string;
   limit: number;
   locked: boolean;
   documents: string[];
@@ -17,7 +17,7 @@ export interface CrawlJobData {
 
 export interface CrawlJobMessage {
   botId?: string;
-  organizationId?: string;
+  knowledgeBaseId?: string;
   jobId: string;
   documentId: string;
 }

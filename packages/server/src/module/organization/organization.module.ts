@@ -88,6 +88,11 @@ import AddKnowledgeBaseToOrganizationUseCase from './useCases/AddKnowledgeBaseTo
     GetEngagementUseCase,
     AddKnowledgeBaseToOrganizationUseCase,
   ],
-  exports: [OrganizationService, MemberService, EngagementService],
+  exports: [
+    OrganizationService,
+    MemberService,
+    EngagementService,
+    KnowledgeBaseService,
+  ],
 })
 export class OrganizationModule {}

@@ -9,7 +9,7 @@ export class ExtractFileJobService {
 
   async create(data: {
     botId?: string;
-    organizationId?: string;
+    knowledgeBaseId?: string;
     initUrls: string[];
   }): Promise<ExtractFileJobData> {
     const createdExtractFileJob = await this.extractFileJobRepository.create(
@@ -40,11 +40,13 @@ export class ExtractFileJobService {
     return unfinishedJobs;
   }
 
-  async findUnfinishedJobsByOrgId(
-    orgId: string,
+  async findUnfinishedJobsByKnowledgeBaseId(
+    knowledgeBaseId: string,
   ): Promise<ExtractFileJobData[]> {
     const unfinishedJobs =
-      await this.extractFileJobRepository.findUnfinishedJobsByOrgId(orgId);
+      await this.extractFileJobRepository.findUnfinishedJobsByKnowledgeBaseId(
+        knowledgeBaseId,
+      );
     return unfinishedJobs;
   }
 
@@ -55,10 +57,13 @@ export class ExtractFileJobService {
     return extractFileJob;
   }
 
-  async findByOrgId(orgId: string): Promise<ExtractFileJobData[]> {
-    const extractFileJob = await this.extractFileJobRepository.findByOrgId(
-      orgId,
-    );
+  async findByKnowledgeBaseId(
+    knowledgeBaseId: string,
+  ): Promise<ExtractFileJobData[]> {
+    const extractFileJob =
+      await this.extractFileJobRepository.findByKnowledgeBaseId(
+        knowledgeBaseId,
+      );
     return extractFileJob;
   }
 

@@ -74,6 +74,22 @@ export class KnowledgeBaseRepository {
     return knowledgeBase.toJSON() as KnowledgeBaseData;
   }
 
+  async upsertDocuments(
+    knowledgeBaseId: string,
+    documentIds: string[],
+  ): Promise<KnowledgeBaseData> {
+    const id = new Types.ObjectId(knowledgeBaseId);
+    const knowledgeBase = await this.knowledgeBaseModel
+      .findByIdAndUpdate(
+        id,
+        { $addToSet: { documents: { $each: documentIds } } },
+        { new: true },
+      )
+      .populate('documents')
+      .exec();
+    return knowledgeBase.toJSON() as KnowledgeBaseData;
+  }
+
   async delete(knowledgeBaseId: string): Promise<KnowledgeBaseData> {
     const id = new Types.ObjectId(knowledgeBaseId);
     const knowledgeBase = await this.knowledgeBaseModel

@@ -15,7 +15,7 @@ import { DocumentExtToType } from '@/shared/interfaces/document';
 import { ExtractFileJobService } from '@/module/bot/services/extractFileJob.service';
 import { extractExtensionFromUrl } from '@/shared/utils/web-utils';
 import UseCaseError from '@/shared/core/UseCaseError';
-import { OrganizationService } from '@/module/organization/services/organization.service';
+import { KnowledgeBaseService } from '@/module/organization/services/knowledgeBase.service';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -30,15 +30,15 @@ export default class CreateExtractFileJobUseCase {
     private readonly extractFileJobService: ExtractFileJobService,
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
-    private readonly orgService: OrganizationService,
+    private readonly knowledgeBaseService: KnowledgeBaseService,
   ) {}
   public async exec({
     botId,
-    organizationId,
+    knowledgeBaseId,
     urls,
   }: {
     botId?: string;
-    organizationId?: string;
+    knowledgeBaseId?: string;
     urls: string[];
   }): Promise<Response> {
     try {
@@ -49,18 +49,20 @@ export default class CreateExtractFileJobUseCase {
         if (!botExists) return left(new NotFoundError(Resource.Bot, [botId]));
       }
 
-      if (organizationId) {
-        const orgExists = await this.orgService.exists([organizationId]);
-        if (!orgExists)
+      if (knowledgeBaseId) {
+        const knowledgeBaseExists = await this.knowledgeBaseService.exists([
+          knowledgeBaseId,
+        ]);
+        if (!knowledgeBaseExists)
           return left(
-            new NotFoundError(Resource.Organization, [organizationId]),
+            new NotFoundError(Resource.KnowledgeBase, [knowledgeBaseId]),
           );
       }
 
       const extractFileJob = await this.extractFileJobService.create({
         initUrls: urls,
         ...(botId ? { botId } : {}),
-        ...(organizationId ? { organizationId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
       });
 
       const { _id: jobId, status } = extractFileJob;
@@ -69,7 +71,7 @@ export default class CreateExtractFileJobUseCase {
         jobId,
         urls,
         ...(botId ? { botId } : {}),
-        ...(organizationId ? { organizationId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
       });
 
       try {
@@ -97,13 +99,13 @@ export default class CreateExtractFileJobUseCase {
 
   async createPayloads({
     botId,
-    organizationId,
+    knowledgeBaseId,
     jobId,
     urls,
   }: {
     jobId: string;
     botId?: string;
-    organizationId?: string;
+    knowledgeBaseId?: string;
     urls: string[];
   }) {
     const payloads: ExtractFileJobMessage[] = [];
@@ -132,7 +134,7 @@ export default class CreateExtractFileJobUseCase {
         jobId,
         documentId,
         ...(botId ? { botId } : {}),
-        ...(organizationId ? { organizationId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
       });
     }
     return payloads;

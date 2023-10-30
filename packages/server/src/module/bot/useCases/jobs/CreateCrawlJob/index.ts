@@ -13,9 +13,9 @@ import { DocumentService } from '@/module/bot/services/document.service';
 import { DocumentType } from '@/shared/interfaces/document';
 import { CrawlJobService } from '@/module/bot/services/crawlJob.service';
 import UseCaseError from '@/shared/core/UseCaseError';
-import { OrganizationService } from '@/module/organization/services/organization.service';
 import { BotData } from '@/shared/interfaces/bot';
-import { OrganizationData } from '@/shared/interfaces/organization';
+import { KnowledgeBaseData } from '@/shared/interfaces/knowledgeBase';
+import { KnowledgeBaseService } from '@/module/organization/services/knowledgeBase.service';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -30,16 +30,16 @@ export default class CreateCrawlJobUseCase {
     private readonly crawlJobService: CrawlJobService,
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
-    private readonly orgService: OrganizationService,
+    private readonly knowledgeBaseService: KnowledgeBaseService,
   ) {}
   public async exec({
-    organizationId,
+    knowledgeBaseId,
     botId,
     limit,
     urls,
     only,
   }: {
-    organizationId?: string;
+    knowledgeBaseId?: string;
     botId?: string;
     urls: string[];
     limit: number;
@@ -48,18 +48,18 @@ export default class CreateCrawlJobUseCase {
     try {
       this.logger.log(`Start creating crawl job`);
 
-      let data: BotData | OrganizationData = null;
+      let data: BotData | KnowledgeBaseData = null;
 
       if (botId) {
         data = await this.botService.findById(botId);
         if (!data) return left(new NotFoundError(Resource.Bot, [botId]));
       }
 
-      if (organizationId) {
-        data = await this.orgService.findById(organizationId);
+      if (knowledgeBaseId) {
+        data = await this.knowledgeBaseService.findById(knowledgeBaseId);
         if (!data)
           return left(
-            new NotFoundError(Resource.Organization, [organizationId]),
+            new NotFoundError(Resource.KnowledgeBase, [knowledgeBaseId]),
           );
       }
 
@@ -82,7 +82,7 @@ export default class CreateCrawlJobUseCase {
         limit: limitValue,
         initUrls: urls,
         ...(botId ? { botId } : {}),
-        ...(organizationId ? { organizationId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
       });
 
       const { _id: jobId, status } = crawlJob;
@@ -91,7 +91,7 @@ export default class CreateCrawlJobUseCase {
         jobId,
         urls,
         ...(botId ? { botId } : {}),
-        ...(organizationId ? { organizationId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
       });
 
       const batchSize = 100;
@@ -122,13 +122,13 @@ export default class CreateCrawlJobUseCase {
   }
 
   async createPayloads({
-    organizationId,
+    knowledgeBaseId,
     botId,
     jobId,
     urls,
   }: {
     jobId: string;
-    organizationId?: string;
+    knowledgeBaseId?: string;
     botId?: string;
     urls: string[];
   }) {
@@ -153,7 +153,7 @@ export default class CreateCrawlJobUseCase {
 
       payloads.push({
         ...(botId ? { botId } : {}),
-        ...(organizationId ? { organizationId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
         jobId,
         documentId,
       });

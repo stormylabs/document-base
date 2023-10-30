@@ -24,14 +24,14 @@ export class KnowledgeBaseService {
   }
 
   /**
-   * get knowledge base Of organization
+   * get knowledge base by organization Id
    *
    * Get all knowledge base by organization
    *
    * @param orgId
    * @returns
    */
-  async getMemberOfOrganization(orgId: string): Promise<KnowledgeBaseData[]> {
+  async getKnowledgeBaseByOrgId(orgId: string): Promise<KnowledgeBaseData[]> {
     const knowledgeBase = await this.knowledgeBaseRepository.findByOrgId(orgId);
     return knowledgeBase;
   }
@@ -50,5 +50,16 @@ export class KnowledgeBaseService {
 
   async exists(knowledgeBaseIds: string[]): Promise<boolean> {
     return this.knowledgeBaseRepository.exists(knowledgeBaseIds);
+  }
+
+  async upsertDocument(
+    knowledgeBaseId: string,
+    documentId: string,
+  ): Promise<KnowledgeBaseData> {
+    const exists = await this.exists([knowledgeBaseId]);
+    if (!exists) throw new Error('Bot does not exist.');
+    return this.knowledgeBaseRepository.upsertDocuments(knowledgeBaseId, [
+      documentId,
+    ]);
   }
 }

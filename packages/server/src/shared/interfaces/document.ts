@@ -1,4 +1,4 @@
-import { OrganizationData } from './organization';
+import { KnowledgeBaseData } from './knowledgeBase';
 
 export enum DocumentType {
   Url = 'url',
@@ -21,7 +21,7 @@ export interface DocumentData {
   type: DocumentType;
   sourceName: string;
   title?: string;
-  organization?: OrganizationData;
+  knowledgeBase?: KnowledgeBaseData;
   content?: string;
   tokens?: number;
   characters?: number;

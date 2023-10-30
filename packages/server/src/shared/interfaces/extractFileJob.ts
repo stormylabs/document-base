@@ -3,7 +3,7 @@ import { JobStatus } from '@/shared/interfaces';
 export interface ExtractFileJobData {
   _id: string;
   bot?: string;
-  organization?: string;
+  knowledgeBase?: string;
   documents: string[];
   status: JobStatus;
   initUrls: string[];
@@ -14,7 +14,7 @@ export interface ExtractFileJobData {
 
 export interface ExtractFileJobMessage {
   botId?: string;
-  organizationId?: string;
+  knowledgeBaseId?: string;
   jobId: string;
   documentId: string;
 }

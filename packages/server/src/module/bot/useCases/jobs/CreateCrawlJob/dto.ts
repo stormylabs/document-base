@@ -14,11 +14,19 @@ import {
 export default class CreateCrawlJobDTO {
   @ApiProperty({
     description: 'Bot ID',
-    required: true,
+    required: false,
     type: String,
   })
   @IsString()
-  botId: string;
+  botId?: string;
+
+  @ApiProperty({
+    description: 'Knowledge Base ID',
+    required: false,
+    type: String,
+  })
+  @IsString()
+  knowledgeBaseId?: string;
 
   @ApiProperty({
     description: 'URLs to crawl',

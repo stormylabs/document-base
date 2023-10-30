@@ -9,7 +9,7 @@ export class CrawlJobService {
 
   async create(data: {
     botId?: string;
-    organizationId?: string;
+    knowledgeBaseId?: string;
     limit: number;
     initUrls: string[];
     only?: boolean;
@@ -37,9 +37,13 @@ export class CrawlJobService {
     return unfinishedJobs;
   }
 
-  async findUnfinishedJobsByOrgId(orgId: string): Promise<CrawlJobData[]> {
+  async findUnfinishedJobsByKnowledgeBaseId(
+    knowledgeBaseId: string,
+  ): Promise<CrawlJobData[]> {
     const unfinishedJobs =
-      await this.crawlJobRepository.findUnfinishedJobsByOrgId(orgId);
+      await this.crawlJobRepository.findUnfinishedJobsByKnowledgeBaseId(
+        knowledgeBaseId,
+      );
     return unfinishedJobs;
   }
 
@@ -48,8 +52,12 @@ export class CrawlJobService {
     return crawlJob;
   }
 
-  async findByOrgId(orgId: string): Promise<CrawlJobData[]> {
-    const crawlJob = await this.crawlJobRepository.findByOrgId(orgId);
+  async findByKnowledgeBaseId(
+    knowledgeBaseId: string,
+  ): Promise<CrawlJobData[]> {
+    const crawlJob = await this.crawlJobRepository.findByKnowledgeBaseId(
+      knowledgeBaseId,
+    );
     return crawlJob;
   }
 

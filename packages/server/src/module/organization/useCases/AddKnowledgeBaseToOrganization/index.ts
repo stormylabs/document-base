@@ -19,7 +19,10 @@ import { AddKnowledgeBaseJobService } from '@/module/organization/services/addKn
 type Response = Either<
   Result<UseCaseError>,
   Result<{
-    jobId: string;
+    addKnowledgeBaseJobId: string;
+    knowledgeBaseId: string;
+    extractFileJobId?: string;
+    crawlJobId?: string;
   }>
 >;
 
@@ -68,18 +71,21 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
         organizationId,
       });
 
+      // * exec create crawl job
       if (!isEmpty(crawl)) {
         this.logger.log('Create crawl job');
         const result = await this.createCrawlJobUseCase.exec({
-          organizationId,
           urls: crawl.urls,
           limit: crawl.limit,
           only: crawl.only,
+          knowledgeBaseId: knowledgeBase._id,
         });
 
         if (result.isLeft()) return left(result.value);
         crawlJobId = result.value.getValue().jobId;
       }
+
+      // * exec create extract file jobs
       if (!isEmpty(files)) {
         let urls: string[] = [];
 
@@ -89,7 +95,7 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
           urls = await Promise.all([
             ...files.map((file) => {
               return this.s3Service.uploadFile(
-                `${organizationId}/${file.originalname}`,
+                `${knowledgeBase._id}/${file.originalname}`,
                 this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
                 file.buffer,
               );
@@ -99,10 +105,10 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
           return left(new S3UploadError(filenames));
         }
 
-        this.logger.log('Create crawl job');
+        this.logger.log('Create extract file job');
         const result = await this.createExtractFileJobUseCase.exec({
-          organizationId,
           urls,
+          knowledgeBaseId: knowledgeBase._id,
         });
         if (result.isLeft()) return left(result.value);
 
@@ -118,11 +124,18 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
         ...(crawlJobId ? { crawlJobId } : {}),
       });
 
-      // TODO: add knowledge base to the knowledgeBases[] of the organization
+      // * add knowledge base to the knowledgeBases[] of the organization
+      await this.orgService.upsertKnowledgeBases(
+        organizationId,
+        knowledgeBase._id,
+      );
 
       return right(
         Result.ok({
-          jobId: addKnowledgeBaseJob._id,
+          extractFileJobId,
+          crawlJobId,
+          addKnowledgeBaseJobId: addKnowledgeBaseJob._id,
+          knowledgeBaseId: knowledgeBase._id,
         }),
       );
     } catch (err) {

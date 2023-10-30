@@ -34,12 +34,14 @@ export class OrganizationService {
     return this.orgRepository.exists(orgIds);
   }
 
-  async upsertDocument(
+  async upsertKnowledgeBases(
     organizationId: string,
-    documentId: string,
+    knowledgeBaseId: string,
   ): Promise<OrganizationData> {
     const exists = await this.exists([organizationId]);
     if (!exists) throw new Error('Organization does not exist.');
-    return this.orgRepository.upsertDocuments(organizationId, [documentId]);
+    return this.orgRepository.upsertKnowledgeBases(organizationId, [
+      knowledgeBaseId,
+    ]);
   }
 }

@@ -1,4 +1,4 @@
-import { DocumentData } from './document';
+import { KnowledgeBaseData } from './knowledgeBase';
 import { UserData } from './user';
 
 export interface OrganizationData {
@@ -6,7 +6,7 @@ export interface OrganizationData {
   name: string;
   descriptions: string;
   values: string;
-  documents: DocumentData[];
+  knowledgeBases: KnowledgeBaseData[];
   members: UserData[];
   createdAt: Date;
   updatedAt: Date;

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { DocumentRepository } from '../repositories/document.repository';
 import { DocumentData } from '@/shared/interfaces/document';
 import { encode } from 'gpt-tokenizer';
-import { Types } from 'mongoose';
 
 @Injectable()
 export class DocumentService {
@@ -46,14 +45,14 @@ export class DocumentService {
     documentId,
     content,
     title,
-    organizationId,
-  }: { documentId: string; organizationId?: string } & Partial<
+    knowledgeBaseId,
+  }: { documentId: string; knowledgeBaseId?: string } & Partial<
     Omit<DocumentData, '_id' | 'createdAt'>
   >): Promise<DocumentData> {
     const updatedDocument = await this.documentRepository.update(documentId, {
       content,
       title,
-      ...(organizationId ? { organizationId } : {}),
+      ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
     });
     return updatedDocument;
   }

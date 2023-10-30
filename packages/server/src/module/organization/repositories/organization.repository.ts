@@ -53,19 +53,19 @@ export class OrganizationRepository {
     return org.toJSON() as OrganizationData;
   }
 
-  async upsertDocuments(
+  async upsertKnowledgeBases(
     organizationId: string,
-    documentIds: string[],
+    knowledgeBaseIds: string[],
   ): Promise<OrganizationData> {
     const id = new Types.ObjectId(organizationId);
-    const bot = await this.orgModel
+    const org = await this.orgModel
       .findByIdAndUpdate(
         id,
-        { $addToSet: { documents: { $each: documentIds } } },
+        { $addToSet: { knowledgeBases: { $each: knowledgeBaseIds } } },
         { new: true },
       )
-      .populate('documents')
+      .populate('knowledgeBases')
       .exec();
-    return bot.toJSON() as OrganizationData;
+    return org.toJSON() as OrganizationData;
   }
 }

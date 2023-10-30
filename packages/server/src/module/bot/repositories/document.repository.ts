@@ -12,17 +12,17 @@ export class DocumentRepository {
   ) {}
 
   async create({
-    organizationId,
+    knowledgeBaseId,
     ...documentData
   }: Partial<
-    Omit<DocumentData, 'organization'> & {
-      organizationId?: string;
+    Omit<DocumentData, 'knowledgeBase'> & {
+      knowledgeBaseId?: string;
     }
   >): Promise<DocumentData> {
     const document = new this.documentModel({
       ...documentData,
-      ...(organizationId
-        ? { organization: new Types.ObjectId(organizationId) }
+      ...(knowledgeBaseId
+        ? { knowledgeBase: new Types.ObjectId(knowledgeBaseId) }
         : {}),
     });
     const saved = await document.save();
@@ -33,7 +33,7 @@ export class DocumentRepository {
     const id = new Types.ObjectId(documentId);
     const document = await this.documentModel
       .findById(id)
-      .populate('organization')
+      .populate('knowledgeBase')
       .exec();
     if (!document) return null;
     return document.toJSON() as DocumentData;
@@ -71,11 +71,11 @@ export class DocumentRepository {
   async update(
     documentId: string,
     {
-      organizationId,
+      knowledgeBaseId,
       ...data
     }: Partial<
-      Omit<DocumentData, '_id' | 'createdAt' | 'organization'> & {
-        organizationId?: string;
+      Omit<DocumentData, '_id' | 'createdAt' | 'knowledgeBase'> & {
+        knowledgeBaseId?: string;
       }
     >,
   ): Promise<DocumentData | null> {
@@ -86,8 +86,8 @@ export class DocumentRepository {
         {
           $set: {
             ...data,
-            ...(organizationId
-              ? { organization: new Types.ObjectId(organizationId) }
+            ...(knowledgeBaseId
+              ? { knowledgeBase: new Types.ObjectId(knowledgeBaseId) }
               : {}),
           },
         },

@@ -15,23 +15,24 @@ export class ExtractFileJobRepository {
 
   async create({
     botId,
-    organizationId,
+    knowledgeBaseId,
     ...extractFileJobData
   }: {
     botId?: string;
-    organizationId?: string;
+    knowledgeBaseId?: string;
     initUrls: string[];
   }): Promise<ExtractFileJobData> {
     const payload: any = {};
     if (botId) {
       payload.bot = new Types.ObjectId(botId);
     }
-    if (organizationId) {
-      payload.organization = new Types.ObjectId(organizationId);
+    if (knowledgeBaseId) {
+      payload.knowledgeBase = new Types.ObjectId(knowledgeBaseId);
     }
 
     const extractFileJob = new this.extractFileJobModel({
       ...extractFileJobData,
+      ...payload,
       bot: botId,
     });
     const created = await extractFileJob.save();
@@ -70,10 +71,12 @@ export class ExtractFileJobRepository {
     );
   }
 
-  async findByOrgId(orgId: string): Promise<ExtractFileJobData[]> {
-    const id = new Types.ObjectId(orgId);
+  async findByKnowledgeBaseId(
+    knowledgeBaseId: string,
+  ): Promise<ExtractFileJobData[]> {
+    const id = new Types.ObjectId(knowledgeBaseId);
     const extractFileJobs = await this.extractFileJobModel
-      .find({ organization: id })
+      .find({ knowledgeBase: id })
       .exec();
     return extractFileJobs.map(
       (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData,
@@ -110,13 +113,13 @@ export class ExtractFileJobRepository {
     );
   }
 
-  async findUnfinishedJobsByOrgId(
-    orgId: string,
+  async findUnfinishedJobsByKnowledgeBaseId(
+    knowledgeBaseId: string,
   ): Promise<ExtractFileJobData[]> {
-    const id = new Types.ObjectId(orgId);
+    const id = new Types.ObjectId(knowledgeBaseId);
     const extractFileJobs = await this.extractFileJobModel
       .find({
-        organization: id,
+        knowledgeBase: id,
         status: { $in: [JobStatus.Pending, JobStatus.Running] },
       })
       .exec();

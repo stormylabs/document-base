@@ -16,6 +16,8 @@ import UseCaseError from '@/shared/core/UseCaseError';
 import { BotData } from '@/shared/interfaces/bot';
 import { OrganizationData } from '@/shared/interfaces/organization';
 import { OrganizationService } from '@/module/organization/services/organization.service';
+import { KnowledgeBaseData } from '@/shared/interfaces/knowledgeBase';
+import { KnowledgeBaseService } from '@/module/organization/services/knowledgeBase.service';
 
 type Response = Either<Result<UseCaseError>, Result<void>>;
 
@@ -27,17 +29,17 @@ export default class CrawlWebsiteUseCase {
     private readonly crawlJobService: CrawlJobService,
     private readonly documentService: DocumentService,
     private readonly createCrawlJobUseCase: CreateCrawlJobUseCase,
-    private readonly orgService: OrganizationService,
+    private readonly knowledgeBaseService: KnowledgeBaseService,
   ) {}
   public async exec({
     documentId,
     jobId,
     botId,
-    organizationId,
+    knowledgeBaseId,
   }: {
     jobId: string;
     botId?: string;
-    organizationId?: string;
+    knowledgeBaseId?: string;
     documentId: string;
   }): Promise<Response> {
     try {
@@ -78,16 +80,20 @@ export default class CrawlWebsiteUseCase {
         await this.crawlJobService.updateStatus(jobId, JobStatus.Running);
       }
 
-      let result: BotData | OrganizationData = null;
+      let result: BotData | KnowledgeBaseData = null;
 
       if (botId) {
         result = await this.botService.findById(botId);
       }
 
+      if (knowledgeBaseId) {
+        result = await this.knowledgeBaseService.findById(knowledgeBaseId);
+      }
+
       if (!result) {
         return left(
-          new NotFoundError(Resource[botId ? 'Bot' : 'Organization'], [
-            botId ? botId : organizationId,
+          new NotFoundError(Resource[botId ? 'Bot' : 'KnowledgeBase'], [
+            botId ? botId : knowledgeBaseId,
           ]),
         );
       }
@@ -130,13 +136,19 @@ export default class CrawlWebsiteUseCase {
         documentId,
         content: data.text,
         title: data.title,
-        ...(organizationId ? { organizationId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
       });
       this.logger.log('document content updated');
 
-      let upsertedData: BotData | OrganizationData = null;
+      let upsertedData: BotData | KnowledgeBaseData = null;
       if (botId) {
         upsertedData = await this.botService.upsertDocument(botId, documentId);
+      }
+      if (knowledgeBaseId) {
+        upsertedData = await this.knowledgeBaseService.upsertDocument(
+          knowledgeBaseId,
+          documentId,
+        );
       }
 
       const upsertedCrawlJob = await this.crawlJobService.upsertDocuments(
@@ -177,7 +189,7 @@ export default class CrawlWebsiteUseCase {
       const payloads = await this.createCrawlJobUseCase.createPayloads({
         jobId,
         ...(botId ? { botId } : {}),
-        ...(organizationId ? { organizationId } : {}),
+        ...(knowledgeBaseId ? { knowledgeBaseId } : {}),
         urls: urlsToSend,
       });
 

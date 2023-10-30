@@ -8,7 +8,7 @@ import {
 } from 'mongoose';
 import { DocumentType } from '../../../shared/interfaces/document';
 import { toJSONOverride } from '@/shared/mongo/schemaOverride';
-import { OrganizationDocument } from '@/module/organization/schemas/organization.schema';
+import { KnowledgeBaseDocument } from '@/module/organization/schemas/knowledgeBase.schema';
 
 export type DocumentDocument = HydratedDocument<Document>;
 
@@ -40,8 +40,8 @@ export class Document extends MongooseDocument {
   @Prop({ type: String })
   title?: string;
 
-  @Prop({ type: Types.ObjectId, ref: 'Organization' })
-  organization: OrganizationDocument; // if this exist it would be long to organization
+  @Prop({ type: Types.ObjectId, ref: 'KnowledgeBase' })
+  knowledgeBase: KnowledgeBaseDocument; // if this exist it would be long to KnowledgeBase
 
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
