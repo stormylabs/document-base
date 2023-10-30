@@ -32,6 +32,7 @@ export default class AddEngagementOrganizationUseCase {
   ): Promise<Response> {
     try {
       this.logger.log(`Start creating Engagement`);
+      console.log({ knowledgeBaseIds });
 
       const engagement = await this.engagementService.create({
         name,
@@ -45,7 +46,7 @@ export default class AddEngagementOrganizationUseCase {
         templateId,
         contacts,
         channels: channelIds,
-        knowledgeBases: knowledgeBaseIds,
+        knowledgeBaseIds,
         outcome,
       });
 

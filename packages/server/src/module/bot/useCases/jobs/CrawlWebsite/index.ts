@@ -14,8 +14,6 @@ import { JobStatus, JobType, Resource } from '@/shared/interfaces';
 import CreateCrawlJobUseCase from '../CreateCrawlJob';
 import UseCaseError from '@/shared/core/UseCaseError';
 import { BotData } from '@/shared/interfaces/bot';
-import { OrganizationData } from '@/shared/interfaces/organization';
-import { OrganizationService } from '@/module/organization/services/organization.service';
 import { KnowledgeBaseData } from '@/shared/interfaces/knowledgeBase';
 import { KnowledgeBaseService } from '@/module/organization/services/knowledgeBase.service';
 
