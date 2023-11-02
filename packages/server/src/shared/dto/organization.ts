@@ -60,3 +60,14 @@ export class OrgIdParams {
   @IsNotEmpty()
   orgId: string;
 }
+
+export class AddKnowledgeBaseParams extends OrgIdParams {
+  @ApiProperty({
+    name: 'addKnowledgeBaseId',
+    type: String,
+    description: 'Add knowledge base ID',
+  })
+  @IsString()
+  @IsNotEmpty()
+  addKnowledgeBaseId: string;
+}

@@ -1,6 +1,4 @@
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
-import { AccessLevel } from '../interfaces/accessLevel';
-import { UserResponse } from './user';
 import { KnowledgeBaseResponse } from './knowledgeBase';
 import { CrawlJobResponse } from './crawlJob';
 import { ExtractFileJobResponse } from './extractFileJob';

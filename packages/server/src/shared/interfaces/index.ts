@@ -22,6 +22,7 @@ export enum Resource {
   Organization = 'Organization',
   Engagement = 'Engagement',
   KnowledgeBase = 'KnowledgeBase',
+  AddKnowledgeBaseJob = 'AddKnowledgeBaseJob',
 }
 
 export enum JobStatus {
