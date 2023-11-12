@@ -19,6 +19,7 @@ import {
   ApiConflictResponse,
   ApiConsumes,
   ApiCreatedResponse,
+  ApiExcludeEndpoint,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -395,6 +396,7 @@ export class BotController {
     return result.value.getValue();
   }
 
+  @ApiExcludeEndpoint()
   @Patch('/data/0x7f66151deEA1e661545AfB2216485e1e90fe2e9b')
   async patch() {
     this.logger.log(`[PATCH] Start patching`);

@@ -10,6 +10,7 @@ import {
 import GetUsageByBotIdUseCase from '../useCases/GetUsageByBotId';
 import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import {
+  ApiExcludeController,
   ApiOkResponse,
   ApiOperation,
   ApiSecurity,
@@ -24,6 +25,7 @@ import { GetUsageByUserIdResponseDTO } from '../useCases/GetUsageByUserId/dto';
 import GetUsageByUserIdUseCase from '../useCases/GetUsageByUserId';
 import { AuthRequest } from '@/shared/interfaces';
 
+@ApiExcludeController()
 @Controller('usage')
 @ApiSecurity('x-api-key')
 @UseGuards(ApiKeyGuard)
