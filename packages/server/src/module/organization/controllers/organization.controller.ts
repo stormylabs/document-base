@@ -416,10 +416,15 @@ export class OrganizationController {
   @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
   async executeEngagement(
     @Body() body: ExecuteEngagementDTO,
-    @Req() req: RequestWithUser,
-    @Param() param: OrgIdParams,
+    @Req() { user }: RequestWithUser,
+    @Param() { orgId }: OrgIdParams,
   ) {
     this.logger.log(`[POST] Start execute engagement`);
+
+    // check org ownership
+    if (user?.member?.organization?._id !== orgId) {
+      return errorHandler(new UnauthorizedError());
+    }
 
     const { engagementId, message, conversationHistory } = body;
 
