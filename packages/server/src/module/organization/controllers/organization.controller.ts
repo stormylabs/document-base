@@ -18,7 +18,6 @@ import {
   ApiConflictResponse,
   ApiConsumes,
   ApiCreatedResponse,
-  ApiExcludeController,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -60,7 +59,6 @@ const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
 const MIN_FILE_COUNT = 0;
 const MAX_FILE_COUNT = 10;
 
-@ApiExcludeController()
 @ApiSecurity('x-api-key')
 @ApiTags('organization')
 @Controller('organization')
