@@ -34,7 +34,7 @@ export class JobOwnershipGuard implements CanActivate {
 
     // make sure user are pass the correct mongoId format
     if (!isMongoId(resourceId))
-      throw new BadRequestException('Invalid param ID');
+      throw new BadRequestException('Invalid parameter ID');
 
     const route = request.route.path;
     const regex = /\/data\/(train|crawl|extract)\//;

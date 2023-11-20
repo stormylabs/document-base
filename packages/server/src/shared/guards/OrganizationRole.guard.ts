@@ -1,11 +1,13 @@
 import { MemberService } from '@/module/organization/services/member.service';
 import {
+  BadRequestException,
   CanActivate,
   ExecutionContext,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { isMongoId } from 'class-validator';
 
 /**
  * OrganizationRoleGuard
@@ -33,6 +35,10 @@ export class OrganizationRoleGuard implements CanActivate {
     // ? maybe we can put the orgId(selected/active OrgId) to the http header for each request and param orgId validation would be inside the controller
     const organizationId = req?.params?.orgId;
     const userId = req?.user?._id;
+
+    if (!isMongoId(organizationId)) {
+      throw new BadRequestException('Invalid parameter ID');
+    }
 
     const userMember = await this.memberService.findMemberByUserId({
       userId,
