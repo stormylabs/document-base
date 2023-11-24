@@ -12,6 +12,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { isMongoId } from 'class-validator';
 
 // TODO: update this guard, due to the organization schema relation
 @Injectable()
@@ -30,6 +31,11 @@ export class JobOwnershipGuard implements CanActivate {
     if (!user) throw new UnauthorizedException();
 
     const resourceId = request.params.id; // Assuming the owner ID is passed in the request parameter
+
+    // make sure user are pass the correct mongoId format
+    if (!isMongoId(resourceId))
+      throw new BadRequestException('Invalid parameter ID');
+
     const route = request.route.path;
     const regex = /\/data\/(train|crawl|extract)\//;
     const match = route.match(regex);
@@ -47,6 +53,7 @@ export class JobOwnershipGuard implements CanActivate {
     if (!job) throw new NotFoundException();
 
     if (user.email === this.configService.get('ROOT_EMAIL')) return true;
+
     const bot = await this.botService.findOneByUserIdBotId(job.bot, user._id);
 
     // user accessing resource that does not belong to them

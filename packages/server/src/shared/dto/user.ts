@@ -1,5 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
+import { SafeMongoIdTransform } from '@/shared/utils/safeMongoIdTransform';
 
 export class UserResponse {
   @ApiProperty({
@@ -35,9 +37,17 @@ export class UserResponse {
 }
 
 export class UserIdParams {
-  @ApiProperty({ name: 'userId', type: String, description: 'User ID' })
+  @ApiProperty({
+    name: 'userId',
+    type: String,
+    description: 'User ID',
+    required: true,
+    example: '61d9cfbf17ed7311c4b3e485',
+  })
+  @IsMongoId()
   @IsString()
   @IsNotEmpty()
+  @Transform((value) => SafeMongoIdTransform(value))
   userId: string;
 }
 

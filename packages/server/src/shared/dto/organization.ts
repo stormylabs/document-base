@@ -1,6 +1,8 @@
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsMongoId, IsNotEmpty, IsString } from 'class-validator';
 import { AccessLevel } from '../interfaces/accessLevel';
+import { SafeMongoIdTransform } from '../utils/safeMongoIdTransform';
 import { MemberResponse } from './member';
 import { UserResponse } from './user';
 
@@ -55,8 +57,12 @@ export class OrgIdParams {
     name: 'orgId',
     type: String,
     description: 'Organization ID',
+    required: true,
+    example: '61d9cfbf17ed7311c4b3e485',
   })
+  @IsMongoId()
   @IsString()
   @IsNotEmpty()
+  @Transform((value) => SafeMongoIdTransform(value))
   orgId: string;
 }
