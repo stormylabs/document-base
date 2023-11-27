@@ -35,7 +35,7 @@ import { AccessLevel } from '@/shared/interfaces/accessLevel';
 import { RoleAccessLevel } from '@/shared/decorators/RoleAccessLevel.decorator';
 import { RequestWithUser } from '@/shared/interfaces/requestWithUser';
 import { InvalidInputError, UnauthorizedError } from '@/shared/core/AppError';
-import { OrgIdParams } from '@/shared/dto/organization';
+import { AddKnowledgeBaseParams, OrgIdParams } from '@/shared/dto/organization';
 import CreateOrganizationDTO, {
   CreateOrganizationResponseDto,
 } from '../useCases/CreateOrganization/dto';
@@ -55,6 +55,8 @@ import { AddKnowledgeBaseJobResponseDTO } from '@/shared/dto/addKnowledgeBaseJob
 import { CustomFileCountValidationPipe } from '@/shared/validators/file-count.pipe';
 import { CustomUploadFileMimeTypeValidator } from '@/shared/validators/file-mimetype.validator';
 import AddKnowledgeBaseToOrganizationUseCase from '../useCases/AddKnowledgeBaseToOrganization';
+import { GetAddKnowledgeBaseJobStatusResponseDTO } from '../useCases/GetAddKnowledgeBaseJobStatus/dto';
+import GetAddKnowledgeBaseJobStatusUseCase from '../useCases/GetAddKnowledgeBaseJobStatus';
 
 const ALLOWED_UPLOADS_EXT_TYPES = ['.doc', '.docx', '.pdf'];
 const MIN_FILE_COUNT = 0;
@@ -73,6 +75,7 @@ export class OrganizationController {
     private addEngagementOrganizationUseCase: AddEngagementOrganizationUseCase,
     private getEngagementUseCase: GetEngagementUseCase,
     private addKnowledgeBaseToOrganizationUseCase: AddKnowledgeBaseToOrganizationUseCase,
+    private getAddKnowledgeBaseJobStatusUseCase: GetAddKnowledgeBaseJobStatusUseCase,
   ) {}
 
   @Post()
@@ -396,6 +399,52 @@ export class OrganizationController {
       );
       return errorHandler(error);
     }
+    return result.value.getValue();
+  }
+
+  @Post(':orgId/knowledgeBase/:addKnowledgeBaseId')
+  @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
+  @ApiOperation({
+    summary: 'Get add knowledge base job status by job ID.',
+  })
+  @ApiOkResponse({
+    description: 'Crawl job status',
+    type: GetAddKnowledgeBaseJobStatusResponseDTO,
+  })
+  @ApiNotFoundResponse({
+    description: 'Add knowledge base job not found',
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Unauthorized',
+  })
+  @RoleAccessLevel([
+    AccessLevel.ADMIN,
+    AccessLevel.MEMBER,
+    AccessLevel.READ_ONLY,
+  ])
+  async getCrawlJobStatus(
+    @Param() { orgId, addKnowledgeBaseId }: AddKnowledgeBaseParams,
+    @Req() req: RequestWithUser,
+  ) {
+    if (req?.user?.member?.organization?._id !== orgId) {
+      return errorHandler(new UnauthorizedError());
+    }
+
+    this.logger.log(`[GET] Start getting add knowledge base job status`);
+    const result = await this.getAddKnowledgeBaseJobStatusUseCase.exec(
+      addKnowledgeBaseId,
+    );
+
+    if (result?.isLeft()) {
+      const error = result.value;
+      this.logger.error(
+        `[GET] get add knowledge base job status error ${
+          error.errorValue().message
+        }`,
+      );
+      return errorHandler(error);
+    }
+
     return result.value.getValue();
   }
 }

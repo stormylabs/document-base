@@ -37,6 +37,7 @@ import { AddKnowledgeBaseJobRepository } from './repositories/addKnowledgeBaseJo
 import { KnowledgeBaseService } from './services/knowledgeBase.service';
 import { AddKnowledgeBaseJobService } from './services/addKnowledgeBaseJob.service';
 import AddKnowledgeBaseToOrganizationUseCase from './useCases/AddKnowledgeBaseToOrganization';
+import GetAddKnowledgeBaseJobStatusUseCase from './useCases/GetAddKnowledgeBaseJobStatus';
 
 @Module({
   imports: [
@@ -87,6 +88,7 @@ import AddKnowledgeBaseToOrganizationUseCase from './useCases/AddKnowledgeBaseTo
     AddEngagementOrganizationUseCase,
     GetEngagementUseCase,
     AddKnowledgeBaseToOrganizationUseCase,
+    GetAddKnowledgeBaseJobStatusUseCase,
   ],
   exports: [
     OrganizationService,
