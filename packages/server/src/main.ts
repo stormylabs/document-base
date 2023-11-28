@@ -2,10 +2,20 @@ import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import * as cookieParser from 'cookie-parser';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-
-import { AppModule } from './app.module';
-import { NormalizeQueryParamsValidationPipe } from './shared/NormalizeQueryParamsValidationPipe';
 import { ValidationPipe } from '@nestjs/common';
+
+import { AppModule } from '@/app.module';
+import { NormalizeQueryParamsValidationPipe } from '@/shared/NormalizeQueryParamsValidationPipe';
+import { AuthModule } from '@/module/auth/auth.module';
+import { BotModule } from '@/module/bot/bot.module';
+import { OrganizationModule } from '@/module/organization/organization.module';
+
+const AVAILABLE_MODULES = {
+  bot: BotModule,
+  auth: AuthModule,
+  org: OrganizationModule,
+  app: AppModule,
+};
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,6 +33,8 @@ async function bootstrap() {
 
   const NODE_ENV = config.get<string>('NODE_ENV');
 
+  const whitelistAPIDocs = config.get<string>('WHITELIST_API_DOCS').split(',');
+
   if (NODE_ENV !== 'production') {
     const options = new DocumentBuilder()
       .setTitle('DocumentBase API')
@@ -34,7 +46,10 @@ async function bootstrap() {
       )
       .build();
 
-    const document = SwaggerModule.createDocument(app, options, {});
+    const document = SwaggerModule.createDocument(app, options, {
+      include: whitelistAPIDocs.map((wlModule) => AVAILABLE_MODULES[wlModule]),
+    });
+
     SwaggerModule.setup('api/v1/docs', app, document);
   }
 
