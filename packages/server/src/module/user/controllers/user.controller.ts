@@ -3,10 +3,10 @@ import {
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
-  ApiExcludeController,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 
 import { errorHandler } from '@/shared/http';
@@ -19,7 +19,7 @@ import { GetUserInfoResponseDTO } from '../useCases/user/GetUserInfo/dto';
 import { IdParams } from '@/shared/dto/IdParams';
 import GetUserInfoUseCase from '../useCases/user/GetUserInfo';
 
-@ApiExcludeController()
+@ApiTags('a26b81b5-a896-4dea-91cc-5d4dacf3dc74/user')
 @Controller('a26b81b5-a896-4dea-91cc-5d4dacf3dc74/user')
 export class UserController {
   private readonly logger = new Logger(UserController.name);

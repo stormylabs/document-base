@@ -10,10 +10,10 @@ import {
 import GetUsageByBotIdUseCase from '../useCases/GetUsageByBotId';
 import { ApiKeyGuard } from '@/shared/guards/ApiKey.guard';
 import {
-  ApiExcludeController,
   ApiOkResponse,
   ApiOperation,
   ApiSecurity,
+  ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
 import { IdParams } from '@/shared/dto/IdParams';
@@ -25,7 +25,7 @@ import { GetUsageByUserIdResponseDTO } from '../useCases/GetUsageByUserId/dto';
 import GetUsageByUserIdUseCase from '../useCases/GetUsageByUserId';
 import { AuthRequest } from '@/shared/interfaces';
 
-@ApiExcludeController()
+@ApiTags('usage')
 @Controller('usage')
 @ApiSecurity('x-api-key')
 @UseGuards(ApiKeyGuard)
@@ -72,7 +72,7 @@ export class UsageController {
     return result.value.getValue();
   }
 
-  @Get('')
+  @Get()
   @ApiOperation({
     summary: 'Gets usage by user id.',
   })

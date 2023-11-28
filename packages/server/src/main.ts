@@ -6,7 +6,6 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { NormalizeQueryParamsValidationPipe } from './shared/NormalizeQueryParamsValidationPipe';
 import { ValidationPipe } from '@nestjs/common';
-import { BotModule } from './module/bot/bot.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -23,8 +22,6 @@ async function bootstrap() {
   const config = app.get(ConfigService);
 
   const NODE_ENV = config.get<string>('NODE_ENV');
-
-  const isLocal = NODE_ENV === 'local';
 
   if (NODE_ENV !== 'production') {
     const options = new DocumentBuilder()
