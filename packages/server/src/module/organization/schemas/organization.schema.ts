@@ -23,6 +23,9 @@ export class Organization extends Document {
   @Prop({ type: String, maxlength: 1500, required: true })
   values: string;
 
+  @Prop({ type: Array, default: [], minlength: 1, maxlength: 10 })
+  webhooks: string[];
+
   @Prop({ default: Date.now, type: Date })
   createdAt: Date;
 
