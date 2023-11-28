@@ -1,15 +1,28 @@
 import { BotUsageResponse, ResourceUsageResponse } from '@/shared/dto/usage';
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsNumber } from 'class-validator';
+import { IsDate } from 'class-validator';
 
 export default class GetUsageByBotIdDTO {
-  @IsNumber()
-  @Type(() => Number)
-  from: number;
+  @ApiProperty({
+    name: 'from',
+    type: Date,
+    description: 'From date',
+    example: '2023-06-01T00:00:00.000Z',
+  })
+  @IsDate()
+  @Type(() => Date)
+  from: Date;
 
-  @IsNumber()
-  @Type(() => Number)
-  to: number;
+  @ApiProperty({
+    name: 'to',
+    type: Date,
+    description: 'To date',
+    example: '2023-11-25T00:00:00.000Z',
+  })
+  @IsDate()
+  @Type(() => Date)
+  to: Date;
 }
 
 export class GetUsageByBotIdResponseDTO {
