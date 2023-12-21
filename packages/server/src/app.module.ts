@@ -38,6 +38,7 @@ import { OrganizationModule } from './module/organization/organization.module';
         AWS_REGION: Joi.string().required(),
         AWS_PUBLIC_BUCKET_NAME: Joi.string().required(),
         WHITELIST_API_DOCS: Joi.string().default(''),
+        INTERNAL_API_KEY: Joi.string(),
       }),
     }),
     ThrottlerAsyncModule,

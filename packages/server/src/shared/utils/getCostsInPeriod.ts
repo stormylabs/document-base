@@ -20,8 +20,9 @@ export const getCostsInPeriod = (
 ) => {
   let tokens = 0;
   const botCost = botUsage.reduce((acc, usage) => {
-    Logger.log(`calculating bot usage: ${usage._id}`);
-    Logger.log(`calculating bot usage bot: ${usage.bot._id}`);
+    Logger.log(`calculating bot usage: ${usage?._id}`);
+    Logger.log(`calculating bot usage bot: ${usage?.bot?._id}`);
+
     const now = new Date();
     const activePeriodStart =
       start >= usage.createdAt ? start : usage.createdAt;
@@ -31,12 +32,14 @@ export const getCostsInPeriod = (
     } else {
       activePeriodEnd = end >= now ? now : end;
     }
+
     const daysActive = differenceInDays(activePeriodEnd, activePeriodStart);
 
-    tokens += usage.bot.totalTokens;
+    tokens += usage?.bot?.totalTokens || 0;
     return (
       acc +
-      (daysActive * COST_PER_TOKEN_PER_BOT_PER_DAY * usage.bot.totalTokens) /
+      (daysActive * COST_PER_TOKEN_PER_BOT_PER_DAY * usage?.bot?.totalTokens ||
+        0) /
         MAX_TOKENS_PER_BOT
     );
   }, 0);

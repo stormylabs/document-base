@@ -58,7 +58,7 @@ export default class GetUsageByBotIdUseCase {
           bot: {
             usages: botUsages.map((usage) => ({
               ...usage,
-              bot: usage.bot._id,
+              // bot: usage.bot._id,
             })),
             costs: parseFloat(botCost.toFixed(3)),
           },

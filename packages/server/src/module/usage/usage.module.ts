@@ -15,6 +15,7 @@ import { AuthModule } from '../auth/auth.module';
 import GetUsageByBotIdUseCase from './useCases/GetUsageByBotId';
 import GetUsageByUserIdUseCase from './useCases/GetUsageByUserId';
 import { BotModule } from '../bot/bot.module';
+import { DataUsageController } from './controllers/data.controller';
 
 @Module({
   imports: [
@@ -32,7 +33,7 @@ import { BotModule } from '../bot/bot.module';
     AuthModule,
     forwardRef(() => BotModule),
   ],
-  controllers: [UsageController],
+  controllers: [UsageController, DataUsageController],
   providers: [
     ResourceUsageRepository,
     BotUsageRepository,

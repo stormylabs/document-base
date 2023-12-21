@@ -9,11 +9,13 @@ import { NormalizeQueryParamsValidationPipe } from '@/shared/NormalizeQueryParam
 import { AuthModule } from '@/module/auth/auth.module';
 import { BotModule } from '@/module/bot/bot.module';
 import { OrganizationModule } from '@/module/organization/organization.module';
+import { UsageModule } from './module/usage/usage.module';
 
 const AVAILABLE_MODULES = {
   bot: BotModule,
   auth: AuthModule,
   org: OrganizationModule,
+  usage: UsageModule,
   app: AppModule,
 };
 

@@ -52,8 +52,13 @@ export class BotUsageRepository {
     const query = {
       user: new Types.ObjectId(data.userId),
       $or: [
-        { deletedAt: null, createdAt: { $lte: data.to } },
-        { deletedAt: { $gte: data.from }, createdAt: { $lte: data.to } },
+        {
+          deletedAt: { $gte: null },
+          createdAt: {
+            ...(data.to && { $lte: data.to }),
+            ...(data.from && { $gte: data.from }),
+          },
+        },
       ],
     };
     if (data.botId) query['bot'] = new Types.ObjectId(data.botId);

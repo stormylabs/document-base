@@ -6,6 +6,7 @@ import { ResourceUsageService } from '@/module/usage/services/resourceUsage.serv
 import { BotUsageService } from '../../services/botUsage.service';
 import { GetUsageByUserIdResponseDTO } from './dto';
 import { getCostsInPeriod } from '@/shared/utils/getCostsInPeriod';
+import { COST_PER_TOKEN_PER_BOT_PER_DAY } from '@/shared/constants/costs';
 
 type Response = Either<
   Result<UseCaseError>,
@@ -22,6 +23,12 @@ export default class GetUsageByUserIdUseCase {
   public async exec(userId: string, from: Date, to: Date): Promise<Response> {
     try {
       this.logger.log(`Start getting usages by user id`);
+
+      console.log('>> server', {
+        userId,
+        from,
+        to,
+      });
 
       const botUsages = await this.botUsageService.findUsagesInPeriodByUserId(
         userId,
@@ -50,7 +57,17 @@ export default class GetUsageByUserIdUseCase {
           bot: {
             usages: botUsages.map((usage) => ({
               ...usage,
-              bot: usage.bot._id,
+              // bot: usage?.bot?._id,
+              bot: {
+                _id: usage?.bot?._id,
+                name: usage?.bot?.name,
+                totalTokens: usage?.bot?.totalTokens,
+                totalCharacters: usage?.bot?.totalCharacters,
+                cost:
+                  COST_PER_TOKEN_PER_BOT_PER_DAY *
+                  (usage?.bot?.totalTokens || 0),
+                createdAt: usage?.bot?.createdAt,
+              },
             })),
             costs: parseFloat(botCost.toFixed(3)),
           },
@@ -63,7 +80,6 @@ export default class GetUsageByUserIdUseCase {
         }),
       );
     } catch (err) {
-      console.log(err);
       return left(new UnexpectedError(err));
     }
   }

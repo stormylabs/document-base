@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BillableResource } from '../interfaces/usage';
+import { BotResponse } from './bot';
 
 export class ResourceUsageResponse {
   @ApiProperty({
@@ -41,10 +42,10 @@ export class BotUsageResponse {
   _id?: string;
 
   @ApiProperty({
-    description: 'Bot ID',
-    type: String,
+    description: 'Bot Data',
+    type: () => BotResponse,
   })
-  bot?: string;
+  bot?: BotResponse;
 
   @ApiProperty({
     description: 'User ID',
