@@ -22,12 +22,13 @@ const useUserUsage = create<CreateUsageSlice>((set, get) => ({
   botUsage: [],
   resourceUsage: [],
   fetch: async ({ userId, ...params }: iUsageParams) => {
+    set({
+      loading: true,
+    });
     const response = await fetcher(
       `${process.env.NEXT_PUBLIC_API_USAGE_URL!}/${userId}`,
       { params }
     );
-
-    console.log(response.data);
 
     set({
       botUsage: response?.data?.bot?.usages?.map((it: any) => ({
@@ -44,6 +45,7 @@ const useUserUsage = create<CreateUsageSlice>((set, get) => ({
       botCost: response?.data?.bot?.costs,
       resourceUsage: response?.data?.resource?.usages,
       resourceCost: response?.data?.resource?.costs,
+      loading: false,
     });
   },
   loading: false,
