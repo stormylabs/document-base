@@ -1,10 +1,9 @@
-import styles from './page.module.scss';
+'use client';
+
+import { Box } from '@mui/joy';
+
+import React from 'react';
 
 export default async function Index() {
-  /*
-   * Replace the elements below with your own.
-   *
-   * Note: The corresponding styles are in the ./index.scss file.
-   */
-  return <div>Hello</div>;
+  return <Box sx={{ display: 'flex', alignItems: 'center' }}></Box>;
 }
