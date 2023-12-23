@@ -35,6 +35,7 @@ import { useFormik } from 'formik';
 import format from 'date-fns/format';
 import { lastDayOfMonth } from 'date-fns';
 import { useParams } from 'next/navigation';
+import { formatCurrency } from '../../../../utils';
 
 const validationSchema = Yup.object({
   userId: Yup.string().required(),
@@ -142,18 +143,29 @@ function UsagePage() {
                       bottom: 5,
                     }}
                   >
-                    <CartesianGrid strokeDasharray="33" />
-                    <XAxis dataKey="botId" />
-                    <YAxis />
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="bot.shortenId" fontSize={14} />
+                    <YAxis
+                      type="number"
+                      allowDecimals
+                      tick={(props) => <CustomizedAxisTick {...props} />}
+                    />
                     <Tooltip />
                     <Legend />
                     <Line
                       type="monotone"
-                      dataKey="tokens"
+                      dataKey="bot.totalTokens"
+                      name="Tokens"
                       stroke="#8884d8"
                       activeDot={{ r: 8 }}
                     />
-                    <Line type="monotone" dataKey="cost" stroke="#82ca9d" />
+
+                    <Line
+                      type="monotone"
+                      dataKey="bot.costs"
+                      name="Costs"
+                      stroke="#82ca9d"
+                    />
                   </LineChart>
                 </ResponsiveContainer>
               </div>
@@ -170,34 +182,7 @@ function UsagePage() {
               Resource Usage
             </Typography>
             <Card>
-              <div style={{ width: '100%', height: 300 }}>
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    width={500}
-                    height={300}
-                    data={botUsage}
-                    margin={{
-                      top: 5,
-                      right: 30,
-                      left: 20,
-                      bottom: 5,
-                    }}
-                  >
-                    <CartesianGrid strokeDasharray="33" />
-                    <XAxis dataKey="botId" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Line
-                      type="monotone"
-                      dataKey="tokens"
-                      stroke="#8884d8"
-                      activeDot={{ r: 8 }}
-                    />
-                    <Line type="monotone" dataKey="cost" stroke="#82ca9d" />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+              <div style={{ width: '100%', height: 300 }}>No data to show.</div>
             </Card>
           </Box>
         </Stack>
@@ -331,5 +316,27 @@ function UsagePage() {
     </Box>
   );
 }
+
+type CustomizedAxisTickProps = {
+  x: number;
+  y: number;
+  payload: any;
+};
+
+const CustomizedAxisTick = (props: CustomizedAxisTickProps) => {
+  const { x, y, payload } = props;
+  let formattedValue;
+  if (payload.value >= 1000) {
+    formattedValue = `${formatCurrency(payload.value / 1000)}k`;
+  } else {
+    formattedValue = payload.value;
+  }
+
+  return (
+    <text x={x} y={y} dy={14} fontSize={14} textAnchor="middle">
+      {formattedValue}
+    </text>
+  );
+};
 
 export default UsagePage;

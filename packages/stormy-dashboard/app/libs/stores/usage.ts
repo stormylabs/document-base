@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import * as dateFns from 'date-fns';
 import fetcher from '../fetcher';
+import { shortenObjectId } from '../../../utils';
 
 export interface iUsageParams {
   userId: string;
@@ -31,16 +31,12 @@ const useUserUsage = create<CreateUsageSlice>((set, get) => ({
     );
 
     set({
-      botUsage: response?.data?.bot?.usages?.map((it: any) => ({
-        _id: it?._id,
-        botName: it?.bot?.name,
-        botId: it?.bot?._id,
-        cost: it?.bot?.cost,
-        tokens: it?.bot?.totalTokens,
-        month: it?.createdAt
-          ? dateFns.format(new Date(it?.createdAt), 'MMMM')
-          : '',
-        createdAt: it?.createdAt,
+      botUsage: response?.data?.bot?.usages.map((usage: any) => ({
+        ...usage,
+        bot: {
+          ...usage.bot,
+          shortenId: shortenObjectId(usage.bot._id),
+        },
       })),
       botCost: response?.data?.bot?.costs,
       resourceUsage: response?.data?.resource?.usages,

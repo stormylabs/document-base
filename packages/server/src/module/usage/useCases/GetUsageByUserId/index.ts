@@ -59,14 +59,10 @@ export default class GetUsageByUserIdUseCase {
               ...usage,
               // bot: usage?.bot?._id,
               bot: {
-                _id: usage?.bot?._id,
-                name: usage?.bot?.name,
-                totalTokens: usage?.bot?.totalTokens,
-                totalCharacters: usage?.bot?.totalCharacters,
-                cost:
+                ...usage.bot,
+                costs:
                   COST_PER_TOKEN_PER_BOT_PER_DAY *
                   (usage?.bot?.totalTokens || 0),
-                createdAt: usage?.bot?.createdAt,
               },
             })),
             costs: parseFloat(botCost.toFixed(3)),
