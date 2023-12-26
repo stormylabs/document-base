@@ -15,8 +15,8 @@ import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
 import ChevronRightRoundedIcon from '@mui/icons-material/ChevronRightRounded';
 import FilterAltIcon from '@mui/icons-material/FilterAlt';
 import * as Yup from 'yup';
-import useUserUsage, { iUsageParams } from '../../../libs/stores/usage';
-
+import useUserUsage, { iUsageParams } from '../../libs/stores/usage';
+import NextLink from 'next/link';
 import {
   Box,
   Breadcrumbs,
@@ -35,7 +35,7 @@ import { useFormik } from 'formik';
 import format from 'date-fns/format';
 import { lastDayOfMonth } from 'date-fns';
 import { useParams } from 'next/navigation';
-import { formatCurrency } from '../../../../utils';
+import { formatCurrency } from '../../../utils';
 
 const validationSchema = Yup.object({
   userId: Yup.string().required(),
@@ -212,16 +212,20 @@ function UsagePage() {
           separator={<ChevronRightRoundedIcon fontSize="small" />}
           sx={{ pl: 0 }}
         >
-          <Link
-            underline="none"
-            color="neutral"
-            href="#some-link"
-            aria-label="Home"
-          >
-            <HomeRoundedIcon />
-          </Link>
+          <NextLink href="/">
+            <Link underline="none" color="neutral" aria-label="Home">
+              <HomeRoundedIcon />
+            </Link>
+          </NextLink>
+          <NextLink href="/user-usage">
+            <Link>
+              <Typography color="primary" fontWeight={500} fontSize={12}>
+                User Usage
+              </Typography>
+            </Link>
+          </NextLink>
           <Typography color="primary" fontWeight={500} fontSize={12}>
-            Usages
+            Detail
           </Typography>
         </Breadcrumbs>
       </Box>

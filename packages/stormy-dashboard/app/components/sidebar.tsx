@@ -121,12 +121,12 @@ export default function Sidebar() {
             </ListItem>
           </Link>
 
-          <Link href="/usage">
+          <Link href="/user-usage">
             <ListItem>
               <ListItemButton>
                 <RequestQuote />
                 <ListItemContent>
-                  <Typography level="title-sm">Usages</Typography>
+                  <Typography level="title-sm">User Usage</Typography>
                 </ListItemContent>
               </ListItemButton>
             </ListItem>
