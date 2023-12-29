@@ -34,6 +34,7 @@
     "@nestjs/throttler": "4.2.1",
     "@pinecone-database/pinecone": "0.1.6",
     "@ssut/nestjs-sqs": "2.0.0",
+    "aws-amplify": "^6.0.9",
     "axios": "1.4.0",
     "bottleneck": "2.19.5",
     "cheerio": "1.0.0-rc.12",

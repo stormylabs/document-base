@@ -1,0 +1,73 @@
+{
+  "name": "service-core",
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "sourceRoot": "packages/service-core/src",
+  "projectType": "application",
+  "targets": {
+    "build": {
+      "executor": "@nx/webpack:webpack",
+      "outputs": ["{options.outputPath}"],
+      "defaultConfiguration": "production",
+      "options": {
+        "target": "node",
+        "compiler": "tsc",
+        "outputPath": "dist/packages/service-core",
+        "main": "packages/service-core/src/main.ts",
+        "tsConfig": "packages/service-core/tsconfig.app.json",
+        "assets": ["packages/service-core/src/assets"],
+        "isolatedConfig": true,
+        "webpackConfig": "packages/service-core/webpack.config.js",
+        "generatePackageJson": true
+      },
+      "configurations": {
+        "development": {},
+        "production": {}
+      }
+    },
+    "serve": {
+      "executor": "@nx/js:node",
+      "defaultConfiguration": "development",
+      "options": {
+        "buildTarget": "service-core:build"
+      },
+      "configurations": {
+        "development": {
+          "buildTarget": "service-core:build:development"
+        },
+        "production": {
+          "buildTarget": "service-core:build:production"
+        }
+      }
+    },
+    "lint": {
+      "executor": "@nx/linter:eslint",
+      "outputs": ["{options.outputFile}"],
+      "options": {
+        "lintFilePatterns": ["packages/service-core/**/*.ts"]
+      }
+    },
+    "test": {
+      "executor": "@nx/jest:jest",
+      "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
+      "options": {
+        "jestConfig": "packages/service-core/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "configurations": {
+        "ci": {
+          "ci": true,
+          "codeCoverage": true
+        }
+      }
+    },
+    "docker-build": {
+      "dependsOn": ["build"],
+      "command": "docker build -f packages/service-core/Dockerfile . -t server"
+    },
+    "docker-push": {
+      "dependsOn": ["docker-build"],
+      "command": "docker push"
+    }
+  },
+  "tags": []
+}

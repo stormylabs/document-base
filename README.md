@@ -2,7 +2,7 @@
 
 The monorepo chat bot project powered by Chat GPT
 
-> This project is still in analyzed, we will keep updating the documentation until we found the final Recep.
+> This project is still in analyzed, we will keep updating the documentation until we found the final Recept.
 
 ## Intro
 
@@ -13,7 +13,7 @@ This project is using [Nx](https://nx.dev) as extensible Dev Tools
 Clone the project
 
 ```sh
-git clone git@github.com:khalilsiu/document-base.git
+git clone git@github.com:stormylabs/document-base.git
 ```
 
 Goto the project
@@ -26,13 +26,13 @@ Run `npm install` to install the dependencies
 
 ### Run Server Project
 
-Run `nx serve server`
+Run `npx nx serve service-core`
 
 Then you are ready to develop feature ob server api project.
 
 ### Run Web UI Project
 
-Run `nx serve web`
+Run `npx nx serve web-chatbot`
 
 Then you are ready to develop feature on web ui project.
 
@@ -106,3 +106,7 @@ If you have questions how to use, want to suggest a feature please join [Discuss
 ## Issues
 
 If you find a bug or would like to request a feature, please visit [ISSUES](https://github.com/khalilsiu/document-base/issues)
+
+## How to Deploy
+
+- [Nextjs Application](docs/how-to-deploy-nextjs.md)
