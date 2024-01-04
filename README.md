@@ -110,3 +110,7 @@ If you find a bug or would like to request a feature, please visit [ISSUES](http
 ## How to Deploy
 
 - [Nextjs Application](docs/how-to-deploy-nextjs.md)
+
+## Issues
+
+- https://community.cloudflare.com/t/pointing-cloudflare-dns-to-aws-load-balancer/151997/2
