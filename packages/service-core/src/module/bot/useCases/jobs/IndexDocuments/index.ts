@@ -35,12 +35,12 @@ export default class IndexDocumentUseCase {
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
     private readonly docIndexJobService: DocIndexJobService,
-    private readonly langChainService: LangChainService
+    private readonly langChainService: LangChainService,
   ) {}
   public async exec(
     botId: string,
     jobId: string,
-    documentId: string
+    documentId: string,
   ): Promise<Response> {
     try {
       this.logger.log(`Start indexing document, locking job: ${jobId}`);
@@ -92,7 +92,7 @@ export default class IndexDocumentUseCase {
             }),
           ],
           document.title,
-          document.sourceName
+          document.sourceName,
         );
       } catch (e) {
         return left(new LangChainSplitDocsError(e));

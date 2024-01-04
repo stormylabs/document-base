@@ -17,7 +17,7 @@ export default class GetOrganizationUseCase {
   private readonly logger = new Logger(GetOrganizationUseCase.name);
   constructor(
     private readonly orgService: OrganizationService,
-    private readonly memberService: MemberService
+    private readonly memberService: MemberService,
   ) {}
   public async exec(orgId: string): Promise<Response> {
     try {
@@ -25,7 +25,7 @@ export default class GetOrganizationUseCase {
 
       const org = await this.orgService.findById(orgId);
       const orgMembers = await this.memberService.getMemberOfOrganization(
-        orgId
+        orgId,
       );
 
       if (!org) {

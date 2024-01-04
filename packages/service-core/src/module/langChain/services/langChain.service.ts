@@ -14,7 +14,7 @@ export class LangChainService {
     @Inject(ChatOpenAI) public readonly chat: ChatOpenAI,
     @Inject(ChatOpenAI) public readonly chat16k: ChatOpenAI,
     @Inject(OpenAI) public readonly llm: OpenAI,
-    @Inject(OpenAIEmbeddings) public readonly embedder: OpenAIEmbeddings
+    @Inject(OpenAIEmbeddings) public readonly embedder: OpenAIEmbeddings,
   ) {
     this.textSplitter = new RecursiveCharacterTextSplitter({
       chunkSize: 500,
@@ -29,7 +29,7 @@ export class LangChainService {
   public async getVectors(
     id: string,
     doc: LCDocument,
-    metadata: Vector['metadata']
+    metadata: Vector['metadata'],
   ): Promise<Vector> {
     const embedding = await this.embedder.embedQuery(doc.pageContent);
     return {
@@ -62,7 +62,7 @@ export class LangChainService {
   async splitDocuments(
     documents: LCDocument[],
     docHeader: string,
-    url: string
+    url: string,
   ) {
     return this.textSplitter.splitDocuments(documents, {
       chunkHeader: `DOCUMENT NAME: ${docHeader}\n\nURL: ${url}\n\n---\n\n`,

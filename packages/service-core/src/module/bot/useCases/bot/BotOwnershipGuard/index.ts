@@ -12,7 +12,7 @@ import { ConfigService } from '@nestjs/config';
 export class BotOwnershipGuard implements CanActivate {
   constructor(
     private readonly botService: BotService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

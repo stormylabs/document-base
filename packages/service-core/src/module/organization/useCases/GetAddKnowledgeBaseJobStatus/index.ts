@@ -19,12 +19,12 @@ type Response = Either<
 @Injectable()
 export default class GetAddKnowledgeBaseJobStatusUseCase {
   private readonly logger = new Logger(
-    GetAddKnowledgeBaseJobStatusUseCase.name
+    GetAddKnowledgeBaseJobStatusUseCase.name,
   );
   constructor(
     private readonly crawlJobService: CrawlJobService,
     private readonly extractFileJobService: ExtractFileJobService,
-    private readonly addKnowledgeBaseJobService: AddKnowledgeBaseJobService
+    private readonly addKnowledgeBaseJobService: AddKnowledgeBaseJobService,
   ) {}
   public async exec(jobId: string): Promise<Response> {
     try {
@@ -42,28 +42,28 @@ export default class GetAddKnowledgeBaseJobStatusUseCase {
 
       if (addKnowledgeBaseJob?.crawlJob?._id) {
         crawlJob = await this.crawlJobService.findById(
-          addKnowledgeBaseJob.crawlJob._id
+          addKnowledgeBaseJob.crawlJob._id,
         );
 
         if (!crawlJob) {
           return left(
             new NotFoundError(Resource.CrawlJob, [
               addKnowledgeBaseJob.crawlJob._id,
-            ])
+            ]),
           );
         }
       }
 
       if (addKnowledgeBaseJob?.extractFileJob?._id) {
         extractFileJob = await this.extractFileJobService.findById(
-          addKnowledgeBaseJob.extractFileJob._id
+          addKnowledgeBaseJob.extractFileJob._id,
         );
 
         if (!extractFileJob)
           return left(
             new NotFoundError(Resource.ExtractFileJob, [
               addKnowledgeBaseJob.extractFileJob._id,
-            ])
+            ]),
           );
       }
 
@@ -119,9 +119,9 @@ export default class GetAddKnowledgeBaseJobStatusUseCase {
           progress: Math.floor(
             (crawlJob.documents.length * 100 +
               extractFileJob.documents.length * 100) /
-              (crawlJob.limit + extractFileJob.initUrls.length)
+              (crawlJob.limit + extractFileJob.initUrls.length),
           ),
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

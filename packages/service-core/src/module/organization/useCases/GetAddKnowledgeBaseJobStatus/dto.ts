@@ -14,7 +14,7 @@ export default class GetCrawlJobStatusDTO {
 }
 
 export class GetAddKnowledgeBaseJobStatusResponseDTO extends PartialType(
-  PickType(AddKnowledgeBaseJobResponse, ['createdAt'] as const)
+  PickType(AddKnowledgeBaseJobResponse, ['createdAt'] as const),
 ) {
   @ApiProperty({
     description: 'Crawl Job ID',

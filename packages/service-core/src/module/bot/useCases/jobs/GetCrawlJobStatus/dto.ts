@@ -19,7 +19,7 @@ export class GetCrawlJobStatusResponseDTO extends PartialType(
     'createdAt',
     'updatedAt',
     'limit',
-  ] as const)
+  ] as const),
 ) {
   @ApiProperty({
     description: 'Crawl Job ID',

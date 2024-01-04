@@ -26,7 +26,7 @@ export default class ExtractFileUseCase {
     private readonly botService: BotService,
     private readonly extractFileJobService: ExtractFileJobService,
     private readonly documentService: DocumentService,
-    private readonly knowledgeBaseService: KnowledgeBaseService
+    private readonly knowledgeBaseService: KnowledgeBaseService,
   ) {}
   public async exec({
     botId,
@@ -73,7 +73,7 @@ export default class ExtractFileUseCase {
       if (extractFileJob.initUrls.length === extractFileJob.documents.length) {
         await this.extractFileJobService.updateStatus(
           jobId,
-          JobStatus.Finished
+          JobStatus.Finished,
         );
         return right(Result.ok());
       }
@@ -96,7 +96,7 @@ export default class ExtractFileUseCase {
         return left(
           new NotFoundError(Resource[botId ? 'Bot' : 'KnowledgeBase'], [
             botId ? botId : knowledgeBaseId,
-          ])
+          ]),
         );
       }
 
@@ -124,7 +124,7 @@ export default class ExtractFileUseCase {
         // does not soft delete document, show to the user that the file is empty/cant extracted
         await this.extractFileJobService.removeDocument(jobId, documentId);
         this.logger.log(
-          'Delete document and remove from extract file job as extraction error'
+          'Delete document and remove from extract file job as extraction error',
         );
         return left(new ExtractFileError(e));
       }
@@ -145,7 +145,7 @@ export default class ExtractFileUseCase {
       if (knowledgeBaseId) {
         await this.knowledgeBaseService.upsertDocument(
           knowledgeBaseId,
-          documentId
+          documentId,
         );
       }
 
@@ -153,7 +153,7 @@ export default class ExtractFileUseCase {
         await this.extractFileJobService.upsertDocuments(jobId, [documentId]);
 
       this.logger.log(
-        `document upserted to extract file job: ${upsertedExtractFileJob._id}`
+        `document upserted to extract file job: ${upsertedExtractFileJob._id}`,
       );
 
       if (
@@ -163,7 +163,7 @@ export default class ExtractFileUseCase {
         this.logger.log('extract file job finished');
         await this.extractFileJobService.updateStatus(
           jobId,
-          JobStatus.Finished
+          JobStatus.Finished,
         );
         return right(Result.ok());
       }

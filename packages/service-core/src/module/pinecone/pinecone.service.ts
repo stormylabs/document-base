@@ -48,7 +48,7 @@ export class PineconeClientService implements OnModuleInit {
       } catch (error) {
         this.logger.error(
           `Error creating index: "${index}", check your pinecone account.`,
-          'PineconeClient'
+          'PineconeClient',
         );
         throw error;
       }

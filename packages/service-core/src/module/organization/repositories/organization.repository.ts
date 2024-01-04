@@ -8,7 +8,7 @@ import { Organization } from '../schemas/organization.schema';
 export class OrganizationRepository {
   constructor(
     @InjectModel(Organization.name)
-    private readonly orgModel: Model<Organization>
+    private readonly orgModel: Model<Organization>,
   ) {}
 
   async create(orgData: Partial<OrganizationData>): Promise<OrganizationData> {
@@ -38,7 +38,7 @@ export class OrganizationRepository {
 
   async update(
     orgId: string,
-    data: Partial<Omit<OrganizationData, 'createdAt' | '_id'>>
+    data: Partial<Omit<OrganizationData, 'createdAt' | '_id'>>,
   ): Promise<OrganizationData | null> {
     const id = new Types.ObjectId(orgId);
     const org = await this.orgModel
@@ -55,14 +55,14 @@ export class OrganizationRepository {
 
   async upsertKnowledgeBases(
     organizationId: string,
-    knowledgeBaseIds: string[]
+    knowledgeBaseIds: string[],
   ): Promise<OrganizationData> {
     const id = new Types.ObjectId(organizationId);
     const org = await this.orgModel
       .findByIdAndUpdate(
         id,
         { $addToSet: { knowledgeBases: { $each: knowledgeBaseIds } } },
-        { new: true }
+        { new: true },
       )
       .populate('knowledgeBases')
       .exec();

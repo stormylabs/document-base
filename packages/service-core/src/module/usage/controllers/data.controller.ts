@@ -29,7 +29,7 @@ export class DataUsageController {
   private readonly logger = new Logger(DataUsageController.name);
   constructor(
     private getUsageByUserIdUseCase: GetUsageByUserIdUseCase,
-    private getListUserUseCase: GetListUserUseCase
+    private getListUserUseCase: GetListUserUseCase,
   ) {}
 
   @Get('users')
@@ -50,7 +50,7 @@ export class DataUsageController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[GET] get list user error ${error.errorValue().message}`
+        `[GET] get list user error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -70,19 +70,19 @@ export class DataUsageController {
   })
   async getUsageByUserId(
     @Query() { from, to }: GetUsageByBotIdDTO,
-    @Param() { userId }: UserIdParams
+    @Param() { userId }: UserIdParams,
   ) {
     this.logger.log(`[GET] Start getting usage by user id: ${userId}`);
     const result = await this.getUsageByUserIdUseCase.exec(
       userId,
       new Date(from),
-      new Date(to)
+      new Date(to),
     );
 
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[GET] get usage by user id error ${error.errorValue().message}`
+        `[GET] get usage by user id error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

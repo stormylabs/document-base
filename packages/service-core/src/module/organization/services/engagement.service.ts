@@ -12,16 +12,16 @@ export class EngagementService {
     > & {
       organizationId: string;
       knowledgeBaseIds: string[];
-    }
+    },
   ): Promise<EngagementData> {
     const createdEngagement = await this.engagementRepository.create(
-      engagementData
+      engagementData,
     );
     return createdEngagement;
   }
 
   async findEngagementById(
-    engagementId: string
+    engagementId: string,
   ): Promise<EngagementData | null> {
     const engagement = await this.engagementRepository.findById(engagementId);
     return engagement;
@@ -29,7 +29,7 @@ export class EngagementService {
 
   async getEngagementOfOrganization(orgId: string): Promise<EngagementData[]> {
     const engagements = await this.engagementRepository.findEngagementByOrgId(
-      orgId
+      orgId,
     );
     return engagements;
   }
@@ -41,7 +41,7 @@ export class EngagementService {
       engagementId,
       {
         deletedAt: new Date(),
-      }
+      },
     );
     return updatedEngagement;
   }

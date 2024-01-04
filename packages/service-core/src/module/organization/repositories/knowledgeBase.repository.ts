@@ -8,13 +8,13 @@ import { KnowledgeBase } from '../schemas/knowledgeBase.schema';
 export class KnowledgeBaseRepository {
   constructor(
     @InjectModel(KnowledgeBase.name)
-    private readonly knowledgeBaseModel: Model<KnowledgeBase>
+    private readonly knowledgeBaseModel: Model<KnowledgeBase>,
   ) {}
 
   async create(
     knowledgeBaseData: Partial<Omit<KnowledgeBaseData, 'organization'>> & {
       organizationId: string;
-    }
+    },
   ): Promise<KnowledgeBaseData> {
     const knowledgeBase = new this.knowledgeBaseModel({
       organization: new Types.ObjectId(knowledgeBaseData.organizationId),
@@ -38,7 +38,7 @@ export class KnowledgeBaseRepository {
   async findAll(): Promise<KnowledgeBaseData[]> {
     const knowledgeBases = await this.knowledgeBaseModel.find().exec();
     return knowledgeBases.map(
-      (knowledgeBase) => knowledgeBase.toJSON() as KnowledgeBaseData
+      (knowledgeBase) => knowledgeBase.toJSON() as KnowledgeBaseData,
     );
   }
 
@@ -52,7 +52,7 @@ export class KnowledgeBaseRepository {
 
     if (!knowledgeBases) return null;
     return knowledgeBases.map(
-      (knowledgeBase) => knowledgeBase.toJSON() as KnowledgeBaseData
+      (knowledgeBase) => knowledgeBase.toJSON() as KnowledgeBaseData,
     );
   }
 
@@ -65,7 +65,7 @@ export class KnowledgeBaseRepository {
 
   async update(
     knowledgeBaseId: string,
-    data: Partial<Omit<KnowledgeBaseData, 'createdAt' | '_id'>>
+    data: Partial<Omit<KnowledgeBaseData, 'createdAt' | '_id'>>,
   ): Promise<KnowledgeBaseData | null> {
     const id = new Types.ObjectId(knowledgeBaseId);
     const knowledgeBase = await this.knowledgeBaseModel
@@ -76,14 +76,14 @@ export class KnowledgeBaseRepository {
 
   async upsertDocuments(
     knowledgeBaseId: string,
-    documentIds: string[]
+    documentIds: string[],
   ): Promise<KnowledgeBaseData> {
     const id = new Types.ObjectId(knowledgeBaseId);
     const knowledgeBase = await this.knowledgeBaseModel
       .findByIdAndUpdate(
         id,
         { $addToSet: { documents: { $each: documentIds } } },
-        { new: true }
+        { new: true },
       )
       .populate('documents')
       .exec();

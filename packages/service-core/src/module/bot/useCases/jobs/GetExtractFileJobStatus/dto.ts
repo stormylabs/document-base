@@ -18,7 +18,7 @@ export class GetExtractFileJobStatusResponseDTO extends PartialType(
     'status',
     'createdAt',
     'updatedAt',
-  ] as const)
+  ] as const),
 ) {
   @ApiProperty({
     description: 'Extract File Job ID',

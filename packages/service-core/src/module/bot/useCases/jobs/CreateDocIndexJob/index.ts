@@ -26,11 +26,11 @@ export default class CreateDocIndexJobUseCase {
     private readonly sqsMessageService: SqsMessageService,
     private readonly botService: BotService,
     private readonly pineconeService: PineconeClientService,
-    private readonly docIndexJobService: DocIndexJobService
+    private readonly docIndexJobService: DocIndexJobService,
   ) {}
   public async exec(
     botId: string,
-    documents: DocumentData[]
+    documents: DocumentData[],
   ): Promise<Response> {
     try {
       this.logger.log(`Start creating doc index job`);
@@ -81,7 +81,7 @@ export default class CreateDocIndexJobUseCase {
     await this.sqsMessageService.sendMessages<DocIndexJobMessage>(
       jobId,
       JobType.DocIndex,
-      payloads
+      payloads,
     );
   }
 

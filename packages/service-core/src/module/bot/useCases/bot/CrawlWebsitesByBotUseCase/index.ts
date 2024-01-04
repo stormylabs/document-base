@@ -25,12 +25,12 @@ export default class CrawlWebsitesByBotUseCase {
     private readonly botService: BotService,
     private readonly createCrawlJobUseCase: CreateCrawlJobUseCase,
     private readonly crawlJobService: CrawlJobService,
-    private readonly docIndexJobService: DocIndexJobService
+    private readonly docIndexJobService: DocIndexJobService,
   ) {}
   public async exec(
     botId: string,
     urls: string[],
-    limit: number
+    limit: number,
   ): Promise<Response> {
     try {
       this.logger.log(`Start crawling websites by bot`);
@@ -39,7 +39,7 @@ export default class CrawlWebsitesByBotUseCase {
       if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
 
       const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
-        botId
+        botId,
       );
 
       const unfinishedDocIndexJobs =
@@ -49,8 +49,8 @@ export default class CrawlWebsitesByBotUseCase {
         return left(
           new UnfinishedJobsError(
             unfinishedCrawlJobs.map((job) => job._id),
-            JobType.WebCrawl
-          )
+            JobType.WebCrawl,
+          ),
         );
       }
 
@@ -58,8 +58,8 @@ export default class CrawlWebsitesByBotUseCase {
         return left(
           new UnfinishedJobsError(
             unfinishedDocIndexJobs.map((job) => job._id),
-            JobType.DocIndex
-          )
+            JobType.DocIndex,
+          ),
         );
       }
 

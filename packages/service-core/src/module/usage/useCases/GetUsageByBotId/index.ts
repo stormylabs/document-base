@@ -17,13 +17,13 @@ export default class GetUsageByBotIdUseCase {
   private readonly logger = new Logger(GetUsageByBotIdUseCase.name);
   constructor(
     private readonly botUsageService: BotUsageService,
-    private readonly resourceUsageService: ResourceUsageService
+    private readonly resourceUsageService: ResourceUsageService,
   ) {}
   public async exec(
     userId: string,
     botId: string,
     from: Date,
-    to: Date
+    to: Date,
   ): Promise<Response> {
     try {
       this.logger.log(`Start getting usages by bot id`);
@@ -33,7 +33,7 @@ export default class GetUsageByBotIdUseCase {
           botId,
           userId,
           from,
-          to
+          to,
         );
 
       const resourceUsages =
@@ -41,7 +41,7 @@ export default class GetUsageByBotIdUseCase {
           botId,
           userId,
           from,
-          to
+          to,
         );
 
       const {
@@ -68,7 +68,7 @@ export default class GetUsageByBotIdUseCase {
           },
           total: parseFloat(total.toFixed(3)),
           tokens,
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

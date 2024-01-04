@@ -36,7 +36,7 @@ export class OrganizationService {
 
   async upsertKnowledgeBases(
     organizationId: string,
-    knowledgeBaseId: string
+    knowledgeBaseId: string,
   ): Promise<OrganizationData> {
     const exists = await this.exists([organizationId]);
     if (!exists) throw new Error('Organization does not exist.');

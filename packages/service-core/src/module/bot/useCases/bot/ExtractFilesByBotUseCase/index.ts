@@ -28,11 +28,11 @@ export default class ExtractFilesByBotUseCase {
     private readonly s3Service: S3Service,
     private readonly docIndexJobService: DocIndexJobService,
     private readonly extractFileJobUseCase: CreateExtractFileJobUseCase,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
   public async exec(
     botId: string,
-    files: Array<Express.Multer.File>
+    files: Array<Express.Multer.File>,
   ): Promise<Response> {
     this.logger.log(`Start extracting files by bot`);
 
@@ -51,8 +51,8 @@ export default class ExtractFilesByBotUseCase {
       return left(
         new UnfinishedJobsError(
           unfinishedDocIndexJobs.map((job) => job._id),
-          JobType.DocIndex
-        )
+          JobType.DocIndex,
+        ),
       );
     }
 
@@ -66,7 +66,7 @@ export default class ExtractFilesByBotUseCase {
           return this.s3Service.uploadFile(
             `${bot._id}/${file.originalname}`,
             this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
-            file.buffer
+            file.buffer,
           );
         }),
       ]);

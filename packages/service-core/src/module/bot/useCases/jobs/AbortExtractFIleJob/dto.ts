@@ -3,7 +3,7 @@ import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 
 export class AbortExtractFileJobResponseDTO extends PartialType(
-  PickType(ExtractFileJobResponse, ['createdAt', 'updatedAt'] as const)
+  PickType(ExtractFileJobResponse, ['createdAt', 'updatedAt'] as const),
 ) {
   @ApiProperty({
     description: 'Extract File Job ID',

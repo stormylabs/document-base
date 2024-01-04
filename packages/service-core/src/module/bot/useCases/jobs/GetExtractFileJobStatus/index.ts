@@ -18,7 +18,7 @@ export default class GetExtractFileJobStatusUseCase {
   private readonly logger = new Logger(GetExtractFileJobStatusUseCase.name);
   constructor(
     private readonly extractFileJobService: ExtractFileJobService,
-    private readonly botService: BotService
+    private readonly botService: BotService,
   ) {}
   public async exec(jobId: string): Promise<Response> {
     try {
@@ -47,7 +47,7 @@ export default class GetExtractFileJobStatusUseCase {
           createdAt,
           updatedAt,
           progress: Math.floor((documents.length / initUrls.length) * 100),
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

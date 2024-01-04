@@ -18,7 +18,7 @@ export default class GetCrawlJobStatusUseCase {
   private readonly logger = new Logger(GetCrawlJobStatusUseCase.name);
   constructor(
     private readonly crawlJobService: CrawlJobService,
-    private readonly botService: BotService
+    private readonly botService: BotService,
   ) {}
   public async exec(jobId: string): Promise<Response> {
     try {
@@ -47,7 +47,7 @@ export default class GetCrawlJobStatusUseCase {
           updatedAt,
           limit,
           progress: Math.floor((documents.length / limit) * 100),
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

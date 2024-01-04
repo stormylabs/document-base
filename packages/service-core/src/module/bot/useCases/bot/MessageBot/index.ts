@@ -30,14 +30,14 @@ export default class MessageBotUseCase {
     private readonly pineconeService: PineconeClientService,
     private readonly langChainService: LangChainService,
     private readonly docIndexJobService: DocIndexJobService,
-    private readonly resourceUsageService: ResourceUsageService
+    private readonly resourceUsageService: ResourceUsageService,
   ) {}
 
   public async exec(
     userId: string,
     botId: string,
     message: string,
-    conversationHistory: string[]
+    conversationHistory: string[],
   ): Promise<Response> {
     try {
       this.logger.log(`Start message with bot`);
@@ -47,21 +47,21 @@ export default class MessageBotUseCase {
       if (!bot) return left(new NotFoundError(Resource.Bot, [botId]));
 
       const unfinishedJobs = await this.docIndexJobService.findUnfinishedJobs(
-        botId
+        botId,
       );
 
       if (unfinishedJobs.length > 0) {
         return left(
           new UnfinishedJobsError(
             unfinishedJobs.map((job) => job._id),
-            JobType.DocIndex
-          )
+            JobType.DocIndex,
+          ),
         );
       }
 
       const vectorStore = await PineconeStore.fromExistingIndex(
         this.langChainService.embedder,
-        { pineconeIndex: this.pineconeService.index }
+        { pineconeIndex: this.pineconeService.index },
       );
 
       const model = this.langChainService.chat16k;
@@ -80,7 +80,7 @@ export default class MessageBotUseCase {
         conversationHistory.map((x) => {
           if (x.slice(0, 4) === 'user') return new HumanChatMessage(x.slice(5));
           return new AIChatMessage(x.slice(10));
-        })
+        }),
       );
       this.logger.log(`Creating conversational retrieval chain`);
 
@@ -107,7 +107,7 @@ export default class MessageBotUseCase {
             chatHistory: ch,
           }),
           returnSourceDocuments: true,
-        }
+        },
       );
 
       this.logger.log(`Calling conversational retrieval chain`);
@@ -119,7 +119,7 @@ export default class MessageBotUseCase {
 
       const urls = [
         ...new Set<string>(
-          response.sourceDocuments.map((doc) => doc.metadata.sourceName)
+          response.sourceDocuments.map((doc) => doc.metadata.sourceName),
         ),
       ];
 

@@ -11,14 +11,14 @@ export class CustomFileCountValidationPipe implements PipeTransform {
   private minCount: number;
 
   constructor(
-    protected readonly validationOptions: CustomFileCountValidationPipeOptions
+    protected readonly validationOptions: CustomFileCountValidationPipeOptions,
   ) {
     this.maxCount = this.validationOptions.maxCount;
     this.minCount = this.validationOptions.minCount;
   }
 
   transform(
-    files: Express.Multer.File | Express.Multer.File[]
+    files: Express.Multer.File | Express.Multer.File[],
   ): Express.Multer.File | Express.Multer.File[] {
     if (files === undefined || files === null) {
       throw new BadRequestException('Validation failed (file expected)');
@@ -29,7 +29,7 @@ export class CustomFileCountValidationPipe implements PipeTransform {
       !(files.length >= this.minCount && files.length <= this.maxCount)
     ) {
       throw new BadRequestException(
-        `Validation failed. Files count must be more/eq than ${this.minCount} and less/eq then ${this.maxCount}.`
+        `Validation failed. Files count must be more/eq than ${this.minCount} and less/eq then ${this.maxCount}.`,
       );
     }
 

@@ -22,7 +22,7 @@ export default class GetListUserUseCase {
       return right(
         Result.ok({
           users,
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

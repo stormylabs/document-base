@@ -34,7 +34,7 @@ export class BotUsageService {
     botId: string,
     userId: string,
     from: Date,
-    to: Date
+    to: Date,
   ): Promise<BotUsageData[]> {
     const usages = await this.botUsageRepository.findUsagesInPeriod({
       botId,
@@ -48,7 +48,7 @@ export class BotUsageService {
   async findUsagesInPeriodByUserId(
     userId: string,
     from: Date,
-    to: Date
+    to: Date,
   ): Promise<BotUsageData[]> {
     const usages = await this.botUsageRepository.findUsagesInPeriod({
       userId,

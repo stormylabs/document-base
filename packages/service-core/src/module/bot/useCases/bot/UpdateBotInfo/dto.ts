@@ -51,7 +51,7 @@ export class UpdateBotResponse extends PartialType(
     'deletedAt',
     'fallbackMessage',
     'prompt',
-  ] as const)
+  ] as const),
 ) {
   _id: string;
   name: string;

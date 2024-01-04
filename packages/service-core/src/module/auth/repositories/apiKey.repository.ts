@@ -7,7 +7,7 @@ import { ApiKey } from '@/module/auth/schemas/apiKey.schema';
 @Injectable()
 export class ApiKeyRepository {
   constructor(
-    @InjectModel(ApiKey.name) private readonly apiKeyModel: Model<ApiKey>
+    @InjectModel(ApiKey.name) private readonly apiKeyModel: Model<ApiKey>,
   ) {}
 
   async create(apiKeyData: {
@@ -76,7 +76,7 @@ export class ApiKeyRepository {
 
   async update(
     apiKeyId: string,
-    data: Partial<Omit<ApiKeyData, 'createdAt' | '_id'>>
+    data: Partial<Omit<ApiKeyData, 'createdAt' | '_id'>>,
   ): Promise<ApiKeyData | null> {
     const id = new Types.ObjectId(apiKeyId);
     const apiKey = await this.apiKeyModel

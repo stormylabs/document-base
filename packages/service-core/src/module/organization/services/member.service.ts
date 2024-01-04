@@ -57,7 +57,7 @@ export class MemberService {
 
   async findOneByUserIdOrgId(
     organizationId: string,
-    userId: string
+    userId: string,
   ): Promise<MemberData> {
     const bot = await this.memberRepository.findOneByUserIdOrgId({
       userId,

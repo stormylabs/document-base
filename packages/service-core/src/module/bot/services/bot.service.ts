@@ -31,7 +31,7 @@ export class BotService {
       name,
       fallbackMessage,
       prompt,
-    }: { name: string; fallbackMessage?: string; prompt?: string }
+    }: { name: string; fallbackMessage?: string; prompt?: string },
   ): Promise<BotData> {
     const exists = await this.exists([botId]);
     if (!exists) throw new Error('Bot does not exist.');
@@ -64,7 +64,7 @@ export class BotService {
 
   async upsertDocuments(
     botId: string,
-    documentIds: string[]
+    documentIds: string[],
   ): Promise<BotData> {
     const exists = await this.exists([botId]);
     if (!exists) throw new Error('Bot does not exist.');
@@ -73,7 +73,7 @@ export class BotService {
 
   async removeDocuments(
     botId: string,
-    documentIds: string[]
+    documentIds: string[],
   ): Promise<BotData> {
     const exists = await this.exists([botId]);
     if (!exists) throw new Error('Bot does not exist.');
@@ -100,16 +100,16 @@ export class BotService {
         await this.botRepository.update(bot._id, {
           totalTokens: bot.documents.reduce(
             (acc, doc) => acc + (doc.tokens || 0),
-            0
+            0,
           ),
           totalCharacters: bot.documents.reduce(
             (acc, doc) => acc + (doc.characters || 0),
-            0
+            0,
           ),
         });
         bots = await this.botRepository.findBatch();
         console.log(
-          `Processed ${((processed / totalBots) * 100).toFixed(2)}% bots.`
+          `Processed ${((processed / totalBots) * 100).toFixed(2)}% bots.`,
         );
         processed++;
       }

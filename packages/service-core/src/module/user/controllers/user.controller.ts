@@ -25,7 +25,7 @@ export class UserController {
   private readonly logger = new Logger(UserController.name);
   constructor(
     private createUserUseCase: CreateUserUseCase,
-    private getUserInfoUseCase: GetUserInfoUseCase
+    private getUserInfoUseCase: GetUserInfoUseCase,
   ) {}
 
   @Post()
@@ -48,7 +48,7 @@ export class UserController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] create user error ${error.errorValue().message}`
+        `[POST] create user error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

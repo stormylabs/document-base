@@ -113,5 +113,5 @@ export default class AddKnowledgeBaseToOrganizationDTO {
 
 export class CreateOrganizationResponseDto extends OmitType(
   OrganizationResponse,
-  ['deletedAt'] as const
+  ['deletedAt'] as const,
 ) {}

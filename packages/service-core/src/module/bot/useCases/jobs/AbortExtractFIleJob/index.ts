@@ -56,7 +56,7 @@ export default class AbortExtractFileJobUseCase {
           updatedAt,
           createdAt,
           progress: Math.floor((documents.length / initUrls.length) * 100),
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

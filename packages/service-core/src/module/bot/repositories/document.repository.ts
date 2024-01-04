@@ -8,7 +8,7 @@ import { DocumentData } from '@/shared/interfaces/document';
 @Injectable()
 export class DocumentRepository {
   constructor(
-    @InjectModel(Document.name) private readonly documentModel: Model<Document>
+    @InjectModel(Document.name) private readonly documentModel: Model<Document>,
   ) {}
 
   async create({
@@ -77,7 +77,7 @@ export class DocumentRepository {
       Omit<DocumentData, '_id' | 'createdAt' | 'knowledgeBase'> & {
         knowledgeBaseId?: string;
       }
-    >
+    >,
   ): Promise<DocumentData | null> {
     const id = new Types.ObjectId(documentId);
     const document = await this.documentModel
@@ -91,7 +91,7 @@ export class DocumentRepository {
               : {}),
           },
         },
-        { new: true }
+        { new: true },
       )
       .exec();
 

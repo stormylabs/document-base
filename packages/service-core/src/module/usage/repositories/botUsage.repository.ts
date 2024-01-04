@@ -8,7 +8,7 @@ import { BotUsageData } from '@/shared/interfaces/usage';
 export class BotUsageRepository {
   constructor(
     @InjectModel(BotUsage.name)
-    private readonly botUsageModel: Model<BotUsage>
+    private readonly botUsageModel: Model<BotUsage>,
   ) {}
 
   async create(data: { botId: string; userId: string }): Promise<BotUsageData> {
@@ -23,7 +23,7 @@ export class BotUsageRepository {
 
   async update(
     botId: string,
-    data: Partial<{ days: number; deletedAt: Date }>
+    data: Partial<{ days: number; deletedAt: Date }>,
   ): Promise<BotUsageData | null> {
     const id = new Types.ObjectId(botId);
     const botUsage = await this.botUsageModel.findByIdAndUpdate(
@@ -31,7 +31,7 @@ export class BotUsageRepository {
       { $set: { ...data } },
       {
         new: true,
-      }
+      },
     );
     return botUsage.toJSON() as BotUsageData;
   }

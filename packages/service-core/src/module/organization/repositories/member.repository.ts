@@ -9,7 +9,7 @@ import { Member } from '../schemas/member.schema';
 export class MemberRepository {
   constructor(
     @InjectModel(Member.name)
-    private readonly memberModel: Model<Member>
+    private readonly memberModel: Model<Member>,
   ) {}
 
   async create(
@@ -17,7 +17,7 @@ export class MemberRepository {
       userId: string;
       organizationId: string;
       accessLevel?: AccessLevel;
-    }
+    },
   ): Promise<MemberData> {
     const member = new this.memberModel({
       user: new Types.ObjectId(memberData.userId),
@@ -113,7 +113,7 @@ export class MemberRepository {
 
   async update(
     memberId: string,
-    data: Partial<Omit<MemberData, 'createdAt' | '_id'>>
+    data: Partial<Omit<MemberData, 'createdAt' | '_id'>>,
   ): Promise<MemberData | null> {
     const id = new Types.ObjectId(memberId);
     const member = await this.memberModel

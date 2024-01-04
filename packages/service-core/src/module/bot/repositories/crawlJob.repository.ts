@@ -10,7 +10,7 @@ import { JOB_TIMEOUT } from '@/shared/constants';
 @Injectable()
 export class CrawlJobRepository {
   constructor(
-    @InjectModel(CrawlJob.name) private readonly crawlJobModel: Model<CrawlJob>
+    @InjectModel(CrawlJob.name) private readonly crawlJobModel: Model<CrawlJob>,
   ) {}
 
   async create({
@@ -63,7 +63,7 @@ export class CrawlJobRepository {
   }
 
   async findByKnowledgeBaseId(
-    knowledgeBaseId: string
+    knowledgeBaseId: string,
   ): Promise<CrawlJobData[]> {
     const id = new Types.ObjectId(knowledgeBaseId);
     const crawlJobs = await this.crawlJobModel
@@ -73,7 +73,7 @@ export class CrawlJobRepository {
   }
 
   async findTimeoutJobs(
-    status: JobStatus.Running | JobStatus.Pending
+    status: JobStatus.Running | JobStatus.Pending,
   ): Promise<CrawlJobData[]> {
     const timeout = Date.now() - JOB_TIMEOUT;
     const crawlJobs = await this.crawlJobModel
@@ -99,7 +99,7 @@ export class CrawlJobRepository {
   }
 
   async findUnfinishedJobsByKnowledgeBaseId(
-    knowledgeBaseId: string
+    knowledgeBaseId: string,
   ): Promise<CrawlJobData[]> {
     const id = new Types.ObjectId(knowledgeBaseId);
     const crawlJobs = await this.crawlJobModel
@@ -119,7 +119,7 @@ export class CrawlJobRepository {
 
   async update(
     crawlJobId: string,
-    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>
+    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>,
   ): Promise<CrawlJobData | null> {
     const id = new Types.ObjectId(crawlJobId);
     const now = new Date();
@@ -128,14 +128,14 @@ export class CrawlJobRepository {
       { $set: { ...data, updatedAt: now } },
       {
         new: true,
-      }
+      },
     );
     return crawlJob.toJSON() as CrawlJobData;
   }
 
   async bulkUpdate(
     jobIds: string[],
-    data: Partial<{ status: JobStatus; locked: boolean }>
+    data: Partial<{ status: JobStatus; locked: boolean }>,
   ): Promise<CrawlJobData[] | null> {
     const ids = jobIds.map((id) => new Types.ObjectId(id));
     const now = new Date();
@@ -165,7 +165,7 @@ export class CrawlJobRepository {
     const crawlJob = await this.crawlJobModel.findOneAndUpdate(
       { _id: id, locked: false },
       { $set: { locked: true } },
-      { new: true }
+      { new: true },
     );
     if (!crawlJob) return false;
     return true;
@@ -176,7 +176,7 @@ export class CrawlJobRepository {
     const crawlJob = await this.crawlJobModel.findOneAndUpdate(
       { _id: id, locked: true },
       { $set: { locked: false } },
-      { new: true }
+      { new: true },
     );
     if (!crawlJob) return false;
     return true;
@@ -193,7 +193,7 @@ export class CrawlJobRepository {
         $set: { updatedAt: now },
       },
 
-      { new: true }
+      { new: true },
     );
     return crawlJob.toJSON() as CrawlJobData;
   }
@@ -209,7 +209,7 @@ export class CrawlJobRepository {
         $set: { updatedAt: now },
       },
 
-      { new: true }
+      { new: true },
     );
     return crawlJob.toJSON() as CrawlJobData;
   }

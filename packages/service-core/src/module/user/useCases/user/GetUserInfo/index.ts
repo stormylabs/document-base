@@ -23,7 +23,7 @@ export default class GetUserInfoUseCase {
       return right(
         Result.ok({
           user,
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

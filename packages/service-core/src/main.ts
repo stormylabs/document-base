@@ -26,7 +26,7 @@ async function bootstrap() {
     new NormalizeQueryParamsValidationPipe(),
     new ValidationPipe({
       transform: true,
-    })
+    }),
   );
 
   app.use(cookieParser());
@@ -44,7 +44,7 @@ async function bootstrap() {
       .setVersion('1.1.0-beta')
       .addApiKey(
         { type: 'apiKey', name: 'x-api-key', in: 'header' },
-        'x-api-key'
+        'x-api-key',
       )
       .build();
 

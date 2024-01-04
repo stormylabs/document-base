@@ -16,13 +16,13 @@ export default class CreateOrganizationUseCase {
   private readonly logger = new Logger(CreateOrganizationUseCase.name);
   constructor(
     private readonly orgService: OrganizationService,
-    private readonly memberService: MemberService
+    private readonly memberService: MemberService,
   ) {}
   public async exec(
     name: string,
     descriptions: string,
     values: string,
-    userId: string
+    userId: string,
   ): Promise<Response> {
     try {
       this.logger.log(`Start creating organization`);

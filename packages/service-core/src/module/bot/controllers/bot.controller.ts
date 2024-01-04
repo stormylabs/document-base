@@ -89,7 +89,7 @@ export class BotController {
     private crawlWebsitesByBotUseCase: CrawlWebsitesByBotUseCase,
     private extractFilesByBotUseCase: ExtractFilesByBotUseCase,
     private deleteBotUseCase: DeleteBotUseCase,
-    private patchBotUseCase: PatchBotUseCase
+    private patchBotUseCase: PatchBotUseCase,
   ) {}
 
   @Post()
@@ -112,7 +112,7 @@ export class BotController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] create bot error ${error.errorValue().message}`
+        `[POST] create bot error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -169,7 +169,7 @@ export class BotController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[PATCH] update bot error ${error.errorValue().message}`
+        `[PATCH] update bot error ${error.errorValue().message}`,
       );
 
       return errorHandler(error);
@@ -200,20 +200,20 @@ export class BotController {
   async saveAndTrainBot(
     @Param() { id }: IdParams,
     @Body() body: SaveDocsAndTrainBotDTO,
-    @Req() req: AuthRequest
+    @Req() req: AuthRequest,
   ) {
     this.logger.log(`[POST] Start indexing documents`);
     const { documentIds } = body;
     const result = await this.saveDocsAndTrainBotUseCase.exec(
       req.user._id,
       id,
-      documentIds
+      documentIds,
     );
 
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] index documents error ${error.errorValue().message}`
+        `[POST] index documents error ${error.errorValue().message}`,
       );
 
       return errorHandler(error);
@@ -243,7 +243,7 @@ export class BotController {
   })
   async crawlWebsitesByBot(
     @Param() { id }: IdParams,
-    @Body() body: CrawlWebsitesByBotDTO
+    @Body() body: CrawlWebsitesByBotDTO,
   ) {
     this.logger.log(`[POST] Start crawling websites`);
     const { urls, limit } = body;
@@ -252,7 +252,7 @@ export class BotController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] crawl websites error ${error.errorValue().message}`
+        `[POST] crawl websites error ${error.errorValue().message}`,
       );
 
       return errorHandler(error);
@@ -283,7 +283,7 @@ export class BotController {
   async messageBot(
     @Param() { id }: IdParams,
     @Body() body: MessageBotDTO,
-    @Req() req: AuthRequest
+    @Req() req: AuthRequest,
   ) {
     const { message, conversationHistory } = body;
     this.logger.log(`[POST] Start messaging bot`);
@@ -291,13 +291,13 @@ export class BotController {
       req.user._id,
       id,
       message,
-      conversationHistory
+      conversationHistory,
     );
 
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] message bot error ${error.errorValue().message}`
+        `[POST] message bot error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -337,7 +337,7 @@ export class BotController {
         .addValidator(
           new CustomUploadFileMimeTypeValidator({
             fileExtensions: ALLOWED_UPLOADS_EXT_TYPES,
-          })
+          }),
         )
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -345,9 +345,9 @@ export class BotController {
         }),
       new ParseFilePipe({
         validators: [],
-      })
+      }),
     )
-    files: Array<Express.Multer.File>
+    files: Array<Express.Multer.File>,
   ) {
     this.logger.log(`[POST] Start uploading and extracting files`);
 
@@ -357,7 +357,7 @@ export class BotController {
       const error = result.value;
 
       this.logger.error(
-        `[POST] extract files error ${error.errorValue().message}`
+        `[POST] extract files error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -389,7 +389,7 @@ export class BotController {
       const error = result.value;
 
       this.logger.error(
-        `[DELETE] Delete bot error ${error.errorValue().message}`
+        `[DELETE] Delete bot error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

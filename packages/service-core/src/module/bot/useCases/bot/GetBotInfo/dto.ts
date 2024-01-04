@@ -9,7 +9,7 @@ import { ExtractFileJobResponse } from '@/shared/dto/extractFileJob';
 import { UserResponse } from '@/shared/dto/user';
 
 class GetBotDocResponse extends PartialType(
-  PickType(DocumentResponse, ['_id', 'sourceName', 'type'] as const)
+  PickType(DocumentResponse, ['_id', 'sourceName', 'type'] as const),
 ) {
   _id: string;
   sourceName: string;
@@ -27,7 +27,7 @@ class GetBotDocResponse extends PartialType(
 }
 
 class GetBotCrawlJobResponse extends PartialType(
-  PickType(CrawlJobResponse, ['_id', 'status', 'createdAt'] as const)
+  PickType(CrawlJobResponse, ['_id', 'status', 'createdAt'] as const),
 ) {
   _id: string;
   status: JobStatus;
@@ -35,7 +35,7 @@ class GetBotCrawlJobResponse extends PartialType(
 }
 
 class GetBotTrainJobResponse extends PartialType(
-  PickType(DocIndexJobResponse, ['_id', 'status', 'createdAt'] as const)
+  PickType(DocIndexJobResponse, ['_id', 'status', 'createdAt'] as const),
 ) {
   _id: string;
   status: JobStatus;
@@ -43,7 +43,7 @@ class GetBotTrainJobResponse extends PartialType(
 }
 
 class GetBotExtractFileJobResponse extends PartialType(
-  PickType(ExtractFileJobResponse, ['_id', 'status', 'createdAt'] as const)
+  PickType(ExtractFileJobResponse, ['_id', 'status', 'createdAt'] as const),
 ) {
   _id: string;
   status: JobStatus;
@@ -58,7 +58,7 @@ class GetBotResponse extends PartialType(
     'fallbackMessage',
     'prompt',
     'user',
-  ] as const)
+  ] as const),
 ) {
   _id: string;
   name: string;

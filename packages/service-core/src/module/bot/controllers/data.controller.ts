@@ -45,7 +45,7 @@ export class DataController {
     private getExtractFileJobStatusUseCase: GetExtractFileJobStatusUseCase,
     private abortCrawlJobUseCase: AbortCrawlJobUseCase,
     private abortExtractFileJobUseCase: AbortExtractFileJobUseCase,
-    private abortDocIndexJobUseCase: AbortDocIndexJobUseCase
+    private abortDocIndexJobUseCase: AbortDocIndexJobUseCase,
   ) {}
 
   @Get('/crawl/:id')
@@ -70,7 +70,7 @@ export class DataController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[GET] get crawl job status error ${error.errorValue().message}`
+        `[GET] get crawl job status error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -103,7 +103,7 @@ export class DataController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] abort crawl job error ${error.errorValue().message}`
+        `[POST] abort crawl job error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -133,7 +133,7 @@ export class DataController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[GET] get DocIndex job status error ${error.errorValue().message}`
+        `[GET] get DocIndex job status error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -166,7 +166,7 @@ export class DataController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] abort doc index job error ${error.errorValue().message}`
+        `[POST] abort doc index job error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -196,7 +196,7 @@ export class DataController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[GET] Get extract file job status error ${error.errorValue().message}`
+        `[GET] Get extract file job status error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -229,7 +229,7 @@ export class DataController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] abort extract file job error ${error.errorValue().message}`
+        `[POST] abort extract file job error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

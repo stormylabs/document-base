@@ -9,7 +9,7 @@ import { JobType } from '@/shared/interfaces';
 export class SqsMessageService {
   constructor(
     private readonly sqsService: SqsService,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
   ) {}
   async sendMessages<T>(id: string, job: JobType, payloads: T[]) {
     const messages: Message<T>[] = payloads.map((payload) => ({

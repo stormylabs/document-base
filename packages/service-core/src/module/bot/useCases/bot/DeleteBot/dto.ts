@@ -9,7 +9,7 @@ class DeleteBotResponse extends PartialType(
     'fallbackMessage',
     'prompt',
     'deletedAt',
-  ] as const)
+  ] as const),
 ) {
   _id: string;
   name: string;

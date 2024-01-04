@@ -17,7 +17,7 @@ export default class GetDocIndexJobStatusUseCase {
   private readonly logger = new Logger(GetDocIndexJobStatusUseCase.name);
   constructor(
     private readonly docIndexJobService: DocIndexJobService,
-    private readonly botService: BotService
+    private readonly botService: BotService,
   ) {}
   public async exec(jobId: string): Promise<Response> {
     try {
@@ -55,7 +55,7 @@ export default class GetDocIndexJobStatusUseCase {
           updatedAt,
           trained: jobDocs.length,
           progress,
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

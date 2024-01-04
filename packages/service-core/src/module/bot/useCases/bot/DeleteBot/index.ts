@@ -20,7 +20,7 @@ export default class DeleteBotUseCase {
     private readonly docIndexJobService: DocIndexJobService,
     private readonly crawlJobService: CrawlJobService,
     private readonly extractFileJobService: ExtractFileJobService,
-    private readonly botUsageService: BotUsageService
+    private readonly botUsageService: BotUsageService,
   ) {}
   public async exec(botId: string): Promise<Response> {
     try {
@@ -39,20 +39,20 @@ export default class DeleteBotUseCase {
         await this.docIndexJobService.bulkUpdateStatus(
           unfinishedDocIndexJobs.map((job) => job._id),
           JobStatus.Finished,
-          false
+          false,
         );
       }
 
       // check unfinished crawl jobs
       const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
-        botId
+        botId,
       );
 
       if (unfinishedCrawlJobs.length > 0) {
         await this.crawlJobService.bulkUpdateStatus(
           unfinishedCrawlJobs.map((job) => job._id),
           JobStatus.Finished,
-          false
+          false,
         );
       }
 
@@ -64,7 +64,7 @@ export default class DeleteBotUseCase {
         await this.extractFileJobService.bulkUpdateStatus(
           unfinishedExtractFileJobs.map((job) => job._id),
           JobStatus.Finished,
-          false
+          false,
         );
       }
 
@@ -78,7 +78,7 @@ export default class DeleteBotUseCase {
       return right(
         Result.ok({
           bot,
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

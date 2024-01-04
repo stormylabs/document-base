@@ -7,7 +7,7 @@ import { User } from '../schemas/user.schema';
 @Injectable()
 export class UserRepository {
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<User>
+    @InjectModel(User.name) private readonly userModel: Model<User>,
   ) {}
 
   async create(userData: Partial<UserData>): Promise<UserData> {
@@ -55,7 +55,7 @@ export class UserRepository {
 
   async update(
     userId: string,
-    data: Partial<Omit<UserData, 'createdAt' | '_id'>>
+    data: Partial<Omit<UserData, 'createdAt' | '_id'>>,
   ): Promise<UserData | null> {
     const id = new Types.ObjectId(userId);
     const user = await this.userModel

@@ -12,14 +12,14 @@ export class ResourceUsageService {
     resource: BillableResource;
   }): Promise<ResourceUsageData> {
     const createdResourceUsage = await this.resourceUsageRepository.create(
-      data
+      data,
     );
     return createdResourceUsage;
   }
 
   async findById(resourceUsageId: string): Promise<ResourceUsageData | null> {
     const resourceUsage = await this.resourceUsageRepository.findById(
-      resourceUsageId
+      resourceUsageId,
     );
     return resourceUsage;
   }
@@ -31,7 +31,7 @@ export class ResourceUsageService {
   async findUsagesInPeriodByUserId(
     userId: string,
     from: Date,
-    to: Date
+    to: Date,
   ): Promise<ResourceUsageData[]> {
     const usages = await this.resourceUsageRepository.findUsagesInPeriod({
       userId,
@@ -45,7 +45,7 @@ export class ResourceUsageService {
     botId: string,
     userId: string,
     from: Date,
-    to: Date
+    to: Date,
   ): Promise<ResourceUsageData[]> {
     const usages = await this.resourceUsageRepository.findUsagesInPeriod({
       botId,

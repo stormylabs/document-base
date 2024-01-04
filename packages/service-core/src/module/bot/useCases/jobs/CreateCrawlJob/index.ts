@@ -30,7 +30,7 @@ export default class CreateCrawlJobUseCase {
     private readonly crawlJobService: CrawlJobService,
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
-    private readonly knowledgeBaseService: KnowledgeBaseService
+    private readonly knowledgeBaseService: KnowledgeBaseService,
   ) {}
   public async exec({
     knowledgeBaseId,
@@ -59,18 +59,18 @@ export default class CreateCrawlJobUseCase {
         data = await this.knowledgeBaseService.findById(knowledgeBaseId);
         if (!data)
           return left(
-            new NotFoundError(Resource.KnowledgeBase, [knowledgeBaseId])
+            new NotFoundError(Resource.KnowledgeBase, [knowledgeBaseId]),
           );
       }
 
       const urlDocs = data.documents.filter(
-        (doc) => doc.type === DocumentType.Url
+        (doc) => doc.type === DocumentType.Url,
       );
 
       if (botId) {
         await this.botService.removeDocuments(
           botId,
-          urlDocs.map((doc) => doc._id)
+          urlDocs.map((doc) => doc._id),
         );
       }
 
@@ -117,7 +117,7 @@ export default class CreateCrawlJobUseCase {
     await this.sqsMessageService.sendMessages<CrawlJobMessage>(
       jobId,
       JobType.WebCrawl,
-      payloads
+      payloads,
     );
   }
 

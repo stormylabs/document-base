@@ -27,7 +27,7 @@ export default class CrawlWebsiteUseCase {
     private readonly crawlJobService: CrawlJobService,
     private readonly documentService: DocumentService,
     private readonly createCrawlJobUseCase: CreateCrawlJobUseCase,
-    private readonly knowledgeBaseService: KnowledgeBaseService
+    private readonly knowledgeBaseService: KnowledgeBaseService,
   ) {}
   public async exec({
     documentId,
@@ -92,7 +92,7 @@ export default class CrawlWebsiteUseCase {
         return left(
           new NotFoundError(Resource[botId ? 'Bot' : 'KnowledgeBase'], [
             botId ? botId : knowledgeBaseId,
-          ])
+          ]),
         );
       }
 
@@ -115,7 +115,7 @@ export default class CrawlWebsiteUseCase {
         await this.crawlJobService.removeDocument(jobId, documentId);
         await this.documentService.delete(documentId);
         this.logger.log(
-          'Delete document and remove from crawl job as crawler error'
+          'Delete document and remove from crawl job as crawler error',
         );
         return left(new CrawlerError(e));
       }
@@ -125,7 +125,7 @@ export default class CrawlWebsiteUseCase {
         await this.crawlJobService.removeDocument(jobId, documentId);
         await this.documentService.delete(documentId);
         this.logger.log(
-          'Delete document and remove from crawl job as no text is found'
+          'Delete document and remove from crawl job as no text is found',
         );
         return right(Result.ok());
       }
@@ -145,16 +145,16 @@ export default class CrawlWebsiteUseCase {
       if (knowledgeBaseId) {
         upsertedData = await this.knowledgeBaseService.upsertDocument(
           knowledgeBaseId,
-          documentId
+          documentId,
         );
       }
 
       const upsertedCrawlJob = await this.crawlJobService.upsertDocuments(
         jobId,
-        [documentId]
+        [documentId],
       );
       this.logger.log(
-        `document upserted to crawl job: ${upsertedCrawlJob._id}`
+        `document upserted to crawl job: ${upsertedCrawlJob._id}`,
       );
 
       if (upsertedCrawlJob.documents.length === limit) {
@@ -175,7 +175,7 @@ export default class CrawlWebsiteUseCase {
       // * filters out current bot documents.urls to only send new urls
       const urls = data.urls.filter((url) => !dataDocumentUrls.includes(url));
       const numToSend = Math.ceil(
-        (limit - upsertedCrawlJob.documents.length) * 1.3
+        (limit - upsertedCrawlJob.documents.length) * 1.3,
       );
       const urlsToSend = urls.slice(0, numToSend);
 

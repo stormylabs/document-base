@@ -16,7 +16,7 @@ export default class DeleteApiKeyUseCase {
   private readonly logger = new Logger(DeleteApiKeyUseCase.name);
   constructor(
     private readonly apiKeyService: ApiKeyService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
   ) {}
   public async exec(data: {
     userId: string;
@@ -32,7 +32,7 @@ export default class DeleteApiKeyUseCase {
       // check if user owns the API Key
       const apiKey = await this.apiKeyService.findOneByUserIdApiKeyId(
         data.userId,
-        data.apiKeyId
+        data.apiKeyId,
       );
 
       if (!apiKey)

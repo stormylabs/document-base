@@ -5,7 +5,7 @@ import { AddKnowledgeBaseJobRepository } from '@/module/organization/repositorie
 @Injectable()
 export class AddKnowledgeBaseJobService {
   constructor(
-    private addKnowledgeBaseJobRepository: AddKnowledgeBaseJobRepository
+    private addKnowledgeBaseJobRepository: AddKnowledgeBaseJobRepository,
   ) {}
 
   async create(data: {
@@ -15,13 +15,13 @@ export class AddKnowledgeBaseJobService {
     extractFileJobId?: string;
   }): Promise<AddKnowledgeBaseJobData> {
     const addKnowledgeBaseJob = await this.addKnowledgeBaseJobRepository.create(
-      data
+      data,
     );
     return addKnowledgeBaseJob;
   }
 
   async findById(
-    knowledgeBaseId: string
+    knowledgeBaseId: string,
   ): Promise<AddKnowledgeBaseJobData | null> {
     const addKnowledgeBaseJob =
       await this.addKnowledgeBaseJobRepository.findById(knowledgeBaseId);
@@ -37,7 +37,7 @@ export class AddKnowledgeBaseJobService {
    * @returns
    */
   async getMemberOfOrganization(
-    orgId: string
+    orgId: string,
   ): Promise<AddKnowledgeBaseJobData[]> {
     const addKnowledgeBaseJob =
       await this.addKnowledgeBaseJobRepository.findByOrgId(orgId);
@@ -51,7 +51,7 @@ export class AddKnowledgeBaseJobService {
       knowledgeBaseId,
       {
         deletedAt: new Date(),
-      }
+      },
     );
     return updatedData;
   }

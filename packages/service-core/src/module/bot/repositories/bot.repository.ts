@@ -10,7 +10,7 @@ export class BotRepository {
   constructor(@InjectModel(Bot.name) private readonly botModel: Model<Bot>) {}
 
   async create(
-    botData: Partial<Omit<BotData, 'user'>> & { userId: string }
+    botData: Partial<Omit<BotData, 'user'>> & { userId: string },
   ): Promise<BotData> {
     const bot = new this.botModel({
       ...botData,
@@ -78,7 +78,7 @@ export class BotRepository {
 
   async update(
     botId: string,
-    data: Partial<Omit<BotData, 'createdAt' | '_id'>>
+    data: Partial<Omit<BotData, 'createdAt' | '_id'>>,
   ): Promise<BotData | null> {
     const id = new Types.ObjectId(botId);
     const bot = await this.botModel
@@ -101,14 +101,14 @@ export class BotRepository {
 
   async upsertDocuments(
     botId: string,
-    documentIds: string[]
+    documentIds: string[],
   ): Promise<BotData> {
     const id = new Types.ObjectId(botId);
     const bot = await this.botModel
       .findByIdAndUpdate(
         id,
         { $addToSet: { documents: { $each: documentIds } } },
-        { new: true }
+        { new: true },
       )
       .populate('documents')
       .populate('user')
@@ -118,7 +118,7 @@ export class BotRepository {
 
   async removeDocuments(
     botId: string,
-    documentIds: string[]
+    documentIds: string[],
   ): Promise<BotData> {
     const id = new Types.ObjectId(botId);
     const bot = await this.botModel
@@ -127,7 +127,7 @@ export class BotRepository {
         {
           $pullAll: { documents: documentIds },
         },
-        { new: true }
+        { new: true },
       )
       .populate('documents')
       .populate('user')

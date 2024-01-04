@@ -18,7 +18,7 @@ export default class AbortDocIndexJobUseCase {
   private readonly logger = new Logger(AbortDocIndexJobUseCase.name);
   constructor(
     private readonly docIndexJobService: DocIndexJobService,
-    private readonly botService: BotService
+    private readonly botService: BotService,
   ) {}
   public async exec(jobId: string): Promise<Response> {
     try {
@@ -37,7 +37,7 @@ export default class AbortDocIndexJobUseCase {
 
       const updatedExtractFileJob = await this.docIndexJobService.updateStatus(
         jobId,
-        JobStatus.Aborted
+        JobStatus.Aborted,
       );
       this.logger.log(`Index doc job is aborted successfully`);
 
@@ -64,7 +64,7 @@ export default class AbortDocIndexJobUseCase {
           updatedAt,
           createdAt,
           progress,
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

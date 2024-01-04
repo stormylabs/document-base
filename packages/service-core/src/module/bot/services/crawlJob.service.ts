@@ -24,7 +24,7 @@ export class CrawlJobService {
   }
 
   async findTimeoutJobs(
-    status: JobStatus.Running | JobStatus.Pending
+    status: JobStatus.Running | JobStatus.Pending,
   ): Promise<CrawlJobData[]> {
     const timeoutJobs = await this.crawlJobRepository.findTimeoutJobs(status);
     return timeoutJobs;
@@ -32,17 +32,17 @@ export class CrawlJobService {
 
   async findUnfinishedJobs(botId: string): Promise<CrawlJobData[]> {
     const unfinishedJobs = await this.crawlJobRepository.findUnfinishedJobs(
-      botId
+      botId,
     );
     return unfinishedJobs;
   }
 
   async findUnfinishedJobsByKnowledgeBaseId(
-    knowledgeBaseId: string
+    knowledgeBaseId: string,
   ): Promise<CrawlJobData[]> {
     const unfinishedJobs =
       await this.crawlJobRepository.findUnfinishedJobsByKnowledgeBaseId(
-        knowledgeBaseId
+        knowledgeBaseId,
       );
     return unfinishedJobs;
   }
@@ -53,10 +53,10 @@ export class CrawlJobService {
   }
 
   async findByKnowledgeBaseId(
-    knowledgeBaseId: string
+    knowledgeBaseId: string,
   ): Promise<CrawlJobData[]> {
     const crawlJob = await this.crawlJobRepository.findByKnowledgeBaseId(
-      knowledgeBaseId
+      knowledgeBaseId,
     );
     return crawlJob;
   }
@@ -64,7 +64,7 @@ export class CrawlJobService {
   async updateStatus(
     crawlJobId: string,
     status: JobStatus,
-    locked?: boolean
+    locked?: boolean,
   ): Promise<CrawlJobData> {
     const exists = await this.exists([crawlJobId]);
     if (!exists) throw new Error('Crawl job does not exist.');
@@ -78,7 +78,7 @@ export class CrawlJobService {
   async bulkUpdateStatus(
     jobsIds: string[],
     status: JobStatus,
-    locked: boolean
+    locked: boolean,
   ): Promise<CrawlJobData[]> {
     const updatedCrawlJobs = await this.crawlJobRepository.bulkUpdate(jobsIds, {
       status,

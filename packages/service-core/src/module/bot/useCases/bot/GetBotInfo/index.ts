@@ -19,7 +19,7 @@ export default class GetBotInfoUseCase {
     private readonly botService: BotService,
     private readonly crawlJobService: CrawlJobService,
     private readonly docIndexJobService: DocIndexJobService,
-    private readonly extractFileJobService: ExtractFileJobService
+    private readonly extractFileJobService: ExtractFileJobService,
   ) {}
   public async exec(botId: string): Promise<Response> {
     try {
@@ -44,7 +44,7 @@ export default class GetBotInfoUseCase {
       const crawlJobs = await this.crawlJobService.findAllByBotId(botId);
       const docIndexJobs = await this.docIndexJobService.findAllByBotId(botId);
       const extractFileJobs = await this.extractFileJobService.findAllByBotId(
-        botId
+        botId,
       );
       const resultedDocIndexJobs = docIndexJobs.map((job) => ({
         _id: job._id,
@@ -77,7 +77,7 @@ export default class GetBotInfoUseCase {
             crawlJobs: resultedCrawlJobs,
             extractFileJobs: resultedExtractFileJobs,
           },
-        })
+        }),
       );
     } catch (err) {
       console.log(err);

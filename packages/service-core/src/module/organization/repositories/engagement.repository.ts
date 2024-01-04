@@ -8,7 +8,7 @@ import { EngagementData } from '@/shared/interfaces/engagement';
 export class EngagementRepository {
   constructor(
     @InjectModel(Engagement.name)
-    private readonly engagementModel: Model<Engagement>
+    private readonly engagementModel: Model<Engagement>,
   ) {}
 
   async create(
@@ -17,13 +17,13 @@ export class EngagementRepository {
     > & {
       organizationId: string;
       knowledgeBaseIds: string[];
-    }
+    },
   ): Promise<EngagementData> {
     const engagement = new this.engagementModel({
       ...engagementData,
       organization: new Types.ObjectId(engagementData.organizationId),
       knowledgeBases: engagementData.knowledgeBaseIds.map(
-        (id) => new Types.ObjectId(id)
+        (id) => new Types.ObjectId(id),
       ),
     });
     const saved = await engagement.save();
@@ -36,7 +36,7 @@ export class EngagementRepository {
       .populate('organization')
       .exec();
     return engagements.map(
-      (engagement) => engagement.toJSON() as EngagementData
+      (engagement) => engagement.toJSON() as EngagementData,
     ) as EngagementData[];
   }
 
@@ -64,7 +64,7 @@ export class EngagementRepository {
 
   async update(
     memberId: string,
-    data: Partial<Omit<EngagementData, 'createdAt' | '_id'>>
+    data: Partial<Omit<EngagementData, 'createdAt' | '_id'>>,
   ): Promise<EngagementData | null> {
     const id = new Types.ObjectId(memberId);
     const engagement = await this.engagementModel

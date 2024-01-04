@@ -3,7 +3,7 @@ import { JobStatus } from '@/shared/interfaces';
 import { ApiProperty, PartialType, PickType } from '@nestjs/swagger';
 
 export class AbortTrainJobResponseDTO extends PartialType(
-  PickType(DocIndexJobResponse, ['createdAt', 'updatedAt'] as const)
+  PickType(DocIndexJobResponse, ['createdAt', 'updatedAt'] as const),
 ) {
   @ApiProperty({
     description: 'Train Job ID',

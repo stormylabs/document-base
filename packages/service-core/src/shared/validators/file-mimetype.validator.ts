@@ -9,7 +9,7 @@ export class CustomUploadFileMimeTypeValidator extends FileValidator {
   private fileExtensions: string[];
 
   constructor(
-    protected readonly validationOptions: CustomUploadFileMimeTypeValidatorOptions
+    protected readonly validationOptions: CustomUploadFileMimeTypeValidatorOptions,
   ) {
     super(validationOptions);
     this.fileExtensions = this.validationOptions.fileExtensions;
@@ -23,7 +23,7 @@ export class CustomUploadFileMimeTypeValidator extends FileValidator {
 
   public buildErrorMessage(): string {
     return `Validation failed. Expected file type is: ${this.fileExtensions.join(
-      ','
+      ',',
     )}`;
   }
 }

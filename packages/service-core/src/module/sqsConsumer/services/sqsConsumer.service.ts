@@ -22,7 +22,7 @@ export class SqsConsumerService {
     @Inject(forwardRef(() => IndexDocumentUseCase))
     private readonly indexDocumentUseCase: IndexDocumentUseCase,
     @Inject(forwardRef(() => ExtractFileUseCase))
-    private readonly extractFileUseCase: ExtractFileUseCase
+    private readonly extractFileUseCase: ExtractFileUseCase,
   ) {}
   @SqsMessageHandler(process.env.WEB_CRAWL_QUEUE_NAME)
   async handleWebCrawlMessage(message: AWS.SQS.Message) {
@@ -39,7 +39,7 @@ export class SqsConsumerService {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[WebCrawl] web crawl error ${error.errorValue().message}`
+        `[WebCrawl] web crawl error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -53,12 +53,12 @@ export class SqsConsumerService {
     const result = await this.indexDocumentUseCase.exec(
       botId,
       jobId,
-      documentId
+      documentId,
     );
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[DocIndex] doc index error ${error.errorValue().message}`
+        `[DocIndex] doc index error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -78,7 +78,7 @@ export class SqsConsumerService {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[FileExtract] extract file error ${error.errorValue().message}`
+        `[FileExtract] extract file error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

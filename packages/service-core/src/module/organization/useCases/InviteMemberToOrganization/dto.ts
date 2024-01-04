@@ -20,5 +20,5 @@ export default class InviteMemberToOrganizationDTO {
 
 export class InviteOrganizationResponseDto extends OmitType(
   OrganizationResponse,
-  ['deletedAt'] as const
+  ['deletedAt'] as const,
 ) {}

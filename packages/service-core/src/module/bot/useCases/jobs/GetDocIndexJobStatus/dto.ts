@@ -14,7 +14,7 @@ export default class GetDocIndexJobStatusDTO {
 }
 
 export class GetTrainJobStatusResponseDTO extends PartialType(
-  PickType(DocIndexJobResponse, ['status', 'createdAt', 'updatedAt'] as const)
+  PickType(DocIndexJobResponse, ['status', 'createdAt', 'updatedAt'] as const),
 ) {
   @ApiProperty({
     description: 'Train Job ID',

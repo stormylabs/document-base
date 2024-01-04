@@ -23,7 +23,7 @@ export default class InviteMemberToOrganizationUseCase {
   constructor(
     private readonly orgService: OrganizationService,
     private readonly userService: UserService,
-    private readonly memberService: MemberService
+    private readonly memberService: MemberService,
   ) {}
   public async exec(orgId: string, email: string): Promise<Response> {
     try {
@@ -47,8 +47,8 @@ export default class InviteMemberToOrganizationUseCase {
       if (orgMember)
         return left(
           new ConflictError(
-            `user: ${email} has already been added to organization: ${orgId}`
-          )
+            `user: ${email} has already been added to organization: ${orgId}`,
+          ),
         );
 
       this.logger.log(`Add user to organization member`);

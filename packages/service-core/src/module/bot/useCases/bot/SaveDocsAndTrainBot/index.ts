@@ -29,12 +29,12 @@ export default class SaveDocsAndTrainBotUseCase {
     private readonly crawlJobService: CrawlJobService,
     private readonly extractFileJobService: ExtractFileJobService,
     private readonly docIndexJobService: DocIndexJobService,
-    private readonly resourceUsageService: ResourceUsageService
+    private readonly resourceUsageService: ResourceUsageService,
   ) {}
   public async exec(
     userId: string,
     botId: string,
-    documentIds: string[]
+    documentIds: string[],
   ): Promise<Response> {
     try {
       this.logger.log(`Start saving to bot and indexing documents`);
@@ -44,15 +44,15 @@ export default class SaveDocsAndTrainBotUseCase {
 
       // check unfinished crawl job
       const unfinishedCrawlJobs = await this.crawlJobService.findUnfinishedJobs(
-        botId
+        botId,
       );
       if (unfinishedCrawlJobs.length > 0) {
         // early return
         return left(
           new UnfinishedJobsError(
             unfinishedCrawlJobs.map((job) => job._id),
-            JobType.WebCrawl
-          )
+            JobType.WebCrawl,
+          ),
         );
       }
 
@@ -63,8 +63,8 @@ export default class SaveDocsAndTrainBotUseCase {
         return left(
           new UnfinishedJobsError(
             unfinishedExtractFileJobs.map((job) => job._id),
-            JobType.FileExtract
-          )
+            JobType.FileExtract,
+          ),
         );
       }
 
@@ -75,8 +75,8 @@ export default class SaveDocsAndTrainBotUseCase {
         return left(
           new UnfinishedJobsError(
             unfinishedDocIndexJobs.map((job) => job._id),
-            JobType.DocIndex
-          )
+            JobType.DocIndex,
+          ),
         );
       }
 
@@ -87,7 +87,7 @@ export default class SaveDocsAndTrainBotUseCase {
         .map((document) => document._id);
 
       const docIdsToAdd = documentIds.filter(
-        (id) => !bot.documents.map((document) => document._id).includes(id)
+        (id) => !bot.documents.map((document) => document._id).includes(id),
       );
 
       this.logger.log(`Removing documents from bot`);
@@ -96,12 +96,12 @@ export default class SaveDocsAndTrainBotUseCase {
       this.logger.log(`Upserting documents to bot`);
       const upsertedBot = await this.botService.upsertDocuments(
         botId,
-        docIdsToAdd
+        docIdsToAdd,
       );
       this.logger.log(`Create doc index job`);
       const result = await this.createDocIndexJobUseCase.exec(
         botId,
-        upsertedBot.documents
+        upsertedBot.documents,
       );
 
       if (result.isLeft()) {

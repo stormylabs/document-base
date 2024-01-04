@@ -35,7 +35,7 @@ type Response = Either<
 @Injectable()
 export default class AddKnowledgeBaseToOrganizationUseCase {
   private readonly logger = new Logger(
-    AddKnowledgeBaseToOrganizationUseCase.name
+    AddKnowledgeBaseToOrganizationUseCase.name,
   );
   constructor(
     private readonly configService: ConfigService,
@@ -44,7 +44,7 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
     private readonly knowledgeBaseService: KnowledgeBaseService,
     private readonly addKnowledgeBaseJobService: AddKnowledgeBaseJobService,
     private readonly createCrawlJobUseCase: CreateCrawlJobUseCase,
-    private readonly createExtractFileJobUseCase: CreateExtractFileJobUseCase
+    private readonly createExtractFileJobUseCase: CreateExtractFileJobUseCase,
   ) {}
   public async exec({
     crawl,
@@ -110,7 +110,7 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
               return this.s3Service.uploadFile(
                 `${knowledgeBase._id}/${file.originalname}`,
                 this.configService.get('AWS_PUBLIC_BUCKET_NAME'),
-                file.buffer
+                file.buffer,
               );
             }),
           ]);
@@ -142,7 +142,7 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
       // * add knowledge base to the knowledgeBases[] of the organization
       await this.orgService.upsertKnowledgeBases(
         organizationId,
-        knowledgeBase._id
+        knowledgeBase._id,
       );
 
       return right(
@@ -151,7 +151,7 @@ export default class AddKnowledgeBaseToOrganizationUseCase {
           knowledgeBaseId: knowledgeBase._id,
           extractFileJob,
           crawlJob,
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

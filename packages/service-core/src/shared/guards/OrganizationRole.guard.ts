@@ -18,14 +18,14 @@ import { isMongoId } from 'class-validator';
 export class OrganizationRoleGuard implements CanActivate {
   constructor(
     private reflector: Reflector,
-    private readonly memberService: MemberService
+    private readonly memberService: MemberService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
     const accessLevels = this.reflector?.get<string>(
       'accessLevels',
-      context.getHandler()
+      context.getHandler(),
     );
 
     if (!req?.user) {

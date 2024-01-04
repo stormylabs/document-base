@@ -30,7 +30,7 @@ export default class CreateExtractFileJobUseCase {
     private readonly extractFileJobService: ExtractFileJobService,
     private readonly botService: BotService,
     private readonly documentService: DocumentService,
-    private readonly knowledgeBaseService: KnowledgeBaseService
+    private readonly knowledgeBaseService: KnowledgeBaseService,
   ) {}
   public async exec({
     botId,
@@ -55,7 +55,7 @@ export default class CreateExtractFileJobUseCase {
         ]);
         if (!knowledgeBaseExists)
           return left(
-            new NotFoundError(Resource.KnowledgeBase, [knowledgeBaseId])
+            new NotFoundError(Resource.KnowledgeBase, [knowledgeBaseId]),
           );
       }
 
@@ -93,7 +93,7 @@ export default class CreateExtractFileJobUseCase {
     await this.sqsMessageService.sendMessages<ExtractFileJobMessage>(
       jobId,
       JobType.FileExtract,
-      payloads
+      payloads,
     );
   }
 

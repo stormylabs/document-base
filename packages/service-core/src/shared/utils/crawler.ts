@@ -74,7 +74,7 @@ class Crawler {
             contentTypeParts.every((part) => !HTML_CONTENT_TYPES.includes(part))
           ) {
             this.logger.log(
-              `Ignoring url ${targetUrl}, extension: ${extension}, content-type: ${contentType}`
+              `Ignoring url ${targetUrl}, extension: ${extension}, content-type: ${contentType}`,
             );
             return;
           }

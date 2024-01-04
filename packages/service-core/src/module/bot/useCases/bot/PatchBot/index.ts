@@ -12,7 +12,7 @@ export default class PatchBotUseCase {
   private readonly logger = new Logger(PatchBotUseCase.name);
   constructor(
     private readonly botService: BotService,
-    private readonly documentService: DocumentService
+    private readonly documentService: DocumentService,
   ) {}
   public async exec(): Promise<Response> {
     try {

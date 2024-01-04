@@ -23,7 +23,7 @@ export const errorHandler = (
     | ConflictError
     | LockedJobError
     | AbortJobError
-    | UnauthorizedError
+    | UnauthorizedError,
 ) => {
   switch (error.constructor.name) {
     case 'NotFoundError':

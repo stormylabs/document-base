@@ -16,7 +16,7 @@ export default class UpdateBotInfoUseCase {
 
   public async exec(
     botId: string,
-    botData: UpdateBotInfoDTO
+    botData: UpdateBotInfoDTO,
   ): Promise<Response> {
     try {
       this.logger.log(`Start updating bot`);
@@ -32,7 +32,7 @@ export default class UpdateBotInfoUseCase {
             ...updatedBot,
             documents: updatedBot.documents.map((doc) => doc._id),
           },
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

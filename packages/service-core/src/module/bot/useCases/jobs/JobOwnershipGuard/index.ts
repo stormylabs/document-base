@@ -22,7 +22,7 @@ export class JobOwnershipGuard implements CanActivate {
     private readonly crawlJobService: CrawlJobService,
     private readonly extractFileJobService: ExtractFileJobService,
     private readonly docIndexJobService: DocIndexJobService,
-    private readonly configService: ConfigService
+    private readonly configService: ConfigService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {

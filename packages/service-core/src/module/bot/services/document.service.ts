@@ -12,7 +12,7 @@ export class DocumentService {
       Omit<DocumentData, '_id' | 'createdAt' | 'deletedAt' | 'organization'> & {
         organizationId?: string;
       }
-    >
+    >,
   ): Promise<DocumentData> {
     const createdDocument = await this.documentRepository.create(documentData);
     return createdDocument;
@@ -79,8 +79,8 @@ export class DocumentService {
         documents = await this.documentRepository.findBatch();
         console.log(
           `Processed ${((processed / totalDocuments) * 100).toFixed(
-            2
-          )}% documents.`
+            2,
+          )}% documents.`,
         );
         processed++;
       }

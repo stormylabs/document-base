@@ -73,7 +73,7 @@ export class OrganizationController {
     private addEngagementOrganizationUseCase: AddEngagementOrganizationUseCase,
     private getEngagementUseCase: GetEngagementUseCase,
     private addKnowledgeBaseToOrganizationUseCase: AddKnowledgeBaseToOrganizationUseCase,
-    private getAddKnowledgeBaseJobStatusUseCase: GetAddKnowledgeBaseJobStatusUseCase
+    private getAddKnowledgeBaseJobStatusUseCase: GetAddKnowledgeBaseJobStatusUseCase,
   ) {}
 
   @Post()
@@ -88,7 +88,7 @@ export class OrganizationController {
   @UseGuards(ApiKeyGuard)
   async createOrganization(
     @Body() body: CreateOrganizationDTO,
-    @Req() req: RequestWithUser
+    @Req() req: RequestWithUser,
   ) {
     const { name, descriptions, values } = body;
     this.logger.log(`[POST] Start creating organization`);
@@ -96,13 +96,13 @@ export class OrganizationController {
       name,
       descriptions,
       values,
-      req?.user?._id
+      req?.user?._id,
     );
 
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] create organization error ${error.errorValue().message}`
+        `[POST] create organization error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -128,7 +128,7 @@ export class OrganizationController {
   @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
   async getOrganization(
     @Param() { orgId }: OrgIdParams,
-    @Req() { user }: RequestWithUser
+    @Req() { user }: RequestWithUser,
   ) {
     this.logger.log(`[GET] Start getting organization info`);
 
@@ -142,7 +142,7 @@ export class OrganizationController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[GET] get organization error ${error.errorValue().message}`
+        `[GET] get organization error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -165,7 +165,7 @@ export class OrganizationController {
   async inviteUserToOrg(
     @Body() body: InviteMemberToOrganizationDTO,
     @Req() req: RequestWithUser,
-    @Param() param: OrgIdParams
+    @Param() param: OrgIdParams,
   ) {
     const { email } = body;
     this.logger.log(`[POST] Start invite user to organization`);
@@ -180,7 +180,9 @@ export class OrganizationController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[POST] invite user to organization error ${error.errorValue().message}`
+        `[POST] invite user to organization error ${
+          error.errorValue().message
+        }`,
       );
 
       return errorHandler(error);
@@ -207,7 +209,7 @@ export class OrganizationController {
   async addEngagementToOrg(
     @Body() body: AddEngagementToOrganizationDTO,
     @Req() req: RequestWithUser,
-    @Param() param: OrgIdParams
+    @Param() param: OrgIdParams,
   ) {
     const {
       name,
@@ -244,7 +246,7 @@ export class OrganizationController {
       contactIds,
       channelIds,
       knowledgeBaseIds,
-      outcome
+      outcome,
     );
 
     if (result.isLeft()) {
@@ -252,7 +254,7 @@ export class OrganizationController {
       this.logger.error(
         `[POST] add engagement to organization error ${
           error.errorValue().message
-        }`
+        }`,
       );
 
       return errorHandler(error);
@@ -281,7 +283,7 @@ export class OrganizationController {
   @UseGuards(ApiKeyGuard, OrganizationRoleGuard)
   async getEngagement(
     @Param() { engagementId, orgId }: EngagementIdParams & OrgIdParams,
-    @Req() { user }: RequestWithUser
+    @Req() { user }: RequestWithUser,
   ) {
     this.logger.log(`[GET] Start getting engagement info`);
 
@@ -295,7 +297,7 @@ export class OrganizationController {
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[GET] get engagement error ${error.errorValue().message}`
+        `[GET] get engagement error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -347,7 +349,7 @@ export class OrganizationController {
         .addValidator(
           new CustomUploadFileMimeTypeValidator({
             fileExtensions: ALLOWED_UPLOADS_EXT_TYPES,
-          })
+          }),
         )
         .build({
           errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
@@ -356,9 +358,9 @@ export class OrganizationController {
       new ParseFilePipe({
         validators: [],
         fileIsRequired: false,
-      })
+      }),
     )
-    files: Array<Express.Multer.File>
+    files: Array<Express.Multer.File>,
   ) {
     if (req?.user?.member?.organization?._id !== orgId) {
       return errorHandler(new UnauthorizedError());
@@ -366,8 +368,8 @@ export class OrganizationController {
     if (!body.crawl && (!files || !files.length)) {
       return errorHandler(
         new InvalidInputError(
-          'One of the files or crawl data should be provided.'
-        )
+          'One of the files or crawl data should be provided.',
+        ),
       );
     }
 
@@ -384,14 +386,14 @@ export class OrganizationController {
       type: body.type,
     };
     const result = await this.addKnowledgeBaseToOrganizationUseCase.exec(
-      payload
+      payload,
     );
 
     if (result.isLeft()) {
       const error = result.value;
 
       this.logger.error(
-        `[POST] Add knowledge base error ${error.errorValue().message}`
+        `[POST] Add knowledge base error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -420,7 +422,7 @@ export class OrganizationController {
   ])
   async getCrawlJobStatus(
     @Param() { orgId, addKnowledgeBaseId }: AddKnowledgeBaseParams,
-    @Req() req: RequestWithUser
+    @Req() req: RequestWithUser,
   ) {
     if (req?.user?.member?.organization?._id !== orgId) {
       return errorHandler(new UnauthorizedError());
@@ -428,7 +430,7 @@ export class OrganizationController {
 
     this.logger.log(`[GET] Start getting add knowledge base job status`);
     const result = await this.getAddKnowledgeBaseJobStatusUseCase.exec(
-      addKnowledgeBaseId
+      addKnowledgeBaseId,
     );
 
     if (result?.isLeft()) {
@@ -436,7 +438,7 @@ export class OrganizationController {
       this.logger.error(
         `[GET] get add knowledge base job status error ${
           error.errorValue().message
-        }`
+        }`,
       );
       return errorHandler(error);
     }

@@ -10,7 +10,7 @@ import { JOB_TIMEOUT } from '@/shared/constants';
 export class ExtractFileJobRepository {
   constructor(
     @InjectModel(ExtractFileJob.name)
-    private readonly extractFileJobModel: Model<ExtractFileJob>
+    private readonly extractFileJobModel: Model<ExtractFileJob>,
   ) {}
 
   async create({
@@ -57,7 +57,7 @@ export class ExtractFileJobRepository {
   async findAll(): Promise<ExtractFileJobData[]> {
     const extractFileJobs = await this.extractFileJobModel.find().exec();
     return extractFileJobs.map(
-      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData
+      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData,
     );
   }
 
@@ -67,24 +67,24 @@ export class ExtractFileJobRepository {
       .find({ bot: id })
       .exec();
     return extractFileJobs.map(
-      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData
+      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData,
     );
   }
 
   async findByKnowledgeBaseId(
-    knowledgeBaseId: string
+    knowledgeBaseId: string,
   ): Promise<ExtractFileJobData[]> {
     const id = new Types.ObjectId(knowledgeBaseId);
     const extractFileJobs = await this.extractFileJobModel
       .find({ knowledgeBase: id })
       .exec();
     return extractFileJobs.map(
-      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData
+      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData,
     );
   }
 
   async findTimeoutJobs(
-    status: JobStatus.Running | JobStatus.Pending
+    status: JobStatus.Running | JobStatus.Pending,
   ): Promise<ExtractFileJobData[]> {
     const timeout = Date.now() - JOB_TIMEOUT;
     const extractFileJobs = await this.extractFileJobModel
@@ -96,7 +96,7 @@ export class ExtractFileJobRepository {
       })
       .exec();
     return extractFileJobs.map(
-      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData
+      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData,
     );
   }
 
@@ -109,12 +109,12 @@ export class ExtractFileJobRepository {
       })
       .exec();
     return extractFileJobs.map(
-      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData
+      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData,
     );
   }
 
   async findUnfinishedJobsByKnowledgeBaseId(
-    knowledgeBaseId: string
+    knowledgeBaseId: string,
   ): Promise<ExtractFileJobData[]> {
     const id = new Types.ObjectId(knowledgeBaseId);
     const extractFileJobs = await this.extractFileJobModel
@@ -124,7 +124,7 @@ export class ExtractFileJobRepository {
       })
       .exec();
     return extractFileJobs.map(
-      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData
+      (extractFileJob) => extractFileJob.toJSON() as ExtractFileJobData,
     );
   }
 
@@ -138,7 +138,7 @@ export class ExtractFileJobRepository {
 
   async update(
     extractFileJobId: string,
-    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>
+    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>,
   ): Promise<ExtractFileJobData | null> {
     const id = new Types.ObjectId(extractFileJobId);
     const now = new Date();
@@ -147,14 +147,14 @@ export class ExtractFileJobRepository {
       { $set: { ...data, updatedAt: now } },
       {
         new: true,
-      }
+      },
     );
     return extractFileJob.toJSON() as ExtractFileJobData;
   }
 
   async bulkUpdate(
     jobIds: string[],
-    data: Partial<{ status: JobStatus; locked: boolean }>
+    data: Partial<{ status: JobStatus; locked: boolean }>,
   ): Promise<ExtractFileJobData[] | null> {
     const ids = jobIds.map((id) => new Types.ObjectId(id));
     const now = new Date();
@@ -177,7 +177,7 @@ export class ExtractFileJobRepository {
       .exec();
 
     return updatedExtractFileJob.map(
-      (extractFile) => extractFile.toJSON() as ExtractFileJobData
+      (extractFile) => extractFile.toJSON() as ExtractFileJobData,
     );
   }
 
@@ -186,7 +186,7 @@ export class ExtractFileJobRepository {
     const extractFileJob = await this.extractFileJobModel.findOneAndUpdate(
       { _id: id, locked: false },
       { $set: { locked: true } },
-      { new: true }
+      { new: true },
     );
     if (!extractFileJob) return false;
     return true;
@@ -197,7 +197,7 @@ export class ExtractFileJobRepository {
     const extractFileJob = await this.extractFileJobModel.findOneAndUpdate(
       { _id: id, locked: true },
       { $set: { locked: false } },
-      { new: true }
+      { new: true },
     );
     if (!extractFileJob) return false;
     return true;
@@ -214,7 +214,7 @@ export class ExtractFileJobRepository {
         $set: { updatedAt: now },
       },
 
-      { new: true }
+      { new: true },
     );
     return extractFileJob.toJSON() as ExtractFileJobData;
   }
@@ -230,7 +230,7 @@ export class ExtractFileJobRepository {
         $set: { updatedAt: now },
       },
 
-      { new: true }
+      { new: true },
     );
     return extractFileJob.toJSON() as ExtractFileJobData;
   }

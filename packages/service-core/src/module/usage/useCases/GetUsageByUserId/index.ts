@@ -18,7 +18,7 @@ export default class GetUsageByUserIdUseCase {
   private readonly logger = new Logger(GetUsageByUserIdUseCase.name);
   constructor(
     private readonly botUsageService: BotUsageService,
-    private readonly resourceUsageService: ResourceUsageService
+    private readonly resourceUsageService: ResourceUsageService,
   ) {}
   public async exec(userId: string, from: Date, to: Date): Promise<Response> {
     try {
@@ -33,14 +33,14 @@ export default class GetUsageByUserIdUseCase {
       const botUsages = await this.botUsageService.findUsagesInPeriodByUserId(
         userId,
         from,
-        to
+        to,
       );
 
       const resourceUsages =
         await this.resourceUsageService.findUsagesInPeriodByUserId(
           userId,
           from,
-          to
+          to,
         );
 
       const {
@@ -73,7 +73,7 @@ export default class GetUsageByUserIdUseCase {
           },
           total: parseFloat(total.toFixed(3)),
           tokens,
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

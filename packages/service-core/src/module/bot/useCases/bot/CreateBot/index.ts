@@ -13,7 +13,7 @@ export default class CreateBotUseCase {
   private readonly logger = new Logger(CreateBotUseCase.name);
   constructor(
     private readonly botService: BotService,
-    private readonly botUsageService: BotUsageService
+    private readonly botUsageService: BotUsageService,
   ) {}
   public async exec(name = 'default', userId: string): Promise<Response> {
     try {

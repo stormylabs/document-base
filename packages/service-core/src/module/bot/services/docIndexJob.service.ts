@@ -16,7 +16,7 @@ export class DocIndexJobService {
 
   async findById(docIndexJobId: string): Promise<DocIndexJobData | null> {
     const docIndexJob = await this.docIndexJobRepository.findById(
-      docIndexJobId
+      docIndexJobId,
     );
     return docIndexJob;
   }
@@ -27,17 +27,17 @@ export class DocIndexJobService {
   }
 
   async findTimeoutJobs(
-    status: JobStatus.Running | JobStatus.Pending
+    status: JobStatus.Running | JobStatus.Pending,
   ): Promise<DocIndexJobData[]> {
     const timeoutJobs = await this.docIndexJobRepository.findTimeoutJobs(
-      status
+      status,
     );
     return timeoutJobs;
   }
 
   async findUnfinishedJobs(botId: string): Promise<DocIndexJobData[]> {
     const unfinishedJobs = await this.docIndexJobRepository.findUnfinishedJobs(
-      botId
+      botId,
     );
     return unfinishedJobs;
   }
@@ -45,7 +45,7 @@ export class DocIndexJobService {
   async updateStatus(
     docIndexJobId: string,
     status: JobStatus,
-    locked?: boolean
+    locked?: boolean,
   ): Promise<DocIndexJobData> {
     const exists = await this.exists([docIndexJobId]);
     if (!exists) throw new Error('DocIndex job does not exist.');
@@ -59,14 +59,14 @@ export class DocIndexJobService {
   async bulkUpdateStatus(
     jobsIds: string[],
     status: JobStatus,
-    locked: boolean
+    locked: boolean,
   ): Promise<DocIndexJobData[]> {
     const updatedDocIndexJobs = await this.docIndexJobRepository.bulkUpdate(
       jobsIds,
       {
         status,
         locked,
-      }
+      },
     );
 
     return updatedDocIndexJobs;
@@ -79,7 +79,7 @@ export class DocIndexJobService {
       docIndexJobId,
       {
         deletedAt: new Date(),
-      }
+      },
     );
     return updatedDocIndexJob;
   }
@@ -105,7 +105,7 @@ export class DocIndexJobService {
     if (!exists) throw new Error('DocIndex job does not exist.');
     return this.docIndexJobRepository.upsertDocuments(
       docIndexJobId,
-      documentIds
+      documentIds,
     );
   }
 

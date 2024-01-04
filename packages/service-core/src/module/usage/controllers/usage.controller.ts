@@ -33,7 +33,7 @@ export class UsageController {
   private readonly logger = new Logger(UsageController.name);
   constructor(
     private getUsageByBotIdUseCase: GetUsageByBotIdUseCase,
-    private getUsageByUserIdUseCase: GetUsageByUserIdUseCase
+    private getUsageByUserIdUseCase: GetUsageByUserIdUseCase,
   ) {}
 
   @Get('/bot/:id')
@@ -50,22 +50,22 @@ export class UsageController {
   async getUsageByBotId(
     @Param() { id }: IdParams,
     @Query() { from, to }: GetUsageByBotIdDTO,
-    @Req() req: AuthRequest
+    @Req() req: AuthRequest,
   ) {
     this.logger.log(
-      `[GET] Start getting usage by bot id, user id: ${req.user._id}`
+      `[GET] Start getting usage by bot id, user id: ${req.user._id}`,
     );
     const result = await this.getUsageByBotIdUseCase.exec(
       req.user._id,
       id,
       new Date(from),
-      new Date(to)
+      new Date(to),
     );
 
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[GET] get usage by bot id error ${error.errorValue().message}`
+        `[GET] get usage by bot id error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }
@@ -85,19 +85,19 @@ export class UsageController {
   })
   async getUsageByUserId(
     @Query() { from, to }: GetUsageByBotIdDTO,
-    @Req() req: AuthRequest
+    @Req() req: AuthRequest,
   ) {
     this.logger.log(`[GET] Start getting usage by user id: ${req.user._id}`);
     const result = await this.getUsageByUserIdUseCase.exec(
       req.user._id,
       new Date(from),
-      new Date(to)
+      new Date(to),
     );
 
     if (result.isLeft()) {
       const error = result.value;
       this.logger.error(
-        `[GET] get usage by user id error ${error.errorValue().message}`
+        `[GET] get usage by user id error ${error.errorValue().message}`,
       );
       return errorHandler(error);
     }

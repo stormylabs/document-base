@@ -148,5 +148,5 @@ export default class AddEngagementToOrganizationDTO {
 
 export class AddEngagementOrganizationResponseDTO extends OmitType(
   EngagementResponse,
-  ['deletedAt'] as const
+  ['deletedAt'] as const,
 ) {}

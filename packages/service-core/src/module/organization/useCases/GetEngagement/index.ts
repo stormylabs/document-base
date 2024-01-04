@@ -21,7 +21,7 @@ export default class GetEngagementUseCase {
         await this.engagementService.findEngagementById(engagementId);
 
       const { id, ...rest } = agentTemplates.find(
-        (template) => template.id === templateId
+        (template) => template.id === templateId,
       );
 
       if (!engagement) {
@@ -32,7 +32,7 @@ export default class GetEngagementUseCase {
         Result.ok({
           ...engagement,
           template: rest,
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

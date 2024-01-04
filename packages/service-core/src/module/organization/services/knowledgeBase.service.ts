@@ -18,7 +18,7 @@ export class KnowledgeBaseService {
 
   async findById(knowledgeBaseId: string): Promise<KnowledgeBaseData | null> {
     const knowledgeBase = await this.knowledgeBaseRepository.findById(
-      knowledgeBaseId
+      knowledgeBaseId,
     );
     return knowledgeBase;
   }
@@ -43,7 +43,7 @@ export class KnowledgeBaseService {
       knowledgeBaseId,
       {
         deletedAt: new Date(),
-      }
+      },
     );
     return updatedData;
   }
@@ -54,7 +54,7 @@ export class KnowledgeBaseService {
 
   async upsertDocument(
     knowledgeBaseId: string,
-    documentId: string
+    documentId: string,
   ): Promise<KnowledgeBaseData> {
     const exists = await this.exists([knowledgeBaseId]);
     if (!exists) throw new Error('Bot does not exist.');

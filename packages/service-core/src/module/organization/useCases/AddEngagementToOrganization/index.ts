@@ -28,7 +28,7 @@ export default class AddEngagementOrganizationUseCase {
     contacts: string[],
     channelIds: string[],
     knowledgeBaseIds: string[],
-    outcome: string
+    outcome: string,
   ): Promise<Response> {
     try {
       this.logger.log(`Start creating Engagement`);

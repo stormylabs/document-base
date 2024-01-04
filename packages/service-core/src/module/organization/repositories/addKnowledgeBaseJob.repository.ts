@@ -8,7 +8,7 @@ import { AddKnowledgeBaseJob } from '../schemas/addKnowledgeBaseJob.schema';
 export class AddKnowledgeBaseJobRepository {
   constructor(
     @InjectModel(AddKnowledgeBaseJob.name)
-    private readonly addKnowledgeBaseJobModel: Model<AddKnowledgeBaseJob>
+    private readonly addKnowledgeBaseJobModel: Model<AddKnowledgeBaseJob>,
   ) {}
 
   async create(
@@ -22,16 +22,16 @@ export class AddKnowledgeBaseJobRepository {
       knowledgeBaseId: string;
       crawlJobId?: string;
       extractFileJobId?: string;
-    }
+    },
   ): Promise<AddKnowledgeBaseJobData> {
     const addKnowledgeBaseJob = new this.addKnowledgeBaseJobModel({
       organization: new Types.ObjectId(addKnowledgeBaseJobData.organizationId),
       knowledgeBase: new Types.ObjectId(
-        addKnowledgeBaseJobData.knowledgeBaseId
+        addKnowledgeBaseJobData.knowledgeBaseId,
       ),
       crawlJob: new Types.ObjectId(addKnowledgeBaseJobData.crawlJobId),
       extractFileJob: new Types.ObjectId(
-        addKnowledgeBaseJobData.extractFileJobId
+        addKnowledgeBaseJobData.extractFileJobId,
       ),
     });
     const saved = await addKnowledgeBaseJob.save();
@@ -39,7 +39,7 @@ export class AddKnowledgeBaseJobRepository {
   }
 
   async findById(
-    addKnowledgeBaseJobId: string
+    addKnowledgeBaseJobId: string,
   ): Promise<AddKnowledgeBaseJobData | null> {
     const id = new Types.ObjectId(addKnowledgeBaseJobId);
     const addKnowledgeBaseJob = await this.addKnowledgeBaseJobModel
@@ -59,7 +59,7 @@ export class AddKnowledgeBaseJobRepository {
       .exec();
     return addKnowledgeBaseJobs.map(
       (addKnowledgeBaseJob) =>
-        addKnowledgeBaseJob.toJSON() as AddKnowledgeBaseJobData
+        addKnowledgeBaseJob.toJSON() as AddKnowledgeBaseJobData,
     );
   }
 
@@ -74,7 +74,7 @@ export class AddKnowledgeBaseJobRepository {
     if (!addKnowledgeBaseJobs) return null;
     return addKnowledgeBaseJobs.map(
       (addKnowledgeBaseJob) =>
-        addKnowledgeBaseJob.toJSON() as AddKnowledgeBaseJobData
+        addKnowledgeBaseJob.toJSON() as AddKnowledgeBaseJobData,
     );
   }
 
@@ -87,7 +87,7 @@ export class AddKnowledgeBaseJobRepository {
 
   async update(
     addKnowledgeBaseJobId: string,
-    data: Partial<Omit<AddKnowledgeBaseJobData, 'createdAt' | '_id'>>
+    data: Partial<Omit<AddKnowledgeBaseJobData, 'createdAt' | '_id'>>,
   ): Promise<AddKnowledgeBaseJobData | null> {
     const id = new Types.ObjectId(addKnowledgeBaseJobId);
     const addKnowledgeBaseJob = await this.addKnowledgeBaseJobModel
@@ -97,7 +97,7 @@ export class AddKnowledgeBaseJobRepository {
   }
 
   async delete(
-    addKnowledgeBaseJobId: string
+    addKnowledgeBaseJobId: string,
   ): Promise<AddKnowledgeBaseJobData> {
     const id = new Types.ObjectId(addKnowledgeBaseJobId);
     const addKnowledgeBaseJob = await this.addKnowledgeBaseJobModel

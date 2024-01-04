@@ -11,11 +11,11 @@ import { JOB_TIMEOUT } from '@/shared/constants';
 export class DocIndexJobRepository {
   constructor(
     @InjectModel(DocIndexJob.name)
-    private readonly docIndexJobModel: Model<DocIndexJob>
+    private readonly docIndexJobModel: Model<DocIndexJob>,
   ) {}
 
   async create(
-    docIndexJobData: Partial<DocIndexJobData>
+    docIndexJobData: Partial<DocIndexJobData>,
   ): Promise<DocIndexJobData> {
     const botId = new Types.ObjectId(docIndexJobData.bot);
     const docIndexJob = new this.docIndexJobModel({
@@ -38,12 +38,12 @@ export class DocIndexJobRepository {
     const id = new Types.ObjectId(botId);
     const docIndexJobs = await this.docIndexJobModel.find({ bot: id }).exec();
     return docIndexJobs.map(
-      (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData
+      (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData,
     );
   }
 
   async findTimeoutJobs(
-    status: JobStatus.Running | JobStatus.Pending
+    status: JobStatus.Running | JobStatus.Pending,
   ): Promise<DocIndexJobData[]> {
     const timeout = Date.now() - JOB_TIMEOUT;
     const docIndexJobs = await this.docIndexJobModel
@@ -55,7 +55,7 @@ export class DocIndexJobRepository {
       })
       .exec();
     return docIndexJobs.map(
-      (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData
+      (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData,
     );
   }
 
@@ -68,7 +68,7 @@ export class DocIndexJobRepository {
       })
       .exec();
     return docIndexJobs.map(
-      (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData
+      (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData,
     );
   }
 
@@ -82,7 +82,7 @@ export class DocIndexJobRepository {
   async findAll(): Promise<DocIndexJobData[]> {
     const docIndexJobs = await this.docIndexJobModel.find().exec();
     return docIndexJobs.map(
-      (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData
+      (docIndexJob) => docIndexJob.toJSON() as DocIndexJobData,
     );
   }
 
@@ -96,7 +96,7 @@ export class DocIndexJobRepository {
 
   async update(
     docIndexJobId: string,
-    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>
+    data: Partial<{ status: JobStatus; locked: boolean; deletedAt: Date }>,
   ): Promise<DocIndexJobData | null> {
     const id = new Types.ObjectId(docIndexJobId);
     const now = new Date();
@@ -105,14 +105,14 @@ export class DocIndexJobRepository {
       { $set: { ...data, updatedAt: now } },
       {
         new: true,
-      }
+      },
     );
     return docIndexJob.toJSON() as DocIndexJobData;
   }
 
   async bulkUpdate(
     jobIds: string[],
-    data: Partial<{ status: JobStatus; locked: boolean }>
+    data: Partial<{ status: JobStatus; locked: boolean }>,
   ): Promise<DocIndexJobData[] | null> {
     const ids = jobIds.map((id) => new Types.ObjectId(id));
     const now = new Date();
@@ -135,7 +135,7 @@ export class DocIndexJobRepository {
       .exec();
 
     return updatedDocIndexJobs.map(
-      (crawlJob) => crawlJob.toJSON() as DocIndexJobData
+      (crawlJob) => crawlJob.toJSON() as DocIndexJobData,
     );
   }
 
@@ -145,7 +145,7 @@ export class DocIndexJobRepository {
     const docIndexJob = await this.docIndexJobModel.findByIdAndUpdate(
       id,
       { $inc: { indexed: 1 }, $set: { updatedAt: now } },
-      { new: true }
+      { new: true },
     );
     return docIndexJob.toJSON() as DocIndexJobData;
   }
@@ -155,7 +155,7 @@ export class DocIndexJobRepository {
     const docIndexJob = await this.docIndexJobModel.findOneAndUpdate(
       { _id: id, locked: false },
       { $set: { locked: true } },
-      { new: true }
+      { new: true },
     );
     if (!docIndexJob) return false;
     return true;
@@ -166,7 +166,7 @@ export class DocIndexJobRepository {
     const docIndexJob = await this.docIndexJobModel.findOneAndUpdate(
       { _id: id, locked: true },
       { $set: { locked: false } },
-      { new: true }
+      { new: true },
     );
     if (!docIndexJob) return false;
     return true;
@@ -183,7 +183,7 @@ export class DocIndexJobRepository {
         $set: { updatedAt: now },
       },
 
-      { new: true }
+      { new: true },
     );
     return docIndexJob.toJSON() as DocIndexJobData;
   }
@@ -199,7 +199,7 @@ export class DocIndexJobRepository {
         $set: { updatedAt: now },
       },
 
-      { new: true }
+      { new: true },
     );
     return docIndexJob.toJSON() as DocIndexJobData;
   }

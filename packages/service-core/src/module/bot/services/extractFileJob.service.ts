@@ -13,23 +13,23 @@ export class ExtractFileJobService {
     initUrls: string[];
   }): Promise<ExtractFileJobData> {
     const createdExtractFileJob = await this.extractFileJobRepository.create(
-      data
+      data,
     );
     return createdExtractFileJob;
   }
 
   async findById(extractFileJobId: string): Promise<ExtractFileJobData | null> {
     const extractFileJob = await this.extractFileJobRepository.findById(
-      extractFileJobId
+      extractFileJobId,
     );
     return extractFileJob;
   }
 
   async findTimeoutJobs(
-    status: JobStatus.Running | JobStatus.Pending
+    status: JobStatus.Running | JobStatus.Pending,
   ): Promise<ExtractFileJobData[]> {
     const timeoutJobs = await this.extractFileJobRepository.findTimeoutJobs(
-      status
+      status,
     );
     return timeoutJobs;
   }
@@ -41,28 +41,28 @@ export class ExtractFileJobService {
   }
 
   async findUnfinishedJobsByKnowledgeBaseId(
-    knowledgeBaseId: string
+    knowledgeBaseId: string,
   ): Promise<ExtractFileJobData[]> {
     const unfinishedJobs =
       await this.extractFileJobRepository.findUnfinishedJobsByKnowledgeBaseId(
-        knowledgeBaseId
+        knowledgeBaseId,
       );
     return unfinishedJobs;
   }
 
   async findAllByBotId(botId: string): Promise<ExtractFileJobData[]> {
     const extractFileJob = await this.extractFileJobRepository.findAllByBotId(
-      botId
+      botId,
     );
     return extractFileJob;
   }
 
   async findByKnowledgeBaseId(
-    knowledgeBaseId: string
+    knowledgeBaseId: string,
   ): Promise<ExtractFileJobData[]> {
     const extractFileJob =
       await this.extractFileJobRepository.findByKnowledgeBaseId(
-        knowledgeBaseId
+        knowledgeBaseId,
       );
     return extractFileJob;
   }
@@ -70,7 +70,7 @@ export class ExtractFileJobService {
   async updateStatus(
     extractFileJobId: string,
     status: JobStatus,
-    locked?: boolean
+    locked?: boolean,
   ): Promise<ExtractFileJobData> {
     const exists = await this.exists([extractFileJobId]);
     if (!exists) throw new Error('ExtractFile job does not exist.');
@@ -79,7 +79,7 @@ export class ExtractFileJobService {
       {
         status,
         locked,
-      }
+      },
     );
     return updatedBot;
   }
@@ -87,7 +87,7 @@ export class ExtractFileJobService {
   async bulkUpdateStatus(
     jobsIds: string[],
     status: JobStatus,
-    locked: boolean
+    locked: boolean,
   ): Promise<ExtractFileJobData[]> {
     const updatedExtractFileJobs =
       await this.extractFileJobRepository.bulkUpdate(jobsIds, {
@@ -105,7 +105,7 @@ export class ExtractFileJobService {
       extractFileJobId,
       {
         deletedAt: new Date(),
-      }
+      },
     );
     return updatedExtractFileJob;
   }
@@ -131,7 +131,7 @@ export class ExtractFileJobService {
     if (!exists) throw new Error('ExtractFile job does not exist.');
     return this.extractFileJobRepository.upsertDocuments(
       extractFileJobId,
-      documentIds
+      documentIds,
     );
   }
 
@@ -140,7 +140,7 @@ export class ExtractFileJobService {
     if (!exists) throw new Error('ExtractFile job does not exist.');
     return this.extractFileJobRepository.removeDocument(
       extractFileJobId,
-      documentId
+      documentId,
     );
   }
 }

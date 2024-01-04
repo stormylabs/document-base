@@ -16,7 +16,7 @@ export default class MarkJobsAsFinishedUseCase {
   constructor(
     private readonly crawlJobService: CrawlJobService,
     private readonly docIndexJobService: DocIndexJobService,
-    private readonly extractFileJobService: ExtractFileJobService
+    private readonly extractFileJobService: ExtractFileJobService,
   ) {}
 
   @Cron(CronExpression.EVERY_5_MINUTES)
@@ -25,19 +25,19 @@ export default class MarkJobsAsFinishedUseCase {
       this.logger.log(`Start marking timeout jobs as finished`);
 
       const runningCrawlJobs = await this.crawlJobService.findTimeoutJobs(
-        JobStatus.Running
+        JobStatus.Running,
       );
 
       const pendingCrawlJobs = await this.crawlJobService.findTimeoutJobs(
-        JobStatus.Pending
+        JobStatus.Pending,
       );
 
       const runningDocIndexJobs = await this.docIndexJobService.findTimeoutJobs(
-        JobStatus.Running
+        JobStatus.Running,
       );
 
       const pendingDocIndexJobs = await this.docIndexJobService.findTimeoutJobs(
-        JobStatus.Pending
+        JobStatus.Pending,
       );
 
       const runningFileExtractJobs =
@@ -66,7 +66,7 @@ export default class MarkJobsAsFinishedUseCase {
         await this.crawlJobService.updateStatus(
           job._id,
           JobStatus.Finished,
-          false
+          false,
         );
         await this.crawlJobService.releaseLock(job._id);
       }
@@ -78,7 +78,7 @@ export default class MarkJobsAsFinishedUseCase {
         await this.docIndexJobService.updateStatus(
           job._id,
           JobStatus.Finished,
-          false
+          false,
         );
         await this.docIndexJobService.releaseLock(job._id);
       }
@@ -93,17 +93,17 @@ export default class MarkJobsAsFinishedUseCase {
         await this.extractFileJobService.updateStatus(
           job._id,
           JobStatus.Finished,
-          false
+          false,
         );
         await this.extractFileJobService.releaseLock(job._id);
       }
 
       this.logger.log(`Marked crawl jobs ${crawlJobs.length} jobs as finished`);
       this.logger.log(
-        `Marked doc index jobs ${docIndexJobs.length} jobs as finished`
+        `Marked doc index jobs ${docIndexJobs.length} jobs as finished`,
       );
       this.logger.log(
-        `Marked extract file jobs ${extractFileJobs.length} jobs as finished`
+        `Marked extract file jobs ${extractFileJobs.length} jobs as finished`,
       );
       return right(Result.ok());
     } catch (err) {

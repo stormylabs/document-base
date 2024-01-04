@@ -16,7 +16,7 @@ export const getCostsInPeriod = (
   botUsage: Array<BotUsageData>,
   resourceUsage: ResourceUsageData[],
   start: Date,
-  end: Date
+  end: Date,
 ) => {
   let tokens = 0;
   const botCost = botUsage.reduce((acc, usage) => {

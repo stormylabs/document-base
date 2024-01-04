@@ -30,7 +30,7 @@ export default class AbortCrawlJobUseCase {
 
       const updatedCrawlJob = await this.crawlJobService.updateStatus(
         jobId,
-        JobStatus.Aborted
+        JobStatus.Aborted,
       );
 
       const {
@@ -53,7 +53,7 @@ export default class AbortCrawlJobUseCase {
           updatedAt,
           createdAt,
           progress: Math.floor((documents.length / limit) * 100),
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));

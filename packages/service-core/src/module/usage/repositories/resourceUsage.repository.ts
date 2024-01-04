@@ -8,7 +8,7 @@ import { BillableResource, ResourceUsageData } from '@/shared/interfaces/usage';
 export class ResourceUsageRepository {
   constructor(
     @InjectModel(ResourceUsage.name)
-    private readonly resourceUsageModel: Model<ResourceUsage>
+    private readonly resourceUsageModel: Model<ResourceUsage>,
   ) {}
 
   async create(data: {

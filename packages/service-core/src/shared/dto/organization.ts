@@ -7,7 +7,12 @@ import { MemberResponse } from './member';
 import { UserResponse } from './user';
 
 class OrgMemberResponseDTO extends PartialType(
-  PickType(MemberResponse, ['_id', 'user', 'createdAt', 'accessLevel'] as const)
+  PickType(MemberResponse, [
+    '_id',
+    'user',
+    'createdAt',
+    'accessLevel',
+  ] as const),
 ) {
   _id: string;
   user: UserResponse;

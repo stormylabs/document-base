@@ -13,7 +13,7 @@ export default class CreateApiKeyUseCase {
   private readonly logger = new Logger(CreateApiKeyUseCase.name);
   constructor(
     private readonly apiKeyService: ApiKeyService,
-    private readonly userService: UserService
+    private readonly userService: UserService,
   ) {}
   public async exec(userId: string): Promise<Response> {
     try {
@@ -32,7 +32,7 @@ export default class CreateApiKeyUseCase {
           apiKey: apiKeyData.apiKey,
           createdAt: apiKeyData.createdAt,
           _id: apiKeyData._id,
-        })
+        }),
       );
     } catch (err) {
       return left(new UnexpectedError(err));
