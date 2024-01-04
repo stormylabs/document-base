@@ -15,7 +15,7 @@ import {
   Sheet,
   Avatar,
 } from '@mui/joy';
-import useUser from '../libs/stores/user';
+import useUser from '../../libs/stores/user';
 
 function UserPage() {
   const { fetch, loading, listUsers } = useUser();
@@ -43,7 +43,6 @@ function UserPage() {
       </Box>
     );
   }
-
   const getInitialName = (email: string) =>
     email.split('@')[0].substring(0, 1).toUpperCase();
 
@@ -102,7 +101,7 @@ function UserPage() {
                   </td>
                   <td>
                     <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-                      <NextLink href={`/user-usage/${row?._id}`}>
+                      <NextLink href={`/dashboard/users/${row?._id}`}>
                         <Link level="body-xs" component="button">
                           Detail
                         </Link>
@@ -116,7 +115,7 @@ function UserPage() {
         </Sheet>
       );
 
-    return 'No data to show, please apply filter!';
+    return 'No data to show!';
   };
 
   return (
@@ -140,11 +139,16 @@ function UserPage() {
           separator={<ChevronRightRoundedIcon fontSize="small" />}
           sx={{ pl: 0 }}
         >
-          <Link underline="none" color="neutral" href="/" aria-label="Home">
+          <Link
+            underline="none"
+            color="neutral"
+            href="/dashboard"
+            aria-label="Home"
+          >
             <HomeRoundedIcon />
           </Link>
           <Typography color="primary" fontWeight={500} fontSize={12}>
-            User Usage
+            Users
           </Typography>
         </Breadcrumbs>
       </Box>

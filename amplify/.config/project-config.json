@@ -1,0 +1,17 @@
+{
+  "providers": [
+    "awscloudformation"
+  ],
+  "projectName": "stormylabswebdashboa",
+  "version": "3.1",
+  "frontend": "javascript",
+  "javascript": {
+    "framework": "react",
+    "config": {
+      "SourceDir": "packages/web-dashboard",
+      "DistributionDir": "dist/packages/web-dashboard",
+      "BuildCommand": "npx nx build web-dashboard",
+      "StartCommand": "npx nx serve web-dashboard"
+    }
+  }
+}

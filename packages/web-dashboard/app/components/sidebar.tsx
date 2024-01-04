@@ -19,12 +19,24 @@ import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
 import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
 import BrightnessAutoRoundedIcon from '@mui/icons-material/BrightnessAutoRounded';
 import RequestQuote from '@mui/icons-material/RequestQuote';
+import { signOut } from 'aws-amplify/auth';
 
 import ColorSchemeToggle from './color-scheme-toggle';
 import { closeSidebar } from '../../utils';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-export default function Sidebar() {
+export default function Sidebar(props: any) {
+  const { push } = useRouter();
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      push('/auth/sign-in');
+    } catch (error) {
+      console.log('>> signOut Error : ', error);
+    }
+  };
+
   return (
     <Sheet
       className="Sidebar"
@@ -110,23 +122,23 @@ export default function Sidebar() {
             '--ListItem-radius': (theme) => theme.vars.radius.sm,
           }}
         >
-          <Link href="/">
+          <Link href="/dashboard">
             <ListItem>
               <ListItemButton>
                 <HomeRoundedIcon />
                 <ListItemContent>
-                  <Typography level="title-sm">Home</Typography>
+                  <Typography level="title-sm">Dashboard</Typography>
                 </ListItemContent>
               </ListItemButton>
             </ListItem>
           </Link>
 
-          <Link href="/user-usage">
+          <Link href="/dashboard/users">
             <ListItem>
               <ListItemButton>
                 <RequestQuote />
                 <ListItemContent>
-                  <Typography level="title-sm">User Usage</Typography>
+                  <Typography level="title-sm">Users</Typography>
                 </ListItemContent>
               </ListItemButton>
             </ListItem>
@@ -153,18 +165,21 @@ export default function Sidebar() {
       </Box>
       <Divider />
       <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-        <Avatar
-          variant="outlined"
-          size="sm"
-          src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=286"
-        />
+        <Avatar variant="outlined" size="sm" />
         <Box sx={{ minWidth: 0, flex: 1 }}>
-          <Typography level="title-sm">Jarvis</Typography>
+          <Typography level="title-sm">
+            {props?.user?.signInDetails?.loginId.split('@')[0]}
+          </Typography>
           <Typography level="body-xs" textOverflow="ellipsis" width="100">
-            jarvis@stormylab.com
+            {props?.user?.signInDetails?.loginId}
           </Typography>
         </Box>
-        <IconButton size="sm" variant="plain" color="neutral" disabled>
+        <IconButton
+          size="sm"
+          variant="plain"
+          color="danger"
+          onClick={handleSignOut}
+        >
           <LogoutRoundedIcon />
         </IconButton>
       </Box>

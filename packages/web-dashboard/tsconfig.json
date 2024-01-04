@@ -19,14 +19,20 @@
     "types": [
       "jest",
       "node"
-    ]
+    ],
+    "paths": {
+      "@/*": [
+        "packages/web-dashboard/*"
+      ]
+    }
   },
   "include": [
     "**/*.ts",
     "**/*.tsx",
     "**/*.js",
     "**/*.jsx",
-    "next-env.d.ts"
+    "next-env.d.ts",
+    "../../packages/web-dashboard/.next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",

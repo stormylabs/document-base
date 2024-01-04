@@ -1,0 +1,20 @@
+{
+  "staging": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-stormylabswebdashboa-staging-42903-authRole",
+      "UnauthRoleArn": "arn:aws:iam::930488782669:role/amplify-stormylabswebdashboa-staging-42903-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::930488782669:role/amplify-stormylabswebdashboa-staging-42903-authRole",
+      "Region": "ap-southeast-1",
+      "DeploymentBucketName": "amplify-stormylabswebdashboa-staging-42903-deployment",
+      "UnauthRoleName": "amplify-stormylabswebdashboa-staging-42903-unauthRole",
+      "StackName": "amplify-stormylabswebdashboa-staging-42903",
+      "StackId": "arn:aws:cloudformation:ap-southeast-1:930488782669:stack/amplify-stormylabswebdashboa-staging-42903/a02cf490-a9f0-11ee-b792-027564023e7c",
+      "AmplifyAppId": "d37efnbchj017m"
+    },
+    "categories": {
+      "auth": {
+        "stormylabswebdashboard": {}
+      }
+    }
+  }
+}
