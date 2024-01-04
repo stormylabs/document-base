@@ -62,7 +62,7 @@
     },
     "docker-build": {
       "dependsOn": ["build"],
-      "command": "docker build -f packages/service-core/Dockerfile . -t server"
+      "command": "docker build -f packages/service-core/Dockerfile . -t service-core"
     },
     "docker-push": {
       "dependsOn": ["docker-build"],

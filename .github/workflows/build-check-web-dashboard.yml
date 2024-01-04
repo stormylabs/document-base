@@ -32,3 +32,6 @@ jobs:
 
       - name: Run Test
         run: npx nx run web-dashboard:test
+
+      - name: Run Test
+        run: npx nx run web-dashboard:build

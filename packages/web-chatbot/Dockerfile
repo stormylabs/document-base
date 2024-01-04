@@ -24,10 +24,10 @@ RUN chown nextjs:nodejs .next
 # https://nextjs.org/docs/advanced-features/output-file-tracing
 
 
-COPY --chown=nextjs:nodejs dist/packages/web/ ./
+COPY --chown=nextjs:nodejs dist/packages/web-chatbot/ ./
 
-COPY --chown=nextjs:nodejs dist/packages/web/.next/static ./.next/standalone/dist/packages/web/.next/static
-COPY --chown=nextjs:nodejs dist/packages/web/.next/cache ./.next/standalone/dist/packages/web/.next/cache
+COPY --chown=nextjs:nodejs dist/packages/web-chatbot/.next/static ./.next/standalone/dist/packages/web-chatbot/.next/static
+COPY --chown=nextjs:nodejs dist/packages/web-chatbot/.next/cache ./.next/standalone/dist/packages/web-chatbot/.next/cache
 
 
 USER nextjs
@@ -38,4 +38,4 @@ ENV PORT 3000
 # set hostname to localhost
 ENV HOSTNAME "0.0.0.0"
 
-CMD ["node", ".next/standalone/packages/web/server.js"]
+CMD ["node", ".next/standalone/packages/web-chatbot/server.js"]

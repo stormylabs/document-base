@@ -4,14 +4,14 @@ FROM node:18-alpine As deploy
 
 WORKDIR /usr/src/app
 
-RUN addgroup --system server && \
-          adduser --system -G server server
+RUN addgroup --system service-core && \
+          adduser --system -G service-core service-core
 
-COPY dist/packages/server server
-RUN chown -R server:server .
+COPY dist/packages/service-core service-core
+RUN chown -R service-core:service-core .
 
-RUN npm --prefix server --omit=dev -f install
+RUN npm --prefix service-core --omit=dev -f install
 
 EXPOSE 3000
 
-CMD [ "node", "server" ]
+CMD [ "node", "service-core" ]

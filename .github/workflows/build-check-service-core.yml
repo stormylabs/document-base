@@ -6,7 +6,7 @@ on:
       - 'packages/service-core/**'
 
 env:
-  IMAGE_TAG: document-base
+  IMAGE_TAG: document-base-service-core
 
 jobs:
   check:

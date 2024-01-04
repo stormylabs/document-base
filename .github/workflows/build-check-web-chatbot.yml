@@ -6,7 +6,7 @@ on:
       - 'packages/web-chatbot/**'
 
 env:
-  IMAGE_TAG: document-base-web
+  IMAGE_TAG: document-base-web-chatbot
 
 jobs:
   check:
