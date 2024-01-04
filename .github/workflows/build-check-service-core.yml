@@ -1,0 +1,37 @@
+name: Service Core - Build Check
+
+on:
+  pull_request:
+    paths:
+      - 'packages/service-core/**'
+
+env:
+  IMAGE_TAG: document-base-service-core
+
+jobs:
+  check:
+    name: Run build check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Derive appropriate SHAs for base and head for `nx affected` commands
+        uses: nrwl/nx-set-shas@v3
+
+      - run: |
+          echo "BASE: ${{ env.NX_BASE }}"
+          echo "HEAD: ${{ env.NX_HEAD }}"
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Run Linter
+        run: npx nx run service-core:lint
+
+      - name: Run Test
+        run: npx nx run service-core:test
+
+      - name: Build Docker Image
+        run: npx nx run service-core:docker-build -- -t $IMAGE_TAG
