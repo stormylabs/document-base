@@ -6,6 +6,8 @@ on:
   push:
     branches:
       - 'release/**'
+    paths:
+      - 'packages/web-chatbot/**'
 
   workflow_dispatch:
 
@@ -69,10 +71,10 @@ jobs:
           X_API_KEY: ${{ secrets.X_API_KEY }}
         run: |
           # Build a docker container and tag
-          npx nx run web:docker-build -- -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          npx nx run web-chatbot:docker-build -- -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
           # Push docker image to ECR so that it can be deployed to ECS.
-          npx nx run web:docker-push -- $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          npx nx run web-chatbot:docker-push -- $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
           echo "image=$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG" >> $GITHUB_OUTPUT
 
       - name: Fill in the new image ID in the Amazon ECS task definition
