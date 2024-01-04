@@ -26,7 +26,8 @@ const useUserUsage = create<CreateUsageSlice>((set, get) => ({
       loading: true,
     });
     const response = await fetcher(
-      `${process.env.NEXT_PUBLIC_API_USAGE_URL!}/${userId}`,
+      `/api/v1/${process.env
+        .NEXT_PUBLIC_SECRET_PREFIX_ENPOINT!}/usage/${userId}`,
       { params }
     );
     set({

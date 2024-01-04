@@ -32,7 +32,6 @@
     "**/*.js",
     "**/*.jsx",
     "next-env.d.ts",
-    "../../packages/web-dashboard/.next/types/**/*.ts"
   ],
   "exclude": [
     "node_modules",
