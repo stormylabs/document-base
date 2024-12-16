@@ -13,8 +13,9 @@ const templates = {
   **********
 
   The FINAL ANSWER must always be styled using markdown.
-  If FINAL ANSWER contains an url, please add a space after the url for better readbility.
   Use bullet points, lists, paragraphs and text styling to present the answer in markdown.
+
+  **Link Formatting Rule**: Only one link format should be used in the response. Use plain text link URL.
   
   Answer the QUESTION based only on the CONTEXT provided.
   Do not use any information outside of the CONTEXT to answer the QUESTION.
