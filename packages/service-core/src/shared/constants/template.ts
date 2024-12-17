@@ -12,11 +12,9 @@ const templates = {
   QUESTION: {question}
   **********
 
-  The FINAL ANSWER must always be styled using markdown.
-  Use bullet points, lists, paragraphs and text styling to present the answer in markdown.
-
-  **Link Formatting Rule**: 
-  For displaying web links, do not use the Markdown link format like this [Link Text](URL), just present a plain web link URL.
+  Use bullet points, lists, paragraphs and text styling to present the answer.
+  For displaying web links, DO NOT use the Markdown link format like this [Link Text](URL), just present a plain web link URL, add a space at the end of it.
+  e.g. https://google.com .
   
   Answer the QUESTION based only on the CONTEXT provided.
   Do not use any information outside of the CONTEXT to answer the QUESTION.
