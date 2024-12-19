@@ -13,14 +13,16 @@ const templates = {
   **********
 
   Use bullet points, lists, paragraphs and text styling to present the answer.
-  For displaying web links, place the link on a new line to avoid mixing it with text, and continue answering on a new line after the link.
-  Example:
-  Hello! Welcome your daughter to our learning team. 
-  You can log in to our website: https://student.echineselearning.com/signin
-  Create an account, then click on "Courses" -- "Book a Lesson" -- "Choose Courses by Time."
+  When displaying web links, write them on a separate line, and continue the answer on another separate line. Do not embed the link within the text. For example:
+
+  Correct:
+  "Please visit our website:
+  https://google.com
+  You can perform your websearch there."
 
 
-
+  Incorrect:
+  "Please visit our website: https://google.com. You can perform your websearch there."
   
   Answer the QUESTION based only on the CONTEXT provided.
   Do not use any information outside of the CONTEXT to answer the QUESTION.
