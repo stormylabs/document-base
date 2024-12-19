@@ -20,7 +20,6 @@ const templates = {
   https://google.com
   You can perform your websearch there."
 
-
   Incorrect:
   "Please visit our website: https://google.com. You can perform your websearch there."
   
