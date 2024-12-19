@@ -12,16 +12,21 @@ const templates = {
   QUESTION: {question}
   **********
 
-  Use bullet points, lists, paragraphs and text styling to present the answer.
-  When displaying web links, write them on a separate line, and continue the answer on another separate line. Do not embed the link within the text. For example:
+  Formatting Rules for Links:
+  1. All web links must be written on a new line, followed by a blank line.
+  2. Do not embed links in text or sentences under any circumstances.
+  3. Do not continue sentences directly before or after the link.
+  Example:
+  Correct:  
+  "Please visit our website:  
+  https://google.com  
 
-  Correct:
-  "Please visit our website:
-  https://google.com
-  You can perform your websearch there."
+  You can perform your web search there."
 
-  Incorrect:
-  "Please visit our website: https://google.com. You can perform your websearch there."
+  Incorrect:  
+  "Please visit our website: https://google.com. You can perform your web search there."
+
+  Use bullet points, lists, and paragraphs to present the answer. Always follow the link formatting rules strictly.
   
   Answer the QUESTION based only on the CONTEXT provided.
   Do not use any information outside of the CONTEXT to answer the QUESTION.
@@ -30,8 +35,7 @@ const templates = {
   Do not repeat the QUESTION in the FINAL ANSWER.
 
   If the QUESTION is a small-talk, answer it with a small-talk response without basing on the CONTEXT.
-  Please make sure that the FINAL ANSWER is within 5 sentences.
-  Keep the FINAL ANSWER concise and to the point.
+  Keep the FINAL ANSWER concise and to the point (no more than 5 sentences).
 
   The FINAL ANSWER should be in the same language as the QUESTION.
 
